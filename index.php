@@ -1,3 +1,5 @@
+<!-- http://localhost:8080/chatbot/#chat -->
+
 <?php
 session_start();
 ?>
@@ -20,7 +22,7 @@ session_start();
     <div class="container nav">
 
         <div class="logo">
-            Mi Empresa
+         Virsual Solutions
         </div>
 
         <nav>
@@ -43,10 +45,6 @@ session_start();
         <div class="container hero-content">
 
             <div>
-
-                <span class="badge">
-                    ASISTENTE IA
-                </span>
 
                 <h1>
                     Habla con nuestro
@@ -99,10 +97,10 @@ session_start();
                     </div>
 
                     <div>
-                        <strong>Asistente IA</strong>
+                        <strong>Alejandro Herradón, tu Asistente de confiaza</strong>
 
                         <small>
-                            ● En línea
+                            ● Conectado las 24 horas
                         </small>
                     </div>
 
@@ -123,7 +121,7 @@ session_start();
 
                             <br><br>
 
-                            Soy el asistente virtual.
+                           Hola, Soy Alejandro Herradón tu Asistente de confiaza.
                             ¿En qué puedo ayudarte?
 
                         </div>

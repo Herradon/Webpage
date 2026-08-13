@@ -112,7 +112,7 @@ try {
     SIN espacios
 */
 
-$numeroWhatsApp = "34600123456";
+$numeroWhatsApp = "650171966";
 
 
 $textoWhatsApp =

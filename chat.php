@@ -51,7 +51,7 @@ if ($message === "") {
 
 if (
     empty($OPENAI_API_KEY) ||
-    $OPENAI_API_KEY === "PON_AQUI_TU_API_KEY"
+    $OPENAI_API_KEY === "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"
 ) {
 
     echo json_encode([
@@ -75,7 +75,7 @@ $payload = [
     "model" => $OPENAI_MODEL,
 
     "instructions" =>
-        "Eres el asistente virtual de una empresa. " .
+        "Eres Alejandro Herradón, el asistente virtual de una inmobiliaria. " .
         "Responde siempre en español, de forma clara, amable " .
         "y profesional. Si no conoces una información, " .
         "indica que no tienes esa información.",
