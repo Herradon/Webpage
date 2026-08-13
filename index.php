@@ -93,7 +93,8 @@ session_start();
                 <div class="chat-header">
 
                     <div class="assistant-avatar">
-                        🤖
+
+                       <img src="chatbot/img/avatar.jpg" alt="Alejandro Herradón">
                     </div>
 
                     <div>
