@@ -92,9 +92,9 @@ session_start();
 
                 <div class="chat-header">
 
-                    <div class="assistant-avatar">
-
-                       <img src="chatbot/img/avatar.jpg" alt="Alejandro Herradón">
+                    <div class="assistant-avatar" style="background: none; width: 70px; height: 70px;">
+                        
+                       <div style=" width: 50px; height: 50px; justify-content: center; align-items: center; display: flex;font-size: 50px;">🕵🏻‍♂️</div>
                     </div>
 
                     <div>
@@ -112,20 +112,7 @@ session_start();
 
                     <div class="message bot">
 
-                        <div class="avatar">
-                            🤖
-                        </div>
-
-                        <div class="bubble">
-
-                            ¡Hola! 👋
-
-                            <br><br>
-
-                           Hola, Soy Alejandro Herradón tu Asistente de confiaza.
-                            ¿En qué puedo ayudarte?
-
-                        </div>
+                    
 
                     </div>
 

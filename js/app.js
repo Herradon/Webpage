@@ -133,7 +133,7 @@ function addMessage(
 
     avatar.textContent =
         type === "bot"
-            ? "🤖"
+            ? "👷🏻‍♂️"
             : "👤";
 
 

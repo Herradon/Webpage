@@ -302,25 +302,6 @@ nav a:hover {
 }
 
 
-.assistant-avatar {
-
-    width: 45px;
-
-    height: 45px;
-
-    border-radius: 50%;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    background: #2563eb;
-
-}
-
-
 .chat-header strong {
 
     display: block;
@@ -376,7 +357,7 @@ nav a:hover {
 
     border-radius: 50%;
 
-    background: #e5e7eb;
+    background: none;
 
     display: flex;
 
