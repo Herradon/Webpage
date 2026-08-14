@@ -5,6 +5,10 @@ header("Content-Type: application/json; charset=utf-8");
 require_once "config.php";
 
 
+/* ==============================
+   COMPROBAR MÉTODO
+============================== */
+
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
     http_response_code(405);
@@ -17,6 +21,10 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit;
 }
 
+
+/* ==============================
+   RECIBIR DATOS
+============================== */
 
 $nombre = trim($_POST["nombre"] ?? "");
 
@@ -100,44 +108,43 @@ try {
 ============================== */
 
 /*
-    CAMBIA ESTE NÚMERO.
-
-    Formato internacional.
+    Número de WhatsApp.
 
     España:
-
-    34600123456
+    34650171966
 
     SIN +
     SIN espacios
+    SIN guiones
 */
 
-$numeroWhatsApp = "650171966";
+$numeroWhatsApp = "34650171966";
 
+
+/* ==============================
+   CREAR MENSAJE
+============================== */
 
 $textoWhatsApp =
-    "Hola, soy " . $nombre .
-    ".%0A%0A" .
+    "Hola, soy " . $nombre . ".\n\n" .
+    "Teléfono: " . $telefono . "\n" .
+    "Email: " . $email . "\n\n" .
+    "Mensaje:\n" . $mensaje;
 
-    "Teléfono: " . $telefono .
-    "%0A" .
 
-    "Email: " . $email .
-    "%0A%0A" .
-
-    "Mensaje:%0A" .
-    $mensaje;
-
+/* ==============================
+   CREAR URL DE WHATSAPP
+============================== */
 
 $whatsappURL =
     "https://wa.me/" .
     $numeroWhatsApp .
     "?text=" .
-    $textoWhatsApp;
+    urlencode($textoWhatsApp);
 
 
 /* ==============================
-   RESPUESTA
+   RESPUESTA AL JAVASCRIPT
 ============================== */
 
 echo json_encode([

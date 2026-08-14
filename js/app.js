@@ -160,39 +160,21 @@ function addMessage(
 /* ==========================================
    REINICIAR CHAT
 ========================================== */
+/* ==========================================
+   REINICIAR SOLO EL CHAT
+========================================== */
 
 const resetChat = document.getElementById("resetChat");
 
 resetChat.addEventListener("click", function () {
 
-    const confirmReset = confirm(
-        "¿Quieres reiniciar la conversación?"
-    );
+    // Borra SOLO los mensajes del chat
+    chatMessages.innerHTML = "";
 
-    if (!confirmReset) {
-        return;
-    }
-
-    chatMessages.innerHTML = `
-        <div class="message bot">
-
-            <div class="avatar">
-                <img 
-                    src="./img/asset.png" 
-                    alt="Alejandro Herradón"
-                >
-            </div>
-
-            <div class="bubble">
-                Hola, Soy Alejandro Herradón, tu Asistente de confianza.
-                ¿En qué puedo ayudarte?
-            </div>
-
-        </div>
-    `;
-
+    // Limpia el cuadro de texto
     messageInput.value = "";
 
+    // Vuelve a colocar el cursor en el input
     messageInput.focus();
 
 });
@@ -235,13 +217,10 @@ contactForm.addEventListener(
 
             const response =
                 await fetch(
-                    "contacto.php",
+                    "formulario.php",
                     {
-
                         method: "POST",
-
                         body: formData
-
                     }
                 );
 
@@ -293,7 +272,10 @@ contactForm.addEventListener(
                     Ha ocurrido un error.
                 </p>`;
 
-            console.error(error);
+            console.error(
+                "Error al enviar el formulario:",
+                error
+            );
 
         }
 

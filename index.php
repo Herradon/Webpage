@@ -104,6 +104,10 @@ session_start();
                         </small>
                     </div>
 
+                      <button type="button" id="resetChat" class="reset-chat">
+                            🔄
+                        </button>
+
                 </div>
 
 
@@ -128,13 +132,9 @@ session_start();
                         autocomplete="off"
                         required>
 
-                        <button type="button" id="resetChat" class="reset-chat">
-                            ↻
-                        </button>
-
 
                     <button type="submit">
-                        ➤
+                        ▶️
                     </button>
 
                 </form>
