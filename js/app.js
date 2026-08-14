@@ -94,7 +94,7 @@ chatForm.addEventListener("submit", async function (event) {
 
 
         addMessage(
-            "No se ha podido conectar con el servidor.",
+            "No se ha podido conectar con el servidor‼.",
             "bot"
         );
 
@@ -131,12 +131,6 @@ function addMessage(
     avatar.classList.add("avatar");
 
 
-    avatar.textContent =
-        type === "bot"
-            ? "👷🏻‍♂️"
-            : "👤";
-
-
     const bubble =
         document.createElement("div");
 
@@ -163,6 +157,45 @@ function addMessage(
     return messageElement;
 }
 
+/* ==========================================
+   REINICIAR CHAT
+========================================== */
+
+const resetChat = document.getElementById("resetChat");
+
+resetChat.addEventListener("click", function () {
+
+    const confirmReset = confirm(
+        "¿Quieres reiniciar la conversación?"
+    );
+
+    if (!confirmReset) {
+        return;
+    }
+
+    chatMessages.innerHTML = `
+        <div class="message bot">
+
+            <div class="avatar">
+                <img 
+                    src="./img/asset.png" 
+                    alt="Alejandro Herradón"
+                >
+            </div>
+
+            <div class="bubble">
+                Hola, Soy Alejandro Herradón, tu Asistente de confianza.
+                ¿En qué puedo ayudarte?
+            </div>
+
+        </div>
+    `;
+
+    messageInput.value = "";
+
+    messageInput.focus();
+
+});
 
 
 /* ==========================================

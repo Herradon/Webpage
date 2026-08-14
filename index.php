@@ -52,8 +52,8 @@ session_start();
                 </h1>
 
                 <p>
-                    Resuelve tus dudas rápidamente utilizando nuestro
-                    asistente basado en inteligencia artificial.
+                    Transformamos la forma en la que trabajan usando agentes de inteligencia artificial capaces de atender, responder y automatizar tareas de forma inteligente. Nuestros agentes pueden interactuar con clientes, resolver consultas, gestionar solicitudes, recopilar información y asistir en diferentes procesos del negocio durante las 24 horas del día. El objetivo es combinar la potencia de la inteligencia artificial con una experiencia cercana y personalizada, ayudando a las empresas a ahorrar tiempo, mejorar su atención al cliente y aumentar su productividad.
+                    Creamos agentes adaptados a las necesidades de cada negocio para aplicarlos en una página werb aportando soluciones integradas con WhatsApp y otros servicios del mismo.
                 </p>
 
                 <a href="#chat" class="btn">
@@ -75,9 +75,7 @@ session_start();
 
             <div class="section-title">
 
-                <span>ASISTENTE VIRTUAL</span>
-
-                <h2>
+            <h2>
                     ¿En qué podemos ayudarte?
                 </h2>
 
@@ -92,16 +90,17 @@ session_start();
 
                 <div class="chat-header">
 
-                    <div class="assistant-avatar" style="background: none; width: 70px; height: 70px;">
+                    <div class="assistant-avatar">
                         
-                       <div style=" width: 50px; height: 50px; justify-content: center; align-items: center; display: flex;font-size: 50px;">🕵🏻‍♂️</div>
+                        <img src="img/asset.png" alt="">
+
                     </div>
 
                     <div>
                         <strong>Alejandro Herradón, tu Asistente de confiaza</strong>
 
                         <small>
-                            ● Conectado las 24 horas
+                            ● Asesoramiento personalizado las 24 horas
                         </small>
                     </div>
 
@@ -127,8 +126,12 @@ session_start();
                         name="message"
                         placeholder="Escribe tu mensaje..."
                         autocomplete="off"
-                        required
-                    >
+                        required>
+
+                        <button type="button" id="resetChat" class="reset-chat">
+                            ↻
+                        </button>
+
 
                     <button type="submit">
                         ➤
@@ -173,57 +176,45 @@ session_start();
 
                         <div class="form-group">
 
-                            <label>
-                                Nombre
-                            </label>
+                           
 
                             <input
                                 type="text"
                                 name="nombre"
                                 required
-                                placeholder="Tu nombre"
-                            >
+                                placeholder="Tu nombre del solicitante">
 
                         </div>
 
 
                         <div class="form-group">
 
-                            <label>
-                                Teléfono
-                            </label>
+                           
 
                             <input
-                                type="tel"
-                                name="telefono"
+                                type="text"
+                                name="Empresa"
                                 required
-                                placeholder="Tu teléfono"
-                            >
+                                placeholder="Nombre de la empresa u organización">
 
                         </div>
 
 
                         <div class="form-group full">
 
-                            <label>
-                                Email
-                            </label>
+                           
 
-                            <input
-                                type="email"
+                            <input type="email"
                                 name="email"
                                 required
-                                placeholder="tu@email.com"
-                            >
+                                placeholder="Correo electrónico de contacto">
 
                         </div>
 
 
                         <div class="form-group full">
 
-                            <label>
-                                Mensaje
-                            </label>
+                          
 
                             <textarea
                                 name="mensaje"
