@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 
 /* ==============================
-   RECIBIR MENSAJE
+   RECIBIR DATOS
 ============================== */
 
 $data = json_decode(
@@ -31,7 +31,84 @@ $data = json_decode(
     true
 );
 
-$message = trim($data["message"] ?? "");
+
+/* ==============================
+   COMPROBAR ACCIÓN WHATSAPP
+============================== */
+
+$action = $data["action"] ?? "";
+
+
+if ($action === "whatsapp") {
+
+    $conversacion =
+        trim($data["conversacion"] ?? "");
+
+
+    if ($conversacion === "") {
+
+        echo json_encode([
+            "success" => false,
+            "error" => "No hay ninguna conversación para enviar."
+        ]);
+
+        exit;
+    }
+
+
+    /* ==============================
+       NÚMERO DE WHATSAPP
+    ============================== */
+
+    $numeroWhatsApp = "34650171966";
+
+
+    /* ==============================
+       CREAR MENSAJE
+    ============================== */
+
+    $textoWhatsApp =
+        "Hola Alejandro.\n\n" .
+
+        "Un cliente quiere contactar contigo " .
+        "desde el asistente web.\n\n" .
+
+        "CONVERSACIÓN:\n\n" .
+
+        $conversacion;
+
+
+    /* ==============================
+       CREAR URL
+    ============================== */
+
+    $whatsappURL =
+        "https://wa.me/" .
+        $numeroWhatsApp .
+        "?text=" .
+        urlencode($textoWhatsApp);
+
+
+    echo json_encode([
+
+        "success" => true,
+
+        "whatsapp" => $whatsappURL
+
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+
+    exit;
+}
+
+
+/* ==============================
+   RECIBIR MENSAJE NORMAL
+============================== */
+
+$message = trim(
+    $data["message"] ?? ""
+);
 
 
 if ($message === "") {
@@ -49,10 +126,7 @@ if ($message === "") {
    VALIDAR API KEY
 ============================== */
 
-if (
-    empty($OPENAI_API_KEY) ||
-    $OPENAI_API_KEY === "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"
-) {
+if (empty($OPENAI_API_KEY)) {
 
     echo json_encode([
         "success" => false,
@@ -67,7 +141,8 @@ if (
    PREPARAR PETICIÓN
 ============================== */
 
-$url = "https://api.openai.com/v1/responses";
+$url =
+    "https://api.openai.com/v1/responses";
 
 
 $payload = [
@@ -75,24 +150,31 @@ $payload = [
     "model" => $OPENAI_MODEL,
 
     "instructions" =>
-        "Eres Alejandro Herradón, el asistente virtual de una inmobiliaria. " .
-        "Responde siempre en español, de forma clara, amable " .
-        "y profesional. Si no conoces una información, " .
-        "indica que no tienes esa información.",
+
+        "Eres Alejandro Herradón, el asistente virtual " .
+        "de una inmobiliaria. " .
+
+        "Responde siempre en español, de forma clara, " .
+        "amable y profesional. " .
+
+        "Si no conoces una información, indica que no " .
+        "tienes esa información.",
 
     "input" => $message
 
 ];
 
 
-$jsonPayload = json_encode($payload);
+$jsonPayload =
+    json_encode($payload);
 
 
 /* ==============================
    CURL
 ============================== */
 
-$ch = curl_init($url);
+$ch =
+    curl_init($url);
 
 
 curl_setopt_array($ch, [
@@ -107,7 +189,8 @@ curl_setopt_array($ch, [
 
         "Content-Type: application/json",
 
-        "Authorization: Bearer " . $OPENAI_API_KEY
+        "Authorization: Bearer " .
+        $OPENAI_API_KEY
 
     ],
 
@@ -116,16 +199,19 @@ curl_setopt_array($ch, [
 ]);
 
 
-$response = curl_exec($ch);
+$response =
+    curl_exec($ch);
 
 
-$httpCode = curl_getinfo(
-    $ch,
-    CURLINFO_HTTP_CODE
-);
+$httpCode =
+    curl_getinfo(
+        $ch,
+        CURLINFO_HTTP_CODE
+    );
 
 
-$curlError = curl_error($ch);
+$curlError =
+    curl_error($ch);
 
 
 curl_close($ch);
@@ -139,7 +225,9 @@ if ($response === false) {
 
     echo json_encode([
         "success" => false,
-        "error" => "Error conectando con OpenAI: " . $curlError
+        "error" =>
+            "Error conectando con OpenAI: " .
+            $curlError
     ]);
 
     exit;
@@ -150,10 +238,11 @@ if ($response === false) {
    DECODIFICAR RESPUESTA
 ============================== */
 
-$result = json_decode(
-    $response,
-    true
-);
+$result =
+    json_decode(
+        $response,
+        true
+    );
 
 
 /* ==============================
@@ -166,9 +255,13 @@ if ($httpCode >= 400) {
         $result["error"]["message"]
         ?? "Error desconocido de OpenAI.";
 
+
     echo json_encode([
+
         "success" => false,
+
         "error" => $errorMessage
+
     ]);
 
     exit;
@@ -179,7 +272,8 @@ if ($httpCode >= 400) {
    EXTRAER RESPUESTA
 ============================== */
 
-$answer = $result["output"][0]["content"][0]["text"]
+$answer =
+    $result["output"][0]["content"][0]["text"]
     ?? null;
 
 
@@ -187,7 +281,8 @@ if (!$answer) {
 
     echo json_encode([
         "success" => false,
-        "error" => "No se pudo obtener una respuesta."
+        "error" =>
+            "No se pudo obtener una respuesta."
     ]);
 
     exit;
@@ -207,6 +302,7 @@ try {
         (:usuario, :respuesta)
     ");
 
+
     $stmt->execute([
 
         ":usuario" => $message,
@@ -217,7 +313,8 @@ try {
 
 } catch (PDOException $e) {
 
-    // No detenemos el chatbot si falla el registro.
+    // No detenemos el chatbot
+    // si falla el registro.
 
 }
 
