@@ -665,7 +665,7 @@ if (sendChatWhatsApp) {
 
     sendChatWhatsApp.addEventListener(
         "click",
-        enviarChatWhatsApp
+        enviarChatWhatsApp 
     );
 
 }
