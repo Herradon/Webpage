@@ -235,7 +235,7 @@ session_start();
                     De nuestro asistente
 
                     <span>
-                        a tu whatsapp
+                        al correo
                     </span>
 
                     
@@ -247,7 +247,7 @@ session_start();
 
                     A partir de aquí es donde toda la conversación con nuestro asistente pasa a otro nivel, ya que podrás 
                     terminar la conversación con nuestro equipo de soporte y atención al cliente.
-                    Si estas de acuerdo, pulsa el botón de abajo y envía toda la conversación a nuestro whatsapp, para finalizar tu proyecto, asesoramiento o consulta.</p>
+                    Si estas de acuerdo, pulsa el botón de abajo y envía toda la conversación a nuestro correo, para finalizar tu proyecto, asesoramiento o consulta.</p>
 
                     <!-- ==================================
                      BOTÓN WHATSAPP

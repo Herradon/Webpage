@@ -70,7 +70,7 @@ $SMTP_USERNAME = "herradon45@gmail.com";
    generada por Google.
 */
 
-$SMTP_PASSWORD = "PON_AQUI_TU_CONTRASENA_DE_APLICACION";
+$SMTP_PASSWORD = "ijepvhhoyvoskdyq";
 
 
 /* ==========================================
