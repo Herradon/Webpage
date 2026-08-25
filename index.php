@@ -1,5 +1,5 @@
 <!-- http://localhost:8080/chatbot/#chat -->
-<!--http://localhost:8080/phpmyadmin/-->
+<!-- http://localhost:8080/phpmyadmin/ -->
 
 <?php
 session_start();
@@ -69,28 +69,24 @@ session_start();
 
         <div class="container hero-content">
 
-            <div>
+            <h1>
 
-                <h1>
+                Habla con nuestro
 
-                    Habla con nuestro
+                <span>
+                    asistente inteligente
+                </span>
 
-                    <span>
-                        asistente inteligente
-                    </span>
-
-                </h1>
+            </h1>
 
 
-                <p>
+            <p>
 
-                    Transformamos la forma en la que trabajan usando agentes de inteligencia artificial capaces de atender, responder y automatizar tareas de forma inteligente. Nuestros agentes pueden interactuar con clientes, resolver consultas, gestionar solicitudes, recopilar información y asistir en diferentes procesos del negocio durante las 24 horas del día. El objetivo es combinar la potencia de la inteligencia artificial con una experiencia cercana y personalizada, ayudando a las empresas a ahorrar tiempo, mejorar su atención al cliente y aumentar su productividad.
+                Transformamos la forma en la que trabajan usando agentes de inteligencia artificial capaces de atender, responder y automatizar tareas de forma inteligente. Nuestros agentes pueden interactuar con clientes, resolver consultas, gestionar solicitudes, recopilar información y asistir en diferentes procesos del negocio durante las 24 horas del día. El objetivo es combinar la potencia de la inteligencia artificial con una experiencia cercana y personalizada, ayudando a las empresas a ahorrar tiempo, mejorar su atención al cliente y aumentar su productividad.
 
-                    Creamos agentes adaptados a las necesidades de cada negocio para aplicarlos en una página web aportando soluciones integradas con WhatsApp y otros servicios del mismo.
+                Creamos agentes adaptados a las necesidades de cada negocio para aplicarlos en una página web aportando soluciones integradas con WhatsApp y otros servicios del mismo.
 
-                </p>
-
-            </div>
+            </p>
 
         </div>
 
@@ -182,12 +178,10 @@ session_start();
                     id="chatMessages"
                     class="chat-messages">
 
-
                     <!--
                         Los mensajes del chatbot
                         aparecerán aquí mediante JS.
                     -->
-
 
                 </div>
 
@@ -221,59 +215,149 @@ session_start();
 
 
                 </form>
-                
 
             </div>
 
         </div>
 
 
+
+        <!-- ==========================================
+             ENVÍO DE CONVERSACIÓN
+        =========================================== -->
+
         <div class="whatsapp-tittle">
 
-         <h1>
+            <h1>
 
-                    De nuestro asistente
+                De nuestro asistente
 
-                    <span>
-                        al correo
-                    </span>
+                <span>
+                    al correo
+                </span>
 
-                    
+            </h1>
 
-                </h1>
+
+            <p>
+
+                A partir de aquí es donde toda la conversación
+                con nuestro asistente pasa a otro nivel, ya que
+                podrás terminar la conversación con nuestro
+                equipo de soporte y atención al cliente.
+
+                Si estás de acuerdo, pulsa el botón de abajo
+                y envía toda la conversación a nuestro correo,
+                para finalizar tu proyecto, asesoramiento o
+                consulta.
+
+            </p>
+
+
+            <!-- ==================================
+                 BOTÓN ENVIAR CONVERSACIÓN
+            =================================== -->
+
+            <div class="chat-whatsapp-container">
+
+                <button
+                    type="button"
+                    id="sendChatEmail"
+                    hidden>
+
+                    📧 Enviar conversación por correo
+
+                </button>
+
+            </div>
+
+
+
+            <!-- ==================================
+                 DATOS DEL CLIENTE PARA EL CHAT
+            =================================== -->
+
+            <div
+                id="chatEmailForm"
+                class="chat-email-form"
+                hidden>
+
+
+                <h3>
+                    📧 Enviar conversación
+                </h3>
 
 
                 <p>
 
-                    A partir de aquí es donde toda la conversación con nuestro asistente pasa a otro nivel, ya que podrás 
-                    terminar la conversación con nuestro equipo de soporte y atención al cliente.
-                    Si estas de acuerdo, pulsa el botón de abajo y envía toda la conversación a nuestro correo, para finalizar tu proyecto, asesoramiento o consulta.</p>
+                    Para poder enviarte la conversación
+                    y que nuestro equipo pueda contactar
+                    contigo, introduce tus datos:
 
-                    <!-- ==================================
-                     BOTÓN WHATSAPP
-                =================================== -->
+                </p>
 
-                <div
-                    class="chat-whatsapp-container">
-                        
-                    <button
 
-                        type="button"
-                        id="sendChatEmail"
-                        hidden>
-                        📧 Enviar conversación por correo
-                    
-                    </button>
+                <!-- ==============================
+                     NOMBRE
+                =============================== -->
 
+                <div class="form-group">
+
+                    <input
+                        type="text"
+                        id="chatNombre"
+                        name="chatNombre"
+                        placeholder="Tu nombre"
+                        autocomplete="name">
 
                 </div>
-                <p>
-                    En el caso de que tengas algun problema con el soporte o con el asistente, puedes enviarnos un mensaje directamente a nuestro whatsapp completando el formulario y te atenderemos lo antes posible.
-                </p>
+
+
+                <!-- ==============================
+                     EMAIL
+                =============================== -->
+
+                <div class="form-group">
+
+                    <input
+                        type="email"
+                        id="chatEmail"
+                        name="chatEmail"
+                        placeholder="Tu correo electrónico"
+                        autocomplete="email">
+
+                </div>
+
+
+                <!-- ==============================
+                     CONFIRMAR ENVÍO
+                =============================== -->
+
+                <button
+                    type="button"
+                    id="confirmSendChatEmail">
+
+                    📧 Enviar conversación
+
+                </button>
+
+
+            </div>
+
+
+
+            <p>
+
+                En el caso de que tengas algún problema con
+                el soporte o con el asistente, puedes enviarnos
+                un mensaje directamente a nuestro WhatsApp
+                completando el formulario y te atenderemos
+                lo antes posible.
+
+            </p>
 
         </div>
 
-         
     </section>
 
 

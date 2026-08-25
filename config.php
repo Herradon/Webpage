@@ -62,14 +62,6 @@ $SMTP_PORT = 587;
 
 $SMTP_USERNAME = "herradon45@gmail.com";
 
-/*
-   IMPORTANTE:
-   NO pongas aquí tu contraseña normal de Gmail.
-
-   Debes poner la CONTRASEÑA DE APLICACIÓN
-   generada por Google.
-*/
-
 $SMTP_PASSWORD = "ijepvhhoyvoskdyq";
 
 

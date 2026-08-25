@@ -21,6 +21,23 @@ const sendChatEmail =
 
 
 /* ==========================================
+   FORMULARIO DE DATOS DEL CHAT
+========================================== */
+
+const chatEmailForm =
+    document.getElementById("chatEmailForm");
+
+const chatNombre =
+    document.getElementById("chatNombre");
+
+const chatEmail =
+    document.getElementById("chatEmail");
+
+const confirmSendChatEmail =
+    document.getElementById("confirmSendChatEmail");
+
+
+/* ==========================================
    BOTÓN REINICIAR CHAT
 ========================================== */
 
@@ -161,8 +178,10 @@ if (chatForm) {
 
                             body:
                                 JSON.stringify({
+
                                     message:
                                         message
+
                                 })
                         }
                     );
@@ -428,6 +447,38 @@ if (resetChat) {
 
 
             /* ==============================
+               OCULTAR FORMULARIO EMAIL
+            ============================== */
+
+            if (chatEmailForm) {
+
+                chatEmailForm.hidden =
+                    true;
+
+            }
+
+
+            /* ==============================
+               LIMPIAR DATOS
+            ============================== */
+
+            if (chatNombre) {
+
+                chatNombre.value =
+                    "";
+
+            }
+
+
+            if (chatEmail) {
+
+                chatEmail.value =
+                    "";
+
+            }
+
+
+            /* ==============================
                VOLVER AL INPUT
             ============================== */
 
@@ -630,15 +681,69 @@ function obtenerConversacion() {
 
 
 /* ==========================================
-   ENVIAR CONVERSACIÓN POR EMAIL
+   BOTÓN "ENVIAR CONVERSACIÓN"
 ========================================== */
 
-async function enviarChatEmail() {
+if (sendChatEmail) {
 
-    if (!sendChatEmail) {
-        return;
-    }
+    sendChatEmail.addEventListener(
+        "click",
+        function () {
 
+            const conversacion =
+                obtenerConversacion();
+
+
+            if (!conversacion) {
+
+                alert(
+                    "No hay ninguna conversación para enviar."
+                );
+
+                return;
+
+            }
+
+
+            /* ==============================
+               MOSTRAR FORMULARIO
+            ============================== */
+
+            if (chatEmailForm) {
+
+                chatEmailForm.hidden =
+                    false;
+
+                if (chatNombre) {
+
+                    chatNombre.focus();
+
+                }
+
+                chatEmailForm.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+
+            } else {
+
+                alert(
+                    "No se ha encontrado el formulario de datos del chat."
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   ENVIAR CONVERSACIÓN DEFINITIVAMENTE
+========================================== */
+
+async function confirmarEnvioConversacion() {
 
     /* ==============================
        OBTENER CONVERSACIÓN
@@ -647,10 +752,6 @@ async function enviarChatEmail() {
     const conversacion =
         obtenerConversacion();
 
-
-    /* ==============================
-       COMPROBAR CONVERSACIÓN
-    ============================== */
 
     if (!conversacion) {
 
@@ -664,42 +765,138 @@ async function enviarChatEmail() {
 
 
     /* ==============================
+       OBTENER NOMBRE
+    ============================== */
+
+    const nombre =
+        chatNombre
+            ? chatNombre.value.trim()
+            : "";
+
+
+    /* ==============================
+       OBTENER EMAIL
+    ============================== */
+
+    const email =
+        chatEmail
+            ? chatEmail.value.trim()
+            : "";
+
+
+    /* ==============================
+       VALIDAR NOMBRE
+    ============================== */
+
+    if (!nombre) {
+
+        alert(
+            "Por favor, introduce tu nombre antes de enviar la conversación."
+        );
+
+        if (chatNombre) {
+            chatNombre.focus();
+        }
+
+        return;
+
+    }
+
+
+    /* ==============================
+       VALIDAR EMAIL
+    ============================== */
+
+    if (!email) {
+
+        alert(
+            "Por favor, introduce tu correo electrónico antes de enviar la conversación."
+        );
+
+        if (chatEmail) {
+            chatEmail.focus();
+        }
+
+        return;
+
+    }
+
+
+    /* ==============================
+       VALIDAR EMAIL
+    ============================== */
+
+    const emailValido =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+    if (!emailValido.test(email)) {
+
+        alert(
+            "Por favor, introduce un correo electrónico válido."
+        );
+
+        if (chatEmail) {
+            chatEmail.focus();
+        }
+
+        return;
+
+    }
+
+
+    /* ==============================
        DESACTIVAR BOTÓN
     ============================== */
 
-    sendChatEmail.disabled =
-        true;
+    if (confirmSendChatEmail) {
 
-    sendChatEmail.innerText =
-        "📧 Enviando conversación...";
+        confirmSendChatEmail.disabled =
+            true;
+
+        confirmSendChatEmail.innerText =
+            "📧 Enviando...";
+
+    }
 
 
     try {
 
         /* ==============================
-           CREAR FORM DATA
-        ============================== */
-
-        const formData =
-            new FormData();
-
-
-        formData.append(
-            "conversacion",
-            conversacion
-        );
-
-
-        /* ==============================
-           ENVIAR A CORREO.PHP
+           ENVIAR A CHAT.PHP
         ============================== */
 
         const response =
             await fetch(
-                "correo.php",
+                "chat.php",
                 {
+
                     method: "POST",
-                    body: formData
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            action:
+                                "email",
+
+                            nombre:
+                                nombre,
+
+                            email:
+                                email,
+
+                            conversacion:
+                                conversacion
+
+                        })
+
                 }
             );
 
@@ -734,17 +931,8 @@ async function enviarChatEmail() {
 
             alert(
                 data.error ||
-                "No se pudo enviar la conversación por correo."
+                "No se pudo enviar la conversación."
             );
-
-
-            sendChatEmail.disabled =
-                false;
-
-
-            sendChatEmail.innerText =
-                "📧 Enviar conversación por correo";
-
 
             return;
 
@@ -756,38 +944,62 @@ async function enviarChatEmail() {
         ============================== */
 
         alert(
-            "✅ La conversación se ha enviado correctamente al correo."
+            "✅ Conversación enviada correctamente.\n\n" +
+            "Hemos recibido tus datos y la conversación."
         );
 
 
-        sendChatEmail.innerText =
-            "✓ Conversación enviada";
+        /* ==============================
+           OCULTAR FORMULARIO
+        ============================== */
+
+        if (chatEmailForm) {
+
+            chatEmailForm.hidden =
+                true;
+
+        }
 
 
-        sendChatEmail.disabled =
-            true;
+        /* ==============================
+           CAMBIAR BOTÓN
+        ============================== */
+
+        if (sendChatEmail) {
+
+            sendChatEmail.innerText =
+                "✓ Conversación enviada";
+
+            sendChatEmail.disabled =
+                true;
+
+        }
 
 
     } catch (error) {
 
         console.error(
-            "Error al enviar el correo:",
+            "Error al enviar conversación:",
             error
         );
 
 
         alert(
-            "❌ No se pudo enviar el correo.\n\n" +
-            "Comprueba la configuración de Gmail y la contraseña de aplicación."
+            "❌ No se pudo enviar la conversación.\n\n" +
+            "Comprueba que Apache, XAMPP y Gmail estén correctamente configurados."
         );
 
+    } finally {
 
-        sendChatEmail.disabled =
-            false;
+        if (confirmSendChatEmail) {
 
+            confirmSendChatEmail.disabled =
+                false;
 
-        sendChatEmail.innerText =
-            "📧 Enviar conversación por correo";
+            confirmSendChatEmail.innerText =
+                "📧 Enviar conversación";
+
+        }
 
     }
 
@@ -795,14 +1007,14 @@ async function enviarChatEmail() {
 
 
 /* ==========================================
-   EVENTO BOTÓN EMAIL
+   EVENTO CONFIRMAR ENVÍO
 ========================================== */
 
-if (sendChatEmail) {
+if (confirmSendChatEmail) {
 
-    sendChatEmail.addEventListener(
+    confirmSendChatEmail.addEventListener(
         "click",
-        enviarChatEmail
+        confirmarEnvioConversacion
     );
 
 }

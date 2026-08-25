@@ -9,9 +9,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 
-/* ==============================
+/* ==========================================
    COMPROBAR PETICIÓN
-============================== */
+========================================== */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
@@ -26,9 +26,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 
-/* ==============================
-   RECIBIR DATOS
-============================== */
+/* ==========================================
+   RECIBIR JSON
+========================================== */
 
 $data = json_decode(
     file_get_contents("php://input"),
@@ -36,11 +36,29 @@ $data = json_decode(
 );
 
 
-/* ==============================
-   COMPROBAR ACCIÓN EMAIL
-============================== */
+if (!is_array($data)) {
 
-$action = $data["action"] ?? "";
+    echo json_encode([
+        "success" => false,
+        "error" => "Datos recibidos incorrectamente."
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
+
+/* ==========================================
+   DATOS
+========================================== */
+
+$action =
+    trim($data["action"] ?? "");
+
+$nombre =
+    trim($data["nombre"] ?? "");
+
+$email =
+    trim($data["email"] ?? "");
 
 
 /* ==========================================================
@@ -53,12 +71,15 @@ if ($action === "email") {
         trim($data["conversacion"] ?? "");
 
 
+    /* ==============================
+       VALIDAR CONVERSACIÓN
+    ============================== */
+
     if ($conversacion === "") {
 
         echo json_encode([
             "success" => false,
-            "error" =>
-                "No hay ninguna conversación para enviar."
+            "error" => "No hay ninguna conversación para enviar."
         ], JSON_UNESCAPED_UNICODE);
 
         exit;
@@ -66,8 +87,132 @@ if ($action === "email") {
 
 
     /* ==============================
-       CREAR EMAIL
+       VALIDAR NOMBRE
     ============================== */
+
+    if ($nombre === "") {
+
+        echo json_encode([
+            "success" => false,
+            "error" => "El nombre es obligatorio."
+        ], JSON_UNESCAPED_UNICODE);
+
+        exit;
+    }
+
+
+    /* ==============================
+       VALIDAR EMAIL
+    ============================== */
+
+    if (
+        $email === "" ||
+        !filter_var($email, FILTER_VALIDATE_EMAIL)
+    ) {
+
+        echo json_encode([
+            "success" => false,
+            "error" => "El correo electrónico no es válido."
+        ], JSON_UNESCAPED_UNICODE);
+
+        exit;
+    }
+
+
+    /* ==============================
+       ID CONVERSACIÓN
+    ============================== */
+
+    $conversacionId =
+        strtoupper(
+            substr(
+                bin2hex(random_bytes(6)),
+                0,
+                8
+            )
+        );
+
+
+    /* ======================================================
+       GUARDAR CONVERSACIÓN COMPLETA EN MYSQL
+    ====================================================== */
+
+    try {
+
+    $stmt = $pdo->prepare("
+
+        INSERT INTO conversaciones
+        (
+            conversacion_id,
+            nombre,
+            email,
+            usuario,
+            respuesta
+        )
+
+        VALUES
+        (
+            :conversacion_id,
+            :nombre,
+            :email,
+            :usuario,
+            :respuesta
+        )
+
+    ");
+
+
+    $stmt->execute([
+
+        ":conversacion_id" =>
+            $conversacionId,
+
+        ":nombre" =>
+            $nombre,
+
+        ":email" =>
+            $email,
+
+        ":usuario" =>
+            $conversacion,
+
+        ":respuesta" =>
+            "CONVERSACIÓN ENVIADA POR EL CLIENTE"
+
+    ]);
+
+
+} catch (PDOException $e) {
+
+    error_log(
+        "Error guardando conversación: " .
+        $e->getMessage()
+    );
+
+    echo json_encode([
+
+        "success" => false,
+
+        "error" =>
+            "No se pudo guardar la conversación en la base de datos.",
+
+        /*
+           Esto nos ayudará a saber
+           exactamente qué está fallando.
+        */
+
+        "debug" =>
+            $e->getMessage()
+
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
+
+    /* ======================================================
+       CREAR EMAIL
+    ====================================================== */
 
     $asunto =
         "Nueva conversación del asistente web";
@@ -75,52 +220,59 @@ if ($action === "email") {
 
     $textoEmail =
 
-        "Hola Alejandro.\n\n" .
+        "NUEVO CONTACTO DESDE EL ASISTENTE IA\n\n" .
 
-        "Un cliente quiere contactar contigo " .
-        "desde el asistente web.\n\n" .
+        "========================================\n" .
 
-        "================================\n" .
-        "CONVERSACIÓN DEL CHAT\n" .
-        "================================\n\n" .
+        "DATOS DEL CLIENTE\n" .
+
+        "========================================\n\n" .
+
+        "Nombre: " .
+        $nombre .
+        "\n" .
+
+        "Email: " .
+        $email .
+        "\n\n" .
+
+        "ID DE CONVERSACIÓN: " .
+        $conversacionId .
+        "\n\n" .
+
+        "========================================\n" .
+
+        "CONVERSACIÓN\n" .
+
+        "========================================\n\n" .
 
         $conversacion;
 
 
-    /* ==============================
+    /* ======================================================
        PHPMailer
-    ============================== */
+    ====================================================== */
 
-    $mail = new PHPMailer(true);
+    $mail =
+        new PHPMailer(true);
 
 
     try {
 
         /* ==============================
-           CONFIGURACIÓN SMTP GMAIL
+           SMTP
         ============================== */
 
         $mail->isSMTP();
 
         $mail->Host =
-            "smtp.gmail.com";
+            $SMTP_HOST;
 
         $mail->SMTPAuth =
             true;
 
         $mail->Username =
-            "herradon45@gmail.com";
-
-        /*
-           IMPORTANTE:
-
-           Esta variable debe estar
-           en config.php.
-
-           Es la CONTRASEÑA DE APLICACIÓN
-           de Google, NO tu contraseña
-           normal.
-        */
+            $SMTP_USERNAME;
 
         $mail->Password =
             $SMTP_PASSWORD;
@@ -129,7 +281,7 @@ if ($action === "email") {
             PHPMailer::ENCRYPTION_STARTTLS;
 
         $mail->Port =
-            587;
+            $SMTP_PORT;
 
 
         /* ==============================
@@ -137,8 +289,8 @@ if ($action === "email") {
         ============================== */
 
         $mail->setFrom(
-            "herradon45@gmail.com",
-            "Asistente Web"
+            $SMTP_FROM,
+            "Asistente IA"
         );
 
 
@@ -147,8 +299,18 @@ if ($action === "email") {
         ============================== */
 
         $mail->addAddress(
-            "herradon45@gmail.com",
+            $SMTP_TO,
             "Alejandro Herradón"
+        );
+
+
+        /* ==============================
+           RESPONDER AL CLIENTE
+        ============================== */
+
+        $mail->addReplyTo(
+            $email,
+            $nombre
         );
 
 
@@ -176,15 +338,19 @@ if ($action === "email") {
 
 
         /* ==============================
-           RESPUESTA CORRECTA
+           RESPUESTA
         ============================== */
 
         echo json_encode([
 
-            "success" => true,
+            "success" =>
+                true,
 
             "message" =>
-                "La conversación se ha enviado correctamente por correo."
+                "La conversación se ha enviado correctamente.",
+
+            "conversacion_id" =>
+                $conversacionId
 
         ], JSON_UNESCAPED_UNICODE);
 
@@ -193,11 +359,17 @@ if ($action === "email") {
 
     } catch (Exception $e) {
 
+        error_log(
+            "Error PHPMailer: " .
+            $mail->ErrorInfo
+        );
+
         http_response_code(500);
 
         echo json_encode([
 
-            "success" => false,
+            "success" =>
+                false,
 
             "error" =>
                 "No se pudo enviar el correo: " .
@@ -214,9 +386,10 @@ if ($action === "email") {
    CHAT NORMAL CON OPENAI
 ========================================================== */
 
-$message = trim(
-    $data["message"] ?? ""
-);
+$message =
+    trim(
+        $data["message"] ?? ""
+    );
 
 
 if ($message === "") {
@@ -230,9 +403,9 @@ if ($message === "") {
 }
 
 
-/* ==============================
-   VALIDAR API KEY
-============================== */
+/* ==========================================================
+   OPENAI
+========================================================== */
 
 if (empty($OPENAI_API_KEY)) {
 
@@ -245,10 +418,6 @@ if (empty($OPENAI_API_KEY)) {
     exit;
 }
 
-
-/* ==============================
-   OPENAI
-============================== */
 
 $url =
     "https://api.openai.com/v1/responses";
@@ -353,7 +522,7 @@ if ($response === false) {
 
 
 /* ==============================
-   DECODIFICAR OPENAI
+   DECODIFICAR
 ============================== */
 
 $result =
@@ -388,12 +557,67 @@ if ($httpCode >= 400) {
 
 
 /* ==============================
-   EXTRAER RESPUESTA
+   RESPUESTA
 ============================== */
 
-$answer =
-    $result["output"][0]["content"][0]["text"]
-    ?? null;
+$answer = null;
+
+
+/*
+   Buscamos el texto dentro de
+   la respuesta de Responses API.
+*/
+
+if (
+    isset($result["output"]) &&
+    is_array($result["output"])
+) {
+
+    foreach (
+        $result["output"]
+        as $outputItem
+    ) {
+
+        if (
+            ($outputItem["type"] ?? "")
+            !== "message"
+        ) {
+            continue;
+        }
+
+
+        if (
+            !isset(
+                $outputItem["content"]
+            )
+        ) {
+            continue;
+        }
+
+
+        foreach (
+            $outputItem["content"]
+            as $contentItem
+        ) {
+
+            if (
+                ($contentItem["type"] ?? "")
+                === "output_text"
+            ) {
+
+                $answer =
+                    $contentItem["text"]
+                    ?? null;
+
+                break 2;
+
+            }
+
+        }
+
+    }
+
+}
 
 
 if (!$answer) {
@@ -411,23 +635,39 @@ if (!$answer) {
 }
 
 
-/* ==============================
-   GUARDAR CONVERSACIÓN
-============================== */
+/* ==========================================================
+   GUARDAR MENSAJE EN MYSQL
+========================================================== */
 
 try {
+
+    /*
+       Si todavía no conocemos al cliente,
+       guardamos nombre/email vacíos.
+
+       Cuando el cliente pulse
+       "Enviar conversación", se guardará
+       también la conversación completa
+       con sus datos.
+    */
 
     $stmt =
         $pdo->prepare("
 
             INSERT INTO conversaciones
             (
+                conversacion_id,
+                nombre,
+                email,
                 usuario,
                 respuesta
             )
 
             VALUES
             (
+                :conversacion_id,
+                :nombre,
+                :email,
                 :usuario,
                 :respuesta
             )
@@ -436,6 +676,20 @@ try {
 
 
     $stmt->execute([
+
+        ":conversacion_id" =>
+            "CHAT-" .
+            session_id(),
+
+        ":nombre" =>
+            $nombre !== ""
+                ? $nombre
+                : null,
+
+        ":email" =>
+            $email !== ""
+                ? $email
+                : null,
 
         ":usuario" =>
             $message,
@@ -447,17 +701,17 @@ try {
 
 } catch (PDOException $e) {
 
-    /*
-       Si falla MySQL,
-       no detenemos el chatbot.
-    */
+    error_log(
+        "Error guardando conversación: " .
+        $e->getMessage()
+    );
 
 }
 
 
-/* ==============================
+/* ==========================================================
    RESPUESTA AL JAVASCRIPT
-============================== */
+========================================================== */
 
 echo json_encode([
 
