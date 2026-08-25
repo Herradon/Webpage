@@ -2,11 +2,11 @@
 
 header("Content-Type: application/json; charset=utf-8");
 
-require_once "config.php";
+require_once __DIR__ . "/config.php";
 
 
 /* ==========================================
-   COMPROBAR MÉTODO
+   COMPROBAR PETICIÓN
 ========================================== */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -23,74 +23,20 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 
 /* ==========================================
-   NÚMERO DE WHATSAPP
-========================================== */
-
-$numeroWhatsApp = "34650171966";
-
-
-/* ==========================================
-   COMPROBAR SI VIENE DEL CHATBOT
-========================================== */
-
-$conversacion =
-    trim($_POST["conversacion"] ?? "");
-
-
-/* ==========================================
-   SI VIENE DEL CHATBOT
-========================================== */
-
-if ($conversacion !== "") {
-
-    $textoWhatsApp =
-        "Hola Alejandro.\n\n" .
-        "Un cliente quiere contactar contigo " .
-        "desde el asistente virtual.\n\n" .
-        "==============================\n" .
-        "CONVERSACIÓN DEL CHAT\n" .
-        "==============================\n\n" .
-        $conversacion;
-
-
-    $whatsappURL =
-        "https://wa.me/" .
-        $numeroWhatsApp .
-        "?text=" .
-        urlencode($textoWhatsApp);
-
-
-    echo json_encode([
-
-        "success" => true,
-
-        "whatsapp" => $whatsappURL
-
-    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
-
-/* ==========================================
    RECIBIR FORMULARIO
 ========================================== */
 
 $nombre =
     trim($_POST["nombre"] ?? "");
 
-
 $empresa =
     trim($_POST["Empresa"] ?? "");
-
 
 $email =
     trim($_POST["email"] ?? "");
 
-
 $mensaje =
     trim($_POST["mensaje"] ?? "");
-
 
 $telefono =
     trim($_POST["telefono"] ?? "");
@@ -107,15 +53,9 @@ if (
     $mensaje === ""
 ) {
 
-    http_response_code(400);
-
     echo json_encode([
-
         "success" => false,
-
-        "error" =>
-            "Todos los campos obligatorios deben estar completos."
-
+        "error" => "Todos los campos son obligatorios."
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
@@ -128,15 +68,9 @@ if (
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
-    http_response_code(400);
-
     echo json_encode([
-
         "success" => false,
-
-        "error" =>
-            "El correo electrónico no es válido."
-
+        "error" => "El email no es válido."
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
@@ -149,15 +83,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 try {
 
-    $mensajeCompleto =
-        "Empresa: " .
-        $empresa .
-        "\n\n" .
-        $mensaje;
-
-
     $stmt = $pdo->prepare("
-
         INSERT INTO contactos
         (
             nombre,
@@ -165,7 +91,6 @@ try {
             email,
             mensaje
         )
-
         VALUES
         (
             :nombre,
@@ -173,9 +98,7 @@ try {
             :email,
             :mensaje
         )
-
     ");
-
 
     $stmt->execute([
 
@@ -189,15 +112,17 @@ try {
             $email,
 
         ":mensaje" =>
-            $mensajeCompleto
+            "Empresa: " .
+            $empresa .
+            "\n\n" .
+            $mensaje
 
     ]);
-
 
 } catch (PDOException $e) {
 
     error_log(
-        "Error al guardar contacto: " .
+        "Error guardando contacto: " .
         $e->getMessage()
     );
 
@@ -208,7 +133,7 @@ try {
         "success" => false,
 
         "error" =>
-            "El formulario no se pudo guardar en la base de datos."
+            "No se pudieron guardar los datos en la base de datos."
 
     ], JSON_UNESCAPED_UNICODE);
 
@@ -217,71 +142,61 @@ try {
 
 
 /* ==========================================
-   CREAR MENSAJE WHATSAPP
+   NÚMERO DE WHATSAPP
 ========================================== */
 
-$textoWhatsApp =
+/*
+   PON AQUÍ EL NÚMERO DE WHATSAPP
+   DE TU EMPRESA.
 
-    "Hola Alejandro.\n\n" .
+   IMPORTANTE:
+   - Sin +
+   - Sin espacios
+   - Sin guiones
 
-    "Nuevo contacto desde la página web.\n\n" .
+   Ejemplo España:
 
-    "==============================\n" .
+   34600123456
+*/
 
-    "DATOS DEL CLIENTE\n" .
+$numeroWhatsApp =
+    "34689976427";
 
-    "==============================\n\n" .
 
-    "Nombre: " .
+/* ==========================================
+   CREAR MENSAJE PARA WHATSAPP
+========================================== */
+
+$mensajeWhatsApp =
+    "Hola, soy " .
     $nombre .
-    "\n" .
+    ".%0A%0A" .
 
     "Empresa: " .
     $empresa .
-    "\n" .
+    "%0A" .
 
     "Email: " .
     $email .
-    "\n";
+    "%0A%0A" .
 
-
-if ($telefono !== "") {
-
-    $textoWhatsApp .=
-
-        "Teléfono: " .
-        $telefono .
-        "\n";
-}
-
-
-$textoWhatsApp .=
-
-    "\n" .
-
-    "==============================\n" .
-
-    "MENSAJE\n" .
-
-    "==============================\n\n" .
-
+    "Consulta:%0A" .
     $mensaje;
 
 
 /* ==========================================
-   CREAR URL WHATSAPP
+   CREAR URL DE WHATSAPP
 ========================================== */
 
-$whatsappURL =
-
+$urlWhatsApp =
     "https://wa.me/" .
     $numeroWhatsApp .
     "?text=" .
-    urlencode($textoWhatsApp);
+    $mensajeWhatsApp;
 
 
 /* ==========================================
-   RESPUESTA FINAL
+   RESPUESTA CORRECTA
 ========================================== */
 
 echo json_encode([
@@ -289,12 +204,12 @@ echo json_encode([
     "success" => true,
 
     "message" =>
-        "Contacto guardado correctamente.",
+        "Formulario guardado correctamente.",
 
     "whatsapp" =>
-        $whatsappURL
+        $urlWhatsApp
 
-], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+], JSON_UNESCAPED_UNICODE);
 
 exit;
 

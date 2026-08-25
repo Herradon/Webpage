@@ -238,6 +238,8 @@ session_start();
                         a tu whatsapp
                     </span>
 
+                    
+
                 </h1>
 
 
@@ -245,13 +247,9 @@ session_start();
 
                     A partir de aquí es donde toda la conversación con nuestro asistente pasa a otro nivel, ya que podrás 
                     terminar la conversación con nuestro equipo de soporte y atención al cliente.
-                    Si estas de acuerdo, pulsa el botón de abajo y envía toda la conversación a nuestro whatsapp, para finalizar tu proyecto, asesoramiento o consulta.
-                    En el caso de que tengas algun problema con el soporte o con el asistente, puedes enviarnos un mensaje directamente a nuestro whatsapp completando el formulario y te atenderemos lo antes posible.
-                </p>
+                    Si estas de acuerdo, pulsa el botón de abajo y envía toda la conversación a nuestro whatsapp, para finalizar tu proyecto, asesoramiento o consulta.</p>
 
-        </div>
-
-         <!-- ==================================
+                    <!-- ==================================
                      BOTÓN WHATSAPP
                 =================================== -->
 
@@ -259,18 +257,23 @@ session_start();
                     class="chat-whatsapp-container">
                         
                     <button
+
                         type="button"
-                        id="sendChatWhatsApp"
-                        class="chat-whatsapp-button"
+                        id="sendChatEmail"
                         hidden>
-
-                       Enviar chat por whatssap 📩
-
+                        📧 Enviar conversación por correo
+                    
                     </button>
 
 
                 </div>
+                <p>
+                    En el caso de que tengas algun problema con el soporte o con el asistente, puedes enviarnos un mensaje directamente a nuestro whatsapp completando el formulario y te atenderemos lo antes posible.
+                </p>
 
+        </div>
+
+         
     </section>
 
 

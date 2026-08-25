@@ -2,7 +2,11 @@
 
 header("Content-Type: application/json; charset=utf-8");
 
-require_once "config.php";
+require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/vendor/autoload.php";
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 
 /* ==============================
@@ -16,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode([
         "success" => false,
         "error" => "Método no permitido."
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
@@ -33,13 +37,17 @@ $data = json_decode(
 
 
 /* ==============================
-   COMPROBAR ACCIÓN WHATSAPP
+   COMPROBAR ACCIÓN EMAIL
 ============================== */
 
 $action = $data["action"] ?? "";
 
 
-if ($action === "whatsapp") {
+/* ==========================================================
+   ENVIAR CONVERSACIÓN POR EMAIL
+========================================================== */
+
+if ($action === "email") {
 
     $conversacion =
         trim($data["conversacion"] ?? "");
@@ -49,62 +57,162 @@ if ($action === "whatsapp") {
 
         echo json_encode([
             "success" => false,
-            "error" => "No hay ninguna conversación para enviar."
-        ]);
+            "error" =>
+                "No hay ninguna conversación para enviar."
+        ], JSON_UNESCAPED_UNICODE);
 
         exit;
     }
 
 
     /* ==============================
-       NÚMERO DE WHATSAPP
+       CREAR EMAIL
     ============================== */
 
-    $numeroWhatsApp = "34650171966";
+    $asunto =
+        "Nueva conversación del asistente web";
 
 
-    /* ==============================
-       CREAR MENSAJE
-    ============================== */
+    $textoEmail =
 
-    $textoWhatsApp =
         "Hola Alejandro.\n\n" .
 
         "Un cliente quiere contactar contigo " .
         "desde el asistente web.\n\n" .
 
-        "CONVERSACIÓN:\n\n" .
+        "================================\n" .
+        "CONVERSACIÓN DEL CHAT\n" .
+        "================================\n\n" .
 
         $conversacion;
 
 
     /* ==============================
-       CREAR URL
+       PHPMailer
     ============================== */
 
-    $whatsappURL =
-        "https://wa.me/" .
-        $numeroWhatsApp .
-        "?text=" .
-        urlencode($textoWhatsApp);
+    $mail = new PHPMailer(true);
 
 
-    echo json_encode([
+    try {
 
-        "success" => true,
+        /* ==============================
+           CONFIGURACIÓN SMTP GMAIL
+        ============================== */
 
-        "whatsapp" => $whatsappURL
+        $mail->isSMTP();
 
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $mail->Host =
+            "smtp.gmail.com";
+
+        $mail->SMTPAuth =
+            true;
+
+        $mail->Username =
+            "herradon45@gmail.com";
+
+        /*
+           IMPORTANTE:
+
+           Esta variable debe estar
+           en config.php.
+
+           Es la CONTRASEÑA DE APLICACIÓN
+           de Google, NO tu contraseña
+           normal.
+        */
+
+        $mail->Password =
+            $SMTP_PASSWORD;
+
+        $mail->SMTPSecure =
+            PHPMailer::ENCRYPTION_STARTTLS;
+
+        $mail->Port =
+            587;
 
 
-    exit;
+        /* ==============================
+           REMITENTE
+        ============================== */
+
+        $mail->setFrom(
+            "herradon45@gmail.com",
+            "Asistente Web"
+        );
+
+
+        /* ==============================
+           DESTINATARIO
+        ============================== */
+
+        $mail->addAddress(
+            "herradon45@gmail.com",
+            "Alejandro Herradón"
+        );
+
+
+        /* ==============================
+           CONTENIDO
+        ============================== */
+
+        $mail->CharSet =
+            "UTF-8";
+
+        $mail->isHTML(false);
+
+        $mail->Subject =
+            $asunto;
+
+        $mail->Body =
+            $textoEmail;
+
+
+        /* ==============================
+           ENVIAR
+        ============================== */
+
+        $mail->send();
+
+
+        /* ==============================
+           RESPUESTA CORRECTA
+        ============================== */
+
+        echo json_encode([
+
+            "success" => true,
+
+            "message" =>
+                "La conversación se ha enviado correctamente por correo."
+
+        ], JSON_UNESCAPED_UNICODE);
+
+        exit;
+
+
+    } catch (Exception $e) {
+
+        http_response_code(500);
+
+        echo json_encode([
+
+            "success" => false,
+
+            "error" =>
+                "No se pudo enviar el correo: " .
+                $mail->ErrorInfo
+
+        ], JSON_UNESCAPED_UNICODE);
+
+        exit;
+    }
 }
 
 
-/* ==============================
-   RECIBIR MENSAJE NORMAL
-============================== */
+/* ==========================================================
+   CHAT NORMAL CON OPENAI
+========================================================== */
 
 $message = trim(
     $data["message"] ?? ""
@@ -116,7 +224,7 @@ if ($message === "") {
     echo json_encode([
         "success" => false,
         "error" => "El mensaje está vacío."
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
@@ -130,15 +238,16 @@ if (empty($OPENAI_API_KEY)) {
 
     echo json_encode([
         "success" => false,
-        "error" => "La API Key de OpenAI no está configurada."
-    ]);
+        "error" =>
+            "La API Key de OpenAI no está configurada."
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
 
 
 /* ==============================
-   PREPARAR PETICIÓN
+   OPENAI
 ============================== */
 
 $url =
@@ -147,7 +256,8 @@ $url =
 
 $payload = [
 
-    "model" => $OPENAI_MODEL,
+    "model" =>
+        $OPENAI_MODEL,
 
     "instructions" =>
 
@@ -160,7 +270,8 @@ $payload = [
         "Si no conoces una información, indica que no " .
         "tienes esa información.",
 
-    "input" => $message
+    "input" =>
+        $message
 
 ];
 
@@ -179,11 +290,14 @@ $ch =
 
 curl_setopt_array($ch, [
 
-    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_RETURNTRANSFER =>
+        true,
 
-    CURLOPT_POST => true,
+    CURLOPT_POST =>
+        true,
 
-    CURLOPT_POSTFIELDS => $jsonPayload,
+    CURLOPT_POSTFIELDS =>
+        $jsonPayload,
 
     CURLOPT_HTTPHEADER => [
 
@@ -194,7 +308,8 @@ curl_setopt_array($ch, [
 
     ],
 
-    CURLOPT_TIMEOUT => 60
+    CURLOPT_TIMEOUT =>
+        60
 
 ]);
 
@@ -224,18 +339,21 @@ curl_close($ch);
 if ($response === false) {
 
     echo json_encode([
+
         "success" => false,
+
         "error" =>
             "Error conectando con OpenAI: " .
             $curlError
-    ]);
+
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
 
 
 /* ==============================
-   DECODIFICAR RESPUESTA
+   DECODIFICAR OPENAI
 ============================== */
 
 $result =
@@ -260,9 +378,10 @@ if ($httpCode >= 400) {
 
         "success" => false,
 
-        "error" => $errorMessage
+        "error" =>
+            $errorMessage
 
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
@@ -280,10 +399,13 @@ $answer =
 if (!$answer) {
 
     echo json_encode([
+
         "success" => false,
+
         "error" =>
             "No se pudo obtener una respuesta."
-    ]);
+
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
@@ -295,39 +417,55 @@ if (!$answer) {
 
 try {
 
-    $stmt = $pdo->prepare("
-        INSERT INTO conversaciones
-        (usuario, respuesta)
-        VALUES
-        (:usuario, :respuesta)
-    ");
+    $stmt =
+        $pdo->prepare("
+
+            INSERT INTO conversaciones
+            (
+                usuario,
+                respuesta
+            )
+
+            VALUES
+            (
+                :usuario,
+                :respuesta
+            )
+
+        ");
 
 
     $stmt->execute([
 
-        ":usuario" => $message,
+        ":usuario" =>
+            $message,
 
-        ":respuesta" => $answer
+        ":respuesta" =>
+            $answer
 
     ]);
 
 } catch (PDOException $e) {
 
-    // No detenemos el chatbot
-    // si falla el registro.
+    /*
+       Si falla MySQL,
+       no detenemos el chatbot.
+    */
 
 }
 
 
 /* ==============================
-   RESPUESTA
+   RESPUESTA AL JAVASCRIPT
 ============================== */
 
 echo json_encode([
 
-    "success" => true,
+    "success" =>
+        true,
 
-    "answer" => $answer
+    "answer" =>
+        $answer
 
 ], JSON_UNESCAPED_UNICODE);
 

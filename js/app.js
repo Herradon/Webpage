@@ -13,15 +13,15 @@ const chatMessages =
 
 
 /* ==========================================
-   BOTÓN WHATSAPP
+   BOTÓN ENVIAR CONVERSACIÓN POR EMAIL
 ========================================== */
 
-const sendChatWhatsApp =
-    document.getElementById("sendChatWhatsApp");
+const sendChatEmail =
+    document.getElementById("sendChatEmail");
 
 
 /* ==========================================
-   BOTÓN REINICIAR
+   BOTÓN REINICIAR CHAT
 ========================================== */
 
 const resetChat =
@@ -39,15 +39,18 @@ function ponerAvatar(avatar, type) {
         const img =
             document.createElement("img");
 
-        img.src = "img/asset.png";
+        img.src =
+            "img/asset.png";
 
-        img.alt = "Alejandro Herradón";
+        img.alt =
+            "Alejandro Herradón";
 
         avatar.appendChild(img);
 
     } else {
 
-        avatar.textContent = "👤";
+        avatar.textContent =
+            "👤";
 
     }
 
@@ -58,149 +61,238 @@ function ponerAvatar(avatar, type) {
    ENVIAR MENSAJE AL CHAT
 ========================================== */
 
-chatForm.addEventListener(
-    "submit",
-    async function (event) {
+if (chatForm) {
 
-        event.preventDefault();
+    chatForm.addEventListener(
+        "submit",
+        async function (event) {
 
-
-        const message =
-            messageInput.value.trim();
-
-
-        if (!message) {
-            return;
-        }
-
-
-        /* ==============================
-           MENSAJE DEL USUARIO
-        ============================== */
-
-        addMessage(
-            message,
-            "user"
-        );
-
-
-        /* Limpiar input */
-
-        messageInput.value = "";
-
-
-        /* ==============================
-           COMPROBAR SI QUIERE CONTACTAR
-        ============================== */
-
-        comprobarSolicitudContacto(message);
-
-
-        /* ==============================
-           MOSTRAR "ESCRIBIENDO..."
-        ============================== */
-
-        const typing =
-            addMessage(
-                "Escribiendo...",
-                "bot",
-                true
-            );
-
-
-        try {
-
-            const response =
-                await fetch(
-                    "chat.php",
-                    {
-
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json"
-
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                message: message
-
-                            })
-
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            /* Eliminar escribiendo */
-
-            typing.remove();
+            event.preventDefault();
 
 
             /* ==============================
-               ERROR
+               OBTENER MENSAJE
             ============================== */
 
-            if (!data.success) {
+            const message =
+                messageInput.value.trim();
+
+
+            if (!message) {
+                return;
+            }
+
+
+            /* ==============================
+               MOSTRAR MENSAJE DEL CLIENTE
+            ============================== */
+
+            addMessage(
+                message,
+                "user"
+            );
+
+
+            /* ==============================
+               LIMPIAR INPUT
+            ============================== */
+
+            messageInput.value = "";
+
+
+            /* ==============================
+               COMPROBAR SI QUIERE CONTACTAR
+            ============================== */
+
+            comprobarSolicitudContacto(
+                message
+            );
+
+
+            /* ==============================
+               MOSTRAR "ESCRIBIENDO..."
+            ============================== */
+
+            const typing =
+                addMessage(
+                    "Escribiendo...",
+                    "bot",
+                    true
+                );
+
+
+            /* ==============================
+               DESACTIVAR INPUT
+            ============================== */
+
+            messageInput.disabled = true;
+
+
+            const submitButton =
+                chatForm.querySelector(
+                    "button[type='submit']"
+                );
+
+
+            if (submitButton) {
+
+                submitButton.disabled =
+                    true;
+
+            }
+
+
+            try {
+
+                /* ==============================
+                   ENVIAR A CHAT.PHP
+                ============================== */
+
+                const response =
+                    await fetch(
+                        "chat.php",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    message:
+                                        message
+                                })
+                        }
+                    );
+
+
+                /* ==============================
+                   COMPROBAR RESPUESTA HTTP
+                ============================== */
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Error HTTP " +
+                        response.status
+                    );
+
+                }
+
+
+                /* ==============================
+                   CONVERTIR A JSON
+                ============================== */
+
+                const data =
+                    await response.json();
+
+
+                /* ==============================
+                   QUITAR ESCRIBIENDO
+                ============================== */
+
+                if (typing) {
+                    typing.remove();
+                }
+
+
+                /* ==============================
+                   ERROR DEL SERVIDOR
+                ============================== */
+
+                if (!data.success) {
+
+                    addMessage(
+
+                        "Lo siento, ha ocurrido un error: " +
+                        (
+                            data.error ||
+                            "Error desconocido."
+                        ),
+
+                        "bot"
+
+                    );
+
+                    return;
+
+                }
+
+
+                /* ==============================
+                   RESPUESTA DEL ASISTENTE
+                ============================== */
+
+                addMessage(
+                    data.answer,
+                    "bot"
+                );
+
+
+            } catch (error) {
+
+                /* ==============================
+                   QUITAR ESCRIBIENDO
+                ============================== */
+
+                if (typing) {
+                    typing.remove();
+                }
+
+
+                /* ==============================
+                   MOSTRAR ERROR
+                ============================== */
 
                 addMessage(
 
-                    "Lo siento, ha ocurrido un error: " +
-                    data.error,
+                    "No se ha podido conectar con el servidor. " +
+                    "Comprueba que XAMPP y Apache estén funcionando.",
 
                     "bot"
 
                 );
 
-                return;
+
+                console.error(
+                    "Error del chatbot:",
+                    error
+                );
+
+
+            } finally {
+
+                /* ==============================
+                   REACTIVAR CHAT
+                ============================== */
+
+                messageInput.disabled =
+                    false;
+
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        false;
+
+                }
+
+
+                messageInput.focus();
 
             }
 
-
-            /* ==============================
-               RESPUESTA DEL BOT
-            ============================== */
-
-            addMessage(
-                data.answer,
-                "bot"
-            );
-
-
-        } catch (error) {
-
-            typing.remove();
-
-
-            addMessage(
-
-                "No se ha podido conectar con el servidor.",
-
-                "bot"
-
-            );
-
-
-            console.error(
-                "Error:",
-                error
-            );
-
         }
+    );
 
-    }
-);
+}
 
 
 /* ==========================================
-   AÑADIR MENSAJE
+   AÑADIR MENSAJE AL CHAT
 ========================================== */
 
 function addMessage(
@@ -219,6 +311,10 @@ function addMessage(
     );
 
 
+    /* ======================================
+       AVATAR
+    ====================================== */
+
     const avatar =
         document.createElement("div");
 
@@ -228,13 +324,15 @@ function addMessage(
     );
 
 
-    /* Poner avatar */
-
     ponerAvatar(
         avatar,
         type
     );
 
+
+    /* ======================================
+       BURBUJA
+    ====================================== */
 
     const bubble =
         document.createElement("div");
@@ -249,6 +347,10 @@ function addMessage(
         text;
 
 
+    /* ======================================
+       AÑADIR AL MENSAJE
+    ====================================== */
+
     messageElement.appendChild(
         avatar
     );
@@ -259,12 +361,18 @@ function addMessage(
     );
 
 
+    /* ======================================
+       AÑADIR AL CHAT
+    ====================================== */
+
     chatMessages.appendChild(
         messageElement
     );
 
 
-    /* Scroll automático */
+    /* ======================================
+       SCROLL AUTOMÁTICO
+    ====================================== */
 
     chatMessages.scrollTop =
         chatMessages.scrollHeight;
@@ -285,29 +393,43 @@ if (resetChat) {
         "click",
         function () {
 
-            /* Borrar mensajes */
+            /* ==============================
+               BORRAR CONVERSACIÓN VISUAL
+            ============================== */
 
             chatMessages.innerHTML =
                 "";
 
 
-            /* Limpiar input */
+            /* ==============================
+               LIMPIAR INPUT
+            ============================== */
 
             messageInput.value =
                 "";
 
 
-            /* Ocultar WhatsApp */
+            /* ==============================
+               OCULTAR BOTÓN EMAIL
+            ============================== */
 
-            if (sendChatWhatsApp) {
+            if (sendChatEmail) {
 
-                sendChatWhatsApp.hidden =
+                sendChatEmail.hidden =
                     true;
+
+                sendChatEmail.disabled =
+                    false;
+
+                sendChatEmail.innerText =
+                    "📧 Enviar conversación por correo";
 
             }
 
 
-            /* Volver al input */
+            /* ==============================
+               VOLVER AL INPUT
+            ============================== */
 
             messageInput.focus();
 
@@ -325,6 +447,10 @@ function comprobarSolicitudContacto(
     message
 ) {
 
+    /* ==============================
+       NORMALIZAR TEXTO
+    ============================== */
+
     const texto =
         message
             .toLowerCase()
@@ -334,6 +460,10 @@ function comprobarSolicitudContacto(
                 ""
             );
 
+
+    /* ==============================
+       PALABRAS DE CONTACTO
+    ============================== */
 
     const palabrasContacto = [
 
@@ -373,22 +503,28 @@ function comprobarSolicitudContacto(
 
         "informacion",
 
-        "más informacion",
-
         "mas informacion",
 
         "quiero informacion",
-
-        "quiero información",
 
         "me interesa",
 
         "estoy interesado",
 
-        "estoy interesada"
+        "estoy interesada",
+
+        "quiero saber mas",
+
+        "necesito ayuda",
+
+        "hablar con una persona"
 
     ];
 
+
+    /* ==============================
+       COMPROBAR
+    ============================== */
 
     const quiereContactar =
         palabrasContacto.some(
@@ -397,12 +533,16 @@ function comprobarSolicitudContacto(
         );
 
 
+    /* ==============================
+       MOSTRAR BOTÓN EMAIL
+    ============================== */
+
     if (
         quiereContactar &&
-        sendChatWhatsApp
+        sendChatEmail
     ) {
 
-        sendChatWhatsApp.hidden =
+        sendChatEmail.hidden =
             false;
 
     }
@@ -411,7 +551,7 @@ function comprobarSolicitudContacto(
 
 
 /* ==========================================
-   OBTENER CONVERSACIÓN
+   OBTENER TODA LA CONVERSACIÓN
 ========================================== */
 
 function obtenerConversacion() {
@@ -450,7 +590,7 @@ function obtenerConversacion() {
 
 
             /* ==============================
-               MENSAJE DEL ASISTENTE
+               ASISTENTE
             ============================== */
 
             if (
@@ -460,8 +600,7 @@ function obtenerConversacion() {
             ) {
 
                 conversacion +=
-
-                    "Asistente: " +
+                    "ASISTENTE:\n" +
                     texto +
                     "\n\n";
 
@@ -469,14 +608,13 @@ function obtenerConversacion() {
 
 
             /* ==============================
-               MENSAJE DEL CLIENTE
+               CLIENTE
             ============================== */
 
             else {
 
                 conversacion +=
-
-                    "Cliente: " +
+                    "CLIENTE:\n" +
                     texto +
                     "\n\n";
 
@@ -486,21 +624,25 @@ function obtenerConversacion() {
     );
 
 
-    return conversacion;
+    return conversacion.trim();
 
 }
 
 
 /* ==========================================
-   ENVIAR CONVERSACIÓN A WHATSAPP
+   ENVIAR CONVERSACIÓN POR EMAIL
 ========================================== */
 
-async function enviarChatWhatsApp() {
+async function enviarChatEmail() {
 
-    if (!sendChatWhatsApp) {
+    if (!sendChatEmail) {
         return;
     }
 
+
+    /* ==============================
+       OBTENER CONVERSACIÓN
+    ============================== */
 
     const conversacion =
         obtenerConversacion();
@@ -521,20 +663,21 @@ async function enviarChatWhatsApp() {
     }
 
 
-    /* Desactivar botón */
+    /* ==============================
+       DESACTIVAR BOTÓN
+    ============================== */
 
-    sendChatWhatsApp.disabled =
+    sendChatEmail.disabled =
         true;
 
-
-    sendChatWhatsApp.innerText =
-        "Preparando WhatsApp...";
+    sendChatEmail.innerText =
+        "📧 Enviando conversación...";
 
 
     try {
 
         /* ==============================
-           CREAR DATOS
+           CREAR FORM DATA
         ============================== */
 
         const formData =
@@ -548,46 +691,59 @@ async function enviarChatWhatsApp() {
 
 
         /* ==============================
-           ENVIAR A PHP
+           ENVIAR A CORREO.PHP
         ============================== */
 
         const response =
             await fetch(
-                "contacto.php",
+                "correo.php",
                 {
-
                     method: "POST",
-
                     body: formData
-
                 }
             );
 
+
+        /* ==============================
+           COMPROBAR HTTP
+        ============================== */
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Error HTTP " +
+                response.status
+            );
+
+        }
+
+
+        /* ==============================
+           LEER JSON
+        ============================== */
 
         const data =
             await response.json();
 
 
         /* ==============================
-           ERROR PHP
+           COMPROBAR ERROR
         ============================== */
 
         if (!data.success) {
 
             alert(
-
                 data.error ||
-                "No se pudo preparar WhatsApp."
-
+                "No se pudo enviar la conversación por correo."
             );
 
 
-            sendChatWhatsApp.disabled =
+            sendChatEmail.disabled =
                 false;
 
 
-            sendChatWhatsApp.innerText =
-                "📲 Contactar por WhatsApp";
+            sendChatEmail.innerText =
+                "📧 Enviar conversación por correo";
 
 
             return;
@@ -596,44 +752,42 @@ async function enviarChatWhatsApp() {
 
 
         /* ==============================
-           ABRIR WHATSAPP
+           ÉXITO
         ============================== */
 
-        window.open(
-            data.whatsapp,
-            "_blank"
+        alert(
+            "✅ La conversación se ha enviado correctamente al correo."
         );
 
 
-        /* Cambiar texto */
-
-        sendChatWhatsApp.innerText =
-            "✓ WhatsApp preparado";
+        sendChatEmail.innerText =
+            "✓ Conversación enviada";
 
 
-        sendChatWhatsApp.disabled =
-            false;
+        sendChatEmail.disabled =
+            true;
 
 
     } catch (error) {
 
         console.error(
-            "Error al enviar a WhatsApp:",
+            "Error al enviar el correo:",
             error
         );
 
 
         alert(
-            "Ha ocurrido un error al conectar con el servidor."
+            "❌ No se pudo enviar el correo.\n\n" +
+            "Comprueba la configuración de Gmail y la contraseña de aplicación."
         );
 
 
-        sendChatWhatsApp.disabled =
+        sendChatEmail.disabled =
             false;
 
 
-        sendChatWhatsApp.innerText =
-            "📲 Contactar por WhatsApp";
+        sendChatEmail.innerText =
+            "📧 Enviar conversación por correo";
 
     }
 
@@ -641,14 +795,14 @@ async function enviarChatWhatsApp() {
 
 
 /* ==========================================
-   EVENTO BOTÓN WHATSAPP
+   EVENTO BOTÓN EMAIL
 ========================================== */
 
-if (sendChatWhatsApp) {
+if (sendChatEmail) {
 
-    sendChatWhatsApp.addEventListener(
+    sendChatEmail.addEventListener(
         "click",
-        enviarChatWhatsApp
+        enviarChatEmail
     );
 
 }
@@ -679,40 +833,78 @@ if (contactForm) {
             event.preventDefault();
 
 
+            /* ==============================
+               DATOS
+            ============================== */
+
             const formData =
                 new FormData(
                     contactForm
                 );
 
 
+            /* ==============================
+               BOTÓN
+            ============================== */
+
             const button =
                 contactForm.querySelector(
-                    "button"
+                    "button[type='submit']"
                 );
 
 
-            button.disabled =
-                true;
+            if (button) {
+
+                button.disabled =
+                    true;
+
+                button.innerText =
+                    "Enviando...";
+
+            }
 
 
-            button.innerText =
-                "Guardando...";
+            if (formResult) {
+
+                formResult.innerHTML =
+                    "";
+
+            }
 
 
             try {
+
+                /* ==============================
+                   ENVIAR A CONTACTO.PHP
+                ============================== */
 
                 const response =
                     await fetch(
                         "contacto.php",
                         {
-
                             method: "POST",
-
                             body: formData
-
                         }
                     );
 
+
+                /* ==============================
+                   COMPROBAR HTTP
+                ============================== */
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Error HTTP " +
+                        response.status
+                    );
+
+                }
+
+
+                /* ==============================
+                   LEER JSON
+                ============================== */
 
                 const data =
                     await response.json();
@@ -724,20 +916,17 @@ if (contactForm) {
 
                 if (!data.success) {
 
-                    formResult.innerHTML =
+                    if (formResult) {
 
-                        `<p class="error">
-                            ${data.error}
-                        </p>`;
+                        formResult.innerHTML =
+                            `<p class="error">
+                                ${
+                                    data.error ||
+                                    "No se pudieron guardar los datos."
+                                }
+                            </p>`;
 
-
-                    button.disabled =
-                        false;
-
-
-                    button.innerText =
-                        "💬 Contactar por WhatsApp";
-
+                    }
 
                     return;
 
@@ -748,50 +937,72 @@ if (contactForm) {
                    ÉXITO
                 ============================== */
 
-                formResult.innerHTML =
+                if (formResult) {
 
-                    `<p class="success">
-                        Datos guardados correctamente.
-                        Abriendo WhatsApp...
-                    </p>`;
+                    formResult.innerHTML =
+                        `<p class="success">
+                            ✅ Datos guardados correctamente.
+                            Abriendo WhatsApp...
+                        </p>`;
 
-
-                /* Abrir WhatsApp */
-
-                window.open(
-                    data.whatsapp,
-                    "_blank"
-                );
+                }
 
 
-                /* Limpiar formulario */
+                /* ==============================
+                   ABRIR WHATSAPP
+                ============================== */
+
+                if (data.whatsapp) {
+
+                    window.open(
+                        data.whatsapp,
+                        "_blank"
+                    );
+
+                }
+
+
+                /* ==============================
+                   LIMPIAR FORMULARIO
+                ============================== */
 
                 contactForm.reset();
 
 
             } catch (error) {
 
-                formResult.innerHTML =
-
-                    `<p class="error">
-                        Ha ocurrido un error.
-                    </p>`;
-
-
                 console.error(
-                    "Error al enviar el formulario:",
+                    "Error del formulario:",
                     error
                 );
 
+
+                if (formResult) {
+
+                    formResult.innerHTML =
+                        `<p class="error">
+                            ❌ Ha ocurrido un error al conectar con el servidor.
+                        </p>`;
+
+                }
+
+            } finally {
+
+                /* ==============================
+                   REACTIVAR BOTÓN
+                ============================== */
+
+                if (button) {
+
+                    button.disabled =
+                        false;
+
+                    button.innerText =
+                        "💬 Contactar por WhatsApp";
+
+                }
+
             }
-
-
-            button.disabled =
-                false;
-
-
-            button.innerText =
-                "💬 Contactar por WhatsApp";
 
         }
     );
