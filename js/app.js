@@ -110,7 +110,6 @@ chatForm.addEventListener(
 
         try {
 
-
             const response =
                 await fetch(
                     "chat.php",
@@ -177,7 +176,6 @@ chatForm.addEventListener(
 
         } catch (error) {
 
-
             typing.remove();
 
 
@@ -210,7 +208,6 @@ function addMessage(
     type,
     temporary = false
 ) {
-
 
     const messageElement =
         document.createElement("div");
@@ -288,7 +285,6 @@ if (resetChat) {
         "click",
         function () {
 
-
             /* Borrar mensajes */
 
             chatMessages.innerHTML =
@@ -328,7 +324,6 @@ if (resetChat) {
 function comprobarSolicitudContacto(
     message
 ) {
-
 
     const texto =
         message
@@ -421,7 +416,6 @@ function comprobarSolicitudContacto(
 
 function obtenerConversacion() {
 
-
     const mensajes =
         chatMessages.querySelectorAll(
             ".message"
@@ -434,7 +428,6 @@ function obtenerConversacion() {
 
     mensajes.forEach(
         function (mensaje) {
-
 
             const bubble =
                 mensaje.querySelector(
@@ -466,13 +459,11 @@ function obtenerConversacion() {
                 )
             ) {
 
-
                 conversacion +=
 
                     "Asistente: " +
                     texto +
                     "\n\n";
-
 
             }
 
@@ -482,7 +473,6 @@ function obtenerConversacion() {
             ============================== */
 
             else {
-
 
                 conversacion +=
 
@@ -507,7 +497,6 @@ function obtenerConversacion() {
 
 async function enviarChatWhatsApp() {
 
-
     if (!sendChatWhatsApp) {
         return;
     }
@@ -523,11 +512,9 @@ async function enviarChatWhatsApp() {
 
     if (!conversacion) {
 
-
         alert(
             "No hay ninguna conversación para enviar."
         );
-
 
         return;
 
@@ -545,7 +532,6 @@ async function enviarChatWhatsApp() {
 
 
     try {
-
 
         /* ==============================
            CREAR DATOS
@@ -567,7 +553,7 @@ async function enviarChatWhatsApp() {
 
         const response =
             await fetch(
-                "formulario.php",
+                "contacto.php",
                 {
 
                     method: "POST",
@@ -587,7 +573,6 @@ async function enviarChatWhatsApp() {
         ============================== */
 
         if (!data.success) {
-
 
             alert(
 
@@ -632,7 +617,6 @@ async function enviarChatWhatsApp() {
 
     } catch (error) {
 
-
         console.error(
             "Error al enviar a WhatsApp:",
             error
@@ -662,10 +646,9 @@ async function enviarChatWhatsApp() {
 
 if (sendChatWhatsApp) {
 
-
     sendChatWhatsApp.addEventListener(
         "click",
-        enviarChatWhatsApp 
+        enviarChatWhatsApp
     );
 
 }
@@ -689,11 +672,9 @@ const formResult =
 
 if (contactForm) {
 
-
     contactForm.addEventListener(
         "submit",
         async function (event) {
-
 
             event.preventDefault();
 
@@ -720,7 +701,6 @@ if (contactForm) {
 
             try {
 
-
                 const response =
                     await fetch(
                         "contacto.php",
@@ -743,7 +723,6 @@ if (contactForm) {
                 ============================== */
 
                 if (!data.success) {
-
 
                     formResult.innerHTML =
 
@@ -791,7 +770,6 @@ if (contactForm) {
 
 
             } catch (error) {
-
 
                 formResult.innerHTML =
 

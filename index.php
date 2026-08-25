@@ -90,14 +90,6 @@ session_start();
 
                 </p>
 
-
-                <a href="#chat"
-                   class="btn">
-
-                    Hablar con IA
-
-                </a>
-
             </div>
 
         </div>

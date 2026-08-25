@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode([
         "success" => false,
         "error" => "Método no permitido."
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
@@ -25,16 +25,6 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 /* ==========================================
    NÚMERO DE WHATSAPP
 ========================================== */
-
-/*
-    España:
-
-    34650171966
-
-    SIN +
-    SIN espacios
-    SIN guiones
-*/
 
 $numeroWhatsApp = "34650171966";
 
@@ -53,11 +43,6 @@ $conversacion =
 
 if ($conversacion !== "") {
 
-
-    /* ==============================
-       CREAR MENSAJE WHATSAPP
-    ============================== */
-
     $textoWhatsApp =
         "Hola Alejandro.\n\n" .
         "Un cliente quiere contactar contigo " .
@@ -68,20 +53,12 @@ if ($conversacion !== "") {
         $conversacion;
 
 
-    /* ==============================
-       CREAR URL WHATSAPP
-    ============================== */
-
     $whatsappURL =
         "https://wa.me/" .
         $numeroWhatsApp .
         "?text=" .
         urlencode($textoWhatsApp);
 
-
-    /* ==============================
-       RESPUESTA AL JAVASCRIPT
-    ============================== */
 
     echo json_encode([
 
@@ -91,26 +68,17 @@ if ($conversacion !== "") {
 
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-
     exit;
 }
 
 
 /* ==========================================
-   FORMULARIO DE CONTACTO
+   RECIBIR FORMULARIO
 ========================================== */
 
 $nombre =
     trim($_POST["nombre"] ?? "");
 
-
-/*
-    En tu HTML tienes actualmente:
-
-    name="Empresa"
-
-    Por eso recibimos ese campo aquí.
-*/
 
 $empresa =
     trim($_POST["Empresa"] ?? "");
@@ -124,19 +92,12 @@ $mensaje =
     trim($_POST["mensaje"] ?? "");
 
 
-/*
-    Tu formulario HTML actual NO tiene
-    teléfono.
-
-    Por eso no lo hacemos obligatorio.
-*/
-
 $telefono =
     trim($_POST["telefono"] ?? "");
 
 
 /* ==========================================
-   VALIDACIONES
+   VALIDAR CAMPOS
 ========================================== */
 
 if (
@@ -146,14 +107,16 @@ if (
     $mensaje === ""
 ) {
 
+    http_response_code(400);
+
     echo json_encode([
 
         "success" => false,
 
         "error" =>
-            "Todos los campos son obligatorios."
+            "Todos los campos obligatorios deben estar completos."
 
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
@@ -163,19 +126,18 @@ if (
    VALIDAR EMAIL
 ========================================== */
 
-if (!filter_var(
-    $email,
-    FILTER_VALIDATE_EMAIL
-)) {
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+    http_response_code(400);
 
     echo json_encode([
 
         "success" => false,
 
         "error" =>
-            "El email no es válido."
+            "El correo electrónico no es válido."
 
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
@@ -187,43 +149,32 @@ if (!filter_var(
 
 try {
 
-
-    $stmt =
-        $pdo->prepare("
-
-            INSERT INTO contactos
-            (
-                nombre,
-                telefono,
-                email,
-                mensaje
-            )
-
-            VALUES
-            (
-                :nombre,
-                :telefono,
-                :email,
-                :mensaje
-            )
-
-        ");
-
-
-    /*
-        Guardamos la empresa junto
-        con el mensaje.
-
-        Así no necesitamos cambiar
-        todavía la estructura de tu
-        tabla MySQL.
-    */
-
     $mensajeCompleto =
         "Empresa: " .
         $empresa .
         "\n\n" .
         $mensaje;
+
+
+    $stmt = $pdo->prepare("
+
+        INSERT INTO contactos
+        (
+            nombre,
+            telefono,
+            email,
+            mensaje
+        )
+
+        VALUES
+        (
+            :nombre,
+            :telefono,
+            :email,
+            :mensaje
+        )
+
+    ");
 
 
     $stmt->execute([
@@ -245,18 +196,23 @@ try {
 
 } catch (PDOException $e) {
 
+    error_log(
+        "Error al guardar contacto: " .
+        $e->getMessage()
+    );
+
+    http_response_code(500);
 
     echo json_encode([
 
         "success" => false,
 
         "error" =>
-            "No se pudo guardar el formulario."
+            "El formulario no se pudo guardar en la base de datos."
 
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 
     exit;
-
 }
 
 
@@ -289,11 +245,6 @@ $textoWhatsApp =
     "\n";
 
 
-/*
-    Añadir teléfono solamente
-    si el usuario lo ha proporcionado.
-*/
-
 if ($telefono !== "") {
 
     $textoWhatsApp .=
@@ -324,26 +275,27 @@ $textoWhatsApp .=
 $whatsappURL =
 
     "https://wa.me/" .
-
     $numeroWhatsApp .
-
     "?text=" .
-
-    urlencode(
-        $textoWhatsApp
-    );
+    urlencode($textoWhatsApp);
 
 
 /* ==========================================
-   RESPUESTA AL JAVASCRIPT
+   RESPUESTA FINAL
 ========================================== */
 
 echo json_encode([
 
     "success" => true,
 
-    "whatsapp" => $whatsappURL
+    "message" =>
+        "Contacto guardado correctamente.",
+
+    "whatsapp" =>
+        $whatsappURL
 
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+exit;
 
 ?>
