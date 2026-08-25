@@ -723,7 +723,7 @@ if (contactForm) {
 
                 const response =
                     await fetch(
-                        "formulario.php",
+                        "contacto.php",
                         {
 
                             method: "POST",

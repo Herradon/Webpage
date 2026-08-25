@@ -1,4 +1,5 @@
 <!-- http://localhost:8080/chatbot/#chat -->
+<!--http://localhost:8080/phpmyadmin/-->
 
 <?php
 session_start();
@@ -14,7 +15,7 @@ session_start();
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Mi Web | Asistente IA</title>
+    <title>vizuineAI.com</title>
 
     <link rel="stylesheet"
           href="css/style.css">
@@ -30,7 +31,7 @@ session_start();
     <div class="container nav">
 
         <div class="logo">
-            Virsual Solutions
+            Visual Solutions
         </div>
 
 
@@ -201,29 +202,6 @@ session_start();
 
 
                 <!-- ==================================
-                     BOTÓN WHATSAPP
-                =================================== -->
-
-                <div
-                    class="chat-whatsapp-container">
-
-
-                    <button
-                        type="button"
-                        id="sendChatWhatsApp"
-                        class="chat-whatsapp-button"
-                        hidden>
-
-                        📲 Contactar por WhatsApp
-
-                    </button>
-
-
-                </div>
-
-
-
-                <!-- ==================================
                      INPUT DEL CHAT
                 =================================== -->
 
@@ -251,11 +229,55 @@ session_start();
 
 
                 </form>
-
+                
 
             </div>
 
         </div>
+
+
+        <div class="whatsapp-tittle">
+
+         <h1>
+
+                    De nuestro asistente
+
+                    <span>
+                        a tu whatsapp
+                    </span>
+
+                </h1>
+
+
+                <p>
+
+                    A partir de aquí es donde toda la conversación con nuestro asistente pasa a otro nivel, ya que podrás 
+                    terminar la conversación con nuestro equipo de soporte y atención al cliente.
+                    Si estas de acuerdo, pulsa el botón de abajo y envía toda la conversación a nuestro whatsapp, para finalizar tu proyecto, asesoramiento o consulta.
+                    En el caso de que tengas algun problema con el soporte o con el asistente, puedes enviarnos un mensaje directamente a nuestro whatsapp completando el formulario y te atenderemos lo antes posible.
+                </p>
+
+        </div>
+
+         <!-- ==================================
+                     BOTÓN WHATSAPP
+                =================================== -->
+
+                <div
+                    class="chat-whatsapp-container">
+                        
+                    <button
+                        type="button"
+                        id="sendChatWhatsApp"
+                        class="chat-whatsapp-button"
+                        hidden>
+
+                       Enviar chat por whatssap 📩
+
+                    </button>
+
+
+                </div>
 
     </section>
 
