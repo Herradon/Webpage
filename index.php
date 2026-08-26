@@ -31,7 +31,7 @@ session_start();
     <div class="container nav">
 
         <div class="logo">
-            Visual Solutions
+            ViziuneAI
         </div>
 
 
@@ -106,13 +106,31 @@ session_start();
 
             <div class="section-title">
 
-                <h2>
-                    ¿En qué podemos ayudarte?
-                </h2>
+                <h1>
+
+                De nuestro asistente
+
+                <span>
+                    al correo
+                </span>
+
+            </h1>
 
 
                 <p>
-                    Escribe tu pregunta y nuestro asistente te responderá.
+                     <p>
+
+                A partir de aquí es donde toda la conversación
+                con nuestro asistente pasa a otro nivel, ya que
+                podrás terminar la conversación con nuestro
+                equipo de soporte y atención al cliente.
+
+                Si estás de acuerdo, pulsa el botón de abajo
+                y envía toda la conversación a nuestro correo,
+                para finalizar tu proyecto, asesoramiento o
+                consulta.
+
+            </p>
                 </p>
 
             </div>
@@ -228,31 +246,6 @@ session_start();
 
         <div class="whatsapp-tittle">
 
-            <h1>
-
-                De nuestro asistente
-
-                <span>
-                    al correo
-                </span>
-
-            </h1>
-
-
-            <p>
-
-                A partir de aquí es donde toda la conversación
-                con nuestro asistente pasa a otro nivel, ya que
-                podrás terminar la conversación con nuestro
-                equipo de soporte y atención al cliente.
-
-                Si estás de acuerdo, pulsa el botón de abajo
-                y envía toda la conversación a nuestro correo,
-                para finalizar tu proyecto, asesoramiento o
-                consulta.
-
-            </p>
-
 
             <!-- ==================================
                  BOTÓN ENVIAR CONVERSACIÓN
@@ -280,12 +273,8 @@ session_start();
             <div
                 id="chatEmailForm"
                 class="chat-email-form"
-                hidden>
+                hidden style="justify-items: center;">
 
-
-                <h3>
-                    📧 Enviar conversación
-                </h3>
 
 
                 <p>
@@ -301,7 +290,7 @@ session_start();
                      NOMBRE
                 =============================== -->
 
-                <div class="form-group">
+                <div class="form-group" style="width: 50%;">
 
                     <input
                         type="text"
@@ -317,7 +306,7 @@ session_start();
                      EMAIL
                 =============================== -->
 
-                <div class="form-group">
+                <div class="form-group" style="width: 50%;">
 
                     <input
                         type="email"

@@ -223,25 +223,24 @@ nav a:hover {
 
     margin-bottom: 45px;
 
-}
-
-
-.section-title span {
-
-    color: #2563eb;
-
-    font-weight: bold;
-
-    font-size: 13px;
+    justify-items: center;
 
 }
 
+.section-title h1 {
 
-.section-title h2 {
+    font-size: 30px;
 
-    font-size: 38px;
+    line-height: 1.1;
 
-    margin: 10px 0;
+    margin-bottom: 25px;
+
+}
+
+
+.section-title h1 span {
+    
+    color: #1ebe5d;
 
 }
 
@@ -249,6 +248,13 @@ nav a:hover {
 .section-title p {
 
     color: #6b7280;
+
+    font-size: 20px;
+
+    text-align: justify;
+
+    max-width: 850px;
+
 
 }
 
@@ -268,9 +274,9 @@ nav a:hover {
 
 .chat-box {
 
-    max-width: 100%;
+    max-width: 70%;
 
-    border-radius: 3%;
+    border-radius: 20px;
 
     margin: auto;
 
@@ -560,23 +566,6 @@ nav a:hover {
 
 }
 
-.whatsapp-tittle h1 {
-
-    font-size: 30px;
-
-    line-height: 1.1;
-
-    margin-bottom: 25px;
-
-}
-
-
-.whatsapp-tittle h1 span {
-    
-    color: #1ebe5d;
-
-}
-
 
 .whatsapp-tittle p {
 
@@ -645,6 +634,74 @@ align-content: center;
 
 }
 
+.chat-email-form-group {
+
+    margin:20px;
+
+    text-align: center;
+
+    justify-items: center;
+
+}
+
+---------
+
+.chat-email-form-group input {
+
+    max-width: 100%;
+
+
+    background: white;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,0.08);
+
+}
+
+
+.chat-email-form button {
+
+    margin-bottom: 25px;
+
+     max-width: 100%;
+
+    padding: 16px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #1ebe5d;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+
+.chat-email-form button:hover {
+
+    background: #15803d;
+
+}
+
+
+.chat-email-form button:disabled {
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+}
+
 
 /* ==========================================
    CONTACTO
@@ -685,7 +742,7 @@ align-content: center;
     grid-template-columns:
         1fr 1fr;
 
-    gap: 20px;
+    gap: -5px;
 
 }
 
@@ -695,6 +752,8 @@ align-content: center;
     display: flex;
 
     flex-direction: column;
+
+    margin: 15px;
 
 }
 
@@ -869,6 +928,7 @@ footer {
     .chat-box {
 
         max-width: 95%;
+
 
     }
 
