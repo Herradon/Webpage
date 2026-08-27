@@ -81,7 +81,9 @@ function ponerAvatar(avatar, type) {
 if (chatForm) {
 
     chatForm.addEventListener(
+
         "submit",
+
         async function (event) {
 
             event.preventDefault();
@@ -96,7 +98,9 @@ if (chatForm) {
 
 
             if (!message) {
+
                 return;
+
             }
 
 
@@ -167,13 +171,18 @@ if (chatForm) {
 
                 const response =
                     await fetch(
+
                         "chat.php",
+
                         {
+
                             method: "POST",
 
                             headers: {
+
                                 "Content-Type":
                                     "application/json"
+
                             },
 
                             body:
@@ -183,7 +192,9 @@ if (chatForm) {
                                         message
 
                                 })
+
                         }
+
                     );
 
 
@@ -214,7 +225,9 @@ if (chatForm) {
                 ============================== */
 
                 if (typing) {
+
                     typing.remove();
+
                 }
 
 
@@ -227,6 +240,7 @@ if (chatForm) {
                     addMessage(
 
                         "Lo siento, ha ocurrido un error: " +
+
                         (
                             data.error ||
                             "Error desconocido."
@@ -253,18 +267,12 @@ if (chatForm) {
 
             } catch (error) {
 
-                /* ==============================
-                   QUITAR ESCRIBIENDO
-                ============================== */
-
                 if (typing) {
+
                     typing.remove();
+
                 }
 
-
-                /* ==============================
-                   MOSTRAR ERROR
-                ============================== */
 
                 addMessage(
 
@@ -284,10 +292,6 @@ if (chatForm) {
 
             } finally {
 
-                /* ==============================
-                   REACTIVAR CHAT
-                ============================== */
-
                 messageInput.disabled =
                     false;
 
@@ -305,6 +309,7 @@ if (chatForm) {
             }
 
         }
+
     );
 
 }
@@ -409,28 +414,18 @@ function addMessage(
 if (resetChat) {
 
     resetChat.addEventListener(
-        "click",
-        function () {
 
-            /* ==============================
-               BORRAR CONVERSACIÓN VISUAL
-            ============================== */
+        "click",
+
+        function () {
 
             chatMessages.innerHTML =
                 "";
 
 
-            /* ==============================
-               LIMPIAR INPUT
-            ============================== */
-
             messageInput.value =
                 "";
 
-
-            /* ==============================
-               OCULTAR BOTÓN EMAIL
-            ============================== */
 
             if (sendChatEmail) {
 
@@ -446,10 +441,6 @@ if (resetChat) {
             }
 
 
-            /* ==============================
-               OCULTAR FORMULARIO EMAIL
-            ============================== */
-
             if (chatEmailForm) {
 
                 chatEmailForm.hidden =
@@ -457,10 +448,6 @@ if (resetChat) {
 
             }
 
-
-            /* ==============================
-               LIMPIAR DATOS
-            ============================== */
 
             if (chatNombre) {
 
@@ -478,13 +465,10 @@ if (resetChat) {
             }
 
 
-            /* ==============================
-               VOLVER AL INPUT
-            ============================== */
-
             messageInput.focus();
 
         }
+
     );
 
 }
@@ -498,10 +482,6 @@ function comprobarSolicitudContacto(
     message
 ) {
 
-    /* ==============================
-       NORMALIZAR TEXTO
-    ============================== */
-
     const texto =
         message
             .toLowerCase()
@@ -512,70 +492,37 @@ function comprobarSolicitudContacto(
             );
 
 
-    /* ==============================
-       PALABRAS DE CONTACTO
-    ============================== */
-
     const palabrasContacto = [
 
         "quiero contactar",
-
         "quiero contacto",
-
         "contactar",
-
         "contacto",
-
         "quiero hablar",
-
         "hablar con alguien",
-
         "hablar con la empresa",
-
         "hablar con vosotros",
-
         "hablar con ustedes",
-
         "quiero contratar",
-
         "quiero contrataros",
-
         "contratar",
-
         "quiero presupuesto",
-
         "necesito presupuesto",
-
         "presupuesto",
-
         "precio",
-
         "precios",
-
         "informacion",
-
         "mas informacion",
-
         "quiero informacion",
-
         "me interesa",
-
         "estoy interesado",
-
         "estoy interesada",
-
         "quiero saber mas",
-
         "necesito ayuda",
-
         "hablar con una persona"
 
     ];
 
-
-    /* ==============================
-       COMPROBAR
-    ============================== */
 
     const quiereContactar =
         palabrasContacto.some(
@@ -583,10 +530,6 @@ function comprobarSolicitudContacto(
                 texto.includes(palabra)
         );
 
-
-    /* ==============================
-       MOSTRAR BOTÓN EMAIL
-    ============================== */
 
     if (
         quiereContactar &&
@@ -618,6 +561,7 @@ function obtenerConversacion() {
 
 
     mensajes.forEach(
+
         function (mensaje) {
 
             const bubble =
@@ -627,7 +571,9 @@ function obtenerConversacion() {
 
 
             if (!bubble) {
+
                 return;
+
             }
 
 
@@ -636,13 +582,11 @@ function obtenerConversacion() {
 
 
             if (!texto) {
+
                 return;
+
             }
 
-
-            /* ==============================
-               ASISTENTE
-            ============================== */
 
             if (
                 mensaje.classList.contains(
@@ -651,20 +595,15 @@ function obtenerConversacion() {
             ) {
 
                 conversacion +=
+
                     "ASISTENTE:\n" +
                     texto +
                     "\n\n";
 
-            }
-
-
-            /* ==============================
-               CLIENTE
-            ============================== */
-
-            else {
+            } else {
 
                 conversacion +=
+
                     "CLIENTE:\n" +
                     texto +
                     "\n\n";
@@ -672,6 +611,7 @@ function obtenerConversacion() {
             }
 
         }
+
     );
 
 
@@ -687,7 +627,9 @@ function obtenerConversacion() {
 if (sendChatEmail) {
 
     sendChatEmail.addEventListener(
+
         "click",
+
         function () {
 
             const conversacion =
@@ -705,14 +647,11 @@ if (sendChatEmail) {
             }
 
 
-            /* ==============================
-               MOSTRAR FORMULARIO
-            ============================== */
-
             if (chatEmailForm) {
 
                 chatEmailForm.hidden =
                     false;
+
 
                 if (chatNombre) {
 
@@ -720,9 +659,12 @@ if (sendChatEmail) {
 
                 }
 
+
                 chatEmailForm.scrollIntoView({
+
                     behavior: "smooth",
                     block: "nearest"
+
                 });
 
             } else {
@@ -734,6 +676,7 @@ if (sendChatEmail) {
             }
 
         }
+
     );
 
 }
@@ -794,9 +737,13 @@ async function confirmarEnvioConversacion() {
             "Por favor, introduce tu nombre antes de enviar la conversación."
         );
 
+
         if (chatNombre) {
+
             chatNombre.focus();
+
         }
+
 
         return;
 
@@ -813,9 +760,13 @@ async function confirmarEnvioConversacion() {
             "Por favor, introduce tu correo electrónico antes de enviar la conversación."
         );
 
+
         if (chatEmail) {
+
             chatEmail.focus();
+
         }
+
 
         return;
 
@@ -823,7 +774,7 @@ async function confirmarEnvioConversacion() {
 
 
     /* ==============================
-       VALIDAR EMAIL
+       VALIDAR FORMATO EMAIL
     ============================== */
 
     const emailValido =
@@ -836,9 +787,13 @@ async function confirmarEnvioConversacion() {
             "Por favor, introduce un correo electrónico válido."
         );
 
+
         if (chatEmail) {
+
             chatEmail.focus();
+
         }
+
 
         return;
 
@@ -868,7 +823,9 @@ async function confirmarEnvioConversacion() {
 
         const response =
             await fetch(
+
                 "chat.php",
+
                 {
 
                     method: "POST",
@@ -898,25 +855,12 @@ async function confirmarEnvioConversacion() {
                         })
 
                 }
+
             );
 
 
         /* ==============================
-           COMPROBAR HTTP
-        ============================== */
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Error HTTP " +
-                response.status
-            );
-
-        }
-
-
-        /* ==============================
-           LEER JSON
+           LEER RESPUESTA
         ============================== */
 
         const data =
@@ -927,14 +871,14 @@ async function confirmarEnvioConversacion() {
            COMPROBAR ERROR
         ============================== */
 
-        if (!data.success) {
+        if (!response.ok || !data.success) {
 
-            alert(
+            throw new Error(
+
                 data.error ||
                 "No se pudo enviar la conversación."
-            );
 
-            return;
+            );
 
         }
 
@@ -944,8 +888,11 @@ async function confirmarEnvioConversacion() {
         ============================== */
 
         alert(
+
             "✅ Conversación enviada correctamente.\n\n" +
+
             "Hemos recibido tus datos y la conversación."
+
         );
 
 
@@ -985,9 +932,16 @@ async function confirmarEnvioConversacion() {
 
 
         alert(
-            "❌ No se pudo enviar la conversación.\n\n" +
-            "Comprueba que Apache, XAMPP y Gmail estén correctamente configurados."
+
+            "❌ " +
+
+            (
+                error.message ||
+                "No se pudo enviar la conversación."
+            )
+
         );
+
 
     } finally {
 
@@ -1013,8 +967,11 @@ async function confirmarEnvioConversacion() {
 if (confirmSendChatEmail) {
 
     confirmSendChatEmail.addEventListener(
+
         "click",
+
         confirmarEnvioConversacion
+
     );
 
 }
@@ -1039,25 +996,19 @@ const formResult =
 if (contactForm) {
 
     contactForm.addEventListener(
+
         "submit",
+
         async function (event) {
 
             event.preventDefault();
 
-
-            /* ==============================
-               DATOS
-            ============================== */
 
             const formData =
                 new FormData(
                     contactForm
                 );
 
-
-            /* ==============================
-               BOTÓN
-            ============================== */
 
             const button =
                 contactForm.querySelector(
@@ -1086,23 +1037,20 @@ if (contactForm) {
 
             try {
 
-                /* ==============================
-                   ENVIAR A CONTACTO.PHP
-                ============================== */
-
                 const response =
                     await fetch(
+
                         "contacto.php",
+
                         {
+
                             method: "POST",
                             body: formData
+
                         }
+
                     );
 
-
-                /* ==============================
-                   COMPROBAR HTTP
-                ============================== */
 
                 if (!response.ok) {
 
@@ -1114,23 +1062,16 @@ if (contactForm) {
                 }
 
 
-                /* ==============================
-                   LEER JSON
-                ============================== */
-
                 const data =
                     await response.json();
 
-
-                /* ==============================
-                   ERROR
-                ============================== */
 
                 if (!data.success) {
 
                     if (formResult) {
 
                         formResult.innerHTML =
+
                             `<p class="error">
                                 ${
                                     data.error ||
@@ -1140,18 +1081,16 @@ if (contactForm) {
 
                     }
 
+
                     return;
 
                 }
 
 
-                /* ==============================
-                   ÉXITO
-                ============================== */
-
                 if (formResult) {
 
                     formResult.innerHTML =
+
                         `<p class="success">
                             ✅ Datos guardados correctamente.
                             Abriendo WhatsApp...
@@ -1159,10 +1098,6 @@ if (contactForm) {
 
                 }
 
-
-                /* ==============================
-                   ABRIR WHATSAPP
-                ============================== */
 
                 if (data.whatsapp) {
 
@@ -1173,10 +1108,6 @@ if (contactForm) {
 
                 }
 
-
-                /* ==============================
-                   LIMPIAR FORMULARIO
-                ============================== */
 
                 contactForm.reset();
 
@@ -1192,6 +1123,7 @@ if (contactForm) {
                 if (formResult) {
 
                     formResult.innerHTML =
+
                         `<p class="error">
                             ❌ Ha ocurrido un error al conectar con el servidor.
                         </p>`;
@@ -1199,10 +1131,6 @@ if (contactForm) {
                 }
 
             } finally {
-
-                /* ==============================
-                   REACTIVAR BOTÓN
-                ============================== */
 
                 if (button) {
 
@@ -1217,6 +1145,7 @@ if (contactForm) {
             }
 
         }
+
     );
 
 }
