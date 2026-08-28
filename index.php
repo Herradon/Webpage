@@ -201,7 +201,7 @@ session_start();
                         class="reset-chat"
                         title="Reiniciar chat">
 
-                        <img src="" alt="">
+                        <img id="assistantAvatar" src="img/reload.svg" alt="Asistente">
 
                     </button>
 
@@ -278,7 +278,7 @@ session_start();
                     type="submit"
                     title="Enviar mensaje">
 
-                    ▶️
+                    <img id="assistantAvatar" src="img/arrow.svg" alt="Asistente">
 
                 </button>
 
