@@ -278,7 +278,7 @@ session_start();
                     type="submit"
                     title="Enviar mensaje">
 
-                    <img id="assistantAvatar" src="img/arrow.svg" alt="Asistente">
+                    <img id="arrow" src="img/arrow.svg" alt="Asistente">
 
                 </button>
 

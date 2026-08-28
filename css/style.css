@@ -324,6 +324,16 @@ nav a:hover {
     margin-bottom: 20px;
 }
 
+#arrow {
+    transform: rotate(-90deg);
+     object-fit: contain;
+
+    transition: transform 0.5s ease;
+}
+
+#arrow:hover {
+    transform: rotate(360deg);
+}
 
 .message.user {
     flex-direction: row-reverse;
@@ -432,7 +442,7 @@ nav a:hover {
     padding-right: 20px;
 
     cursor: pointer;
-
+     
 }
 
 .reset-chat img{
@@ -442,7 +452,8 @@ nav a:hover {
 .reset-chat img:hover {
 
     transform: rotate(90deg);
-
+       object-fit: contain;
+    transition: transform 0.2s ease;
 }
 
 /* ==========================================
