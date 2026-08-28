@@ -196,12 +196,12 @@ session_start();
 
 
                     <button
-                        type="button"
+                        type="button"x
                         id="resetChat"
                         class="reset-chat"
                         title="Reiniciar chat">
 
-                        🔄
+                        <img src="" alt="">
 
                     </button>
 

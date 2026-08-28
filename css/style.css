@@ -437,16 +437,7 @@ nav a:hover {
 
     cursor: pointer;
 
-    transition:
-        transform 0.2s ease,
-        opacity 0.2s ease;
 }
-
-
-.reset-chat:hover {
-    transform: rotate(-20deg);
-}
-
 
 /* ==========================================
    EMAIL
