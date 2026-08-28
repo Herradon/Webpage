@@ -180,7 +180,7 @@ session_start();
                         <strong id="assistantName">
 
                         Alejandro Herradón,
-                        tu Asistente de confianza
+                        Asesor financiero.
 
                         </strong>
 
@@ -221,7 +221,7 @@ session_start();
                         </span>
 
                         <span>
-                            <h1>Asesor</h1>
+                            <h1>Finanzas</h1>
                         </span>
 
                     </button>
@@ -234,7 +234,7 @@ session_start();
                         </span>
 
                         <span>
-                            <h1> Ventas</h1>
+                            <h1>Legal</h1>
                         </span>
 
                     </button>
@@ -247,7 +247,7 @@ session_start();
                         </span>
 
                         <span>
-                            <h1>Consultor IA</h1>
+                            <h1>inmobiliaria</h1>
                         </span>
 
                     </button>
@@ -260,7 +260,7 @@ session_start();
                         </span>
     
                         <span>
-                            <h1>Soporte</h1>
+                            <h1>laboral</h1>
                         </span>
     
                     </button>

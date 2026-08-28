@@ -42,52 +42,55 @@ let selectedAgent = "asesor";
 
 const agentInfo = {
 
-    asesor: {
+    "asesor inmobiliario": {
 
         name:
-            "Alejandro Herradón, tu Asistente de confianza",
+            "Alejandro Herradón, tu Asesor Inmobiliario",
 
         description:
-            "● Asesoramiento personalizado las 24 horas",
+            "● Especialista en compra, venta y alquiler de inmuebles",
 
         avatar:
             "img/asset.png"
 
     },
 
-    ventas: {
+
+    "asesor laboral": {
 
         name:
-            "Alejandro, tu Asesor Comercial",
+            "Alejandro Herradón, tu Asesor Laboral",
 
         description:
-            "● Especialista en ventas y servicios",
+            "● Orientación sobre empleo y situaciones laborales",
 
         avatar:
             "img/asset.png"
 
     },
 
-    ia: {
+
+    "asesor legal": {
 
         name:
-            "Alejandro, Consultor de Inteligencia Artificial",
+            "Alejandro Herradón, tu Asesor Legal",
 
         description:
-            "● Especialista en IA y automatización",
+            "● Información sobre situaciones y conceptos jurídicos",
 
         avatar:
             "img/asset.png"
 
     },
 
-    soporte: {
+
+    "asesor financiero": {
 
         name:
-            "Alejandro, Especialista de Soporte",
+            "Alejandro Herradón, tu Asesor Financiero",
 
         description:
-            "● Soporte técnico y resolución de problemas",
+            "● Orientación sobre finanzas, presupuestos y alternativas económicas",
 
         avatar:
             "img/asset.png"
@@ -103,7 +106,7 @@ const agentInfo = {
 
 function cambiarIdentidad(agent) {
 
-    if (!agentInfo[agent]) {
+    if (!agentInfo["asesor inmobiliario"]) {
         return;
     }
 
