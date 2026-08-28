@@ -57,11 +57,7 @@ $textoEmail =
     "Hola Alejandro.\n\n" .
 
     "Un cliente ha iniciado una conversación " .
-    "con el asistente web.\n\n" .
-
-    "====================================\n" .
-    "CONVERSACIÓN DEL CHAT\n" .
-    "====================================\n\n" .
+    "con el asistente web:.\n\n" .
 
     $conversacion;
 

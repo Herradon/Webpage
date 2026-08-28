@@ -15,13 +15,12 @@ session_start();
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>vizuineAI.com</title>
+    <title>ViziuneAI.com</title>
 
     <link rel="stylesheet"
           href="css/style.css">
 
 </head>
-
 
 <body>
 
@@ -33,7 +32,6 @@ session_start();
         <div class="logo">
             ViziuneAI
         </div>
-
 
         <nav>
 
@@ -56,57 +54,65 @@ session_start();
 </header>
 
 
-
 <main>
 
 
-    <!-- ==========================================
-         HERO
-    =========================================== -->
+<!-- ==========================================
+     HERO
+=========================================== -->
 
-    <section id="inicio"
-             class="hero">
+<section id="inicio"
+         class="hero">
 
-        <div class="container hero-content">
+    <div class="container hero-content">
+
+        <h1>
+
+            Habla con nuestro
+
+            <span>
+                asistente inteligente
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            Transformamos la forma en la que trabajan usando
+            agentes de inteligencia artificial capaces de atender,
+            responder y automatizar tareas de forma inteligente.
+            Nuestros agentes pueden interactuar con clientes,
+            resolver consultas, gestionar solicitudes, recopilar
+            información y asistir en diferentes procesos del negocio
+            durante las 24 horas del día.
+
+            <br><br>
+
+            Creamos agentes adaptados a las necesidades de cada
+            negocio para aplicarlos en una página web aportando
+            soluciones integradas con WhatsApp y otros servicios.
+
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================
+     CHAT
+=========================================== -->
+
+<section id="chat"
+         class="chat-section">
+
+    <div class="container">
+
+
+        <div class="section-title">
 
             <h1>
-
-                Habla con nuestro
-
-                <span>
-                    asistente inteligente
-                </span>
-
-            </h1>
-
-
-            <p>
-
-                Transformamos la forma en la que trabajan usando agentes de inteligencia artificial capaces de atender, responder y automatizar tareas de forma inteligente. Nuestros agentes pueden interactuar con clientes, resolver consultas, gestionar solicitudes, recopilar información y asistir en diferentes procesos del negocio durante las 24 horas del día. El objetivo es combinar la potencia de la inteligencia artificial con una experiencia cercana y personalizada, ayudando a las empresas a ahorrar tiempo, mejorar su atención al cliente y aumentar su productividad.
-
-                Creamos agentes adaptados a las necesidades de cada negocio para aplicarlos en una página web aportando soluciones integradas con WhatsApp y otros servicios del mismo.
-
-            </p>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ==========================================
-         CHAT
-    =========================================== -->
-
-    <section id="chat"
-             class="chat-section">
-
-        <div class="container">
-
-
-            <div class="section-title">
-
-                <h1>
 
                 De nuestro asistente
 
@@ -116,377 +122,426 @@ session_start();
 
             </h1>
 
-
-                <p>
-                     <p>
+            <p>
 
                 A partir de aquí es donde toda la conversación
-                con nuestro asistente pasa a otro nivel, ya que
-                podrás terminar la conversación con nuestro
-                equipo de soporte y atención al cliente.
-
-                Si estás de acuerdo, pulsa el botón de abajo
-                y envía toda la conversación a nuestro correo,
-                para finalizar tu proyecto, asesoramiento o
-                consulta.
+                con nuestro asistente pasa a otro nivel. Puedes
+                elegir qué especialista quieres consultar y,
+                cuando termines, enviar toda la conversación
+                a nuestro equipo.
 
             </p>
-                </p>
 
-            </div>
-
+        </div>
 
 
-            <div class="chat-box">
+        <!-- ==========================================
+             SELECTOR DE IDENTIDAD
+        =========================================== -->
+
+        <div class="agent-selector">
+
+            <h3>
+                ¿Con quién quieres hablar?
+            </h3>
+
+            <p class="agent-selector-description">
+
+                Selecciona el especialista que mejor se adapte
+                a lo que necesitas.
+
+            </p>
 
 
-                <!-- ==================================
-                     CABECERA DEL CHAT
-                =================================== -->
-
-                <div class="chat-header">
+            <div class="agent-buttons">
 
 
-                    <div class="assistant-avatar">
+                <button
+                    type="button"
+                    class="agent-button active"
+                    data-agent="asesor">
 
-                        <img
-                            src="img/asset.png"
-                            alt="Alejandro Herradón">
+                    <span class="agent-button-icon">
+                        👔
+                    </span>
 
-                    </div>
-
-
-                    <div>
-
+                    <span>
                         <strong>
-                            Alejandro Herradón,
-                            tu Asistente de confianza
+                            Asesor
                         </strong>
 
+                        <small>
+                            Atención personalizada
+                        </small>
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="agent-button"
+                    data-agent="ventas">
+
+                    <span class="agent-button-icon">
+                        💼
+                    </span>
+
+                    <span>
+                        <strong>
+                            Ventas
+                        </strong>
 
                         <small>
-
-                            ● Asesoramiento personalizado
-                            las 24 horas
-
+                            Servicios y presupuestos
                         </small>
+                    </span>
 
-                    </div>
-
-
-                    <button
-                        type="button"
-                        id="resetChat"
-                        class="reset-chat"
-                        title="Reiniciar chat">
-
-                        🔄
-
-                    </button>
-
-                </div>
+                </button>
 
 
+                <button
+                    type="button"
+                    class="agent-button"
+                    data-agent="ia">
 
-                <!-- ==================================
-                     MENSAJES
-                =================================== -->
+                    <span class="agent-button-icon">
+                        🧠
+                    </span>
 
-                <div
-                    id="chatMessages"
-                    class="chat-messages">
+                    <span>
+                        <strong>
+                            Consultor IA
+                        </strong>
 
-                    <!--
-                        Los mensajes del chatbot
-                        aparecerán aquí mediante JS.
-                    -->
+                        <small>
+                            Inteligencia artificial
+                        </small>
+                    </span>
 
-                </div>
-
-
-
-                <!-- ==================================
-                     INPUT DEL CHAT
-                =================================== -->
-
-                <form
-                    id="chatForm"
-                    class="chat-input">
+                </button>
 
 
-                    <input
-                        type="text"
-                        id="message"
-                        name="message"
-                        placeholder="Escribe tu mensaje..."
-                        autocomplete="off"
-                        required>
+                <button
+                    type="button"
+                    class="agent-button"
+                    data-agent="soporte">
 
+                    <span class="agent-button-icon">
+                        🛠️
+                    </span>
 
-                    <button
-                        type="submit"
-                        title="Enviar mensaje">
+                    <span>
+                        <strong>
+                            Soporte
+                        </strong>
 
-                        ▶️
+                        <small>
+                            Ayuda técnica
+                        </small>
+                    </span>
 
-                    </button>
-
-
-                </form>
+                </button>
 
             </div>
 
         </div>
 
 
-
         <!-- ==========================================
-             ENVÍO DE CONVERSACIÓN
+             CHAT BOX
         =========================================== -->
 
-        <div class="whatsapp-tittle">
+        <div class="chat-box">
 
 
-            <!-- ==================================
-                 BOTÓN ENVIAR CONVERSACIÓN
-            =================================== -->
+            <!-- CABECERA -->
 
-            <div class="chat-whatsapp-container">
+            <div class="chat-header">
+
+
+                <div class="assistant-avatar">
+
+                    <img
+                        id="assistantAvatar"
+                        src="img/asset.png"
+                        alt="Asistente">
+
+                </div>
+
+
+                <div>
+
+                    <strong id="assistantName">
+
+                        Alejandro Herradón,
+                        tu Asistente de confianza
+
+                    </strong>
+
+
+                    <small id="assistantDescription">
+
+                        ● Asesoramiento personalizado
+                        las 24 horas
+
+                    </small>
+
+                </div>
+
 
                 <button
                     type="button"
-                    id="sendChatEmail"
-                    hidden>
+                    id="resetChat"
+                    class="reset-chat"
+                    title="Reiniciar chat">
 
-                    📧 Enviar conversación por correo
+                    🔄
 
                 </button>
 
             </div>
 
 
-
-            <!-- ==================================
-                 DATOS DEL CLIENTE PARA EL CHAT
-            =================================== -->
+            <!-- MENSAJES -->
 
             <div
-                id="chatEmailForm"
-                class="chat-email-form"
-                hidden style="justify-items: center;">
-
-
-
-                <p>
-
-                    Para poder enviarte la conversación
-                    y que nuestro equipo pueda contactar
-                    contigo, introduce tus datos:
-
-                </p>
-
-
-                <!-- ==============================
-                     NOMBRE
-                =============================== -->
-
-                <div class="form-group" style="width: 50%;">
-
-                    <input
-                        type="text"
-                        id="chatNombre"
-                        name="chatNombre"
-                        placeholder="Tu nombre"
-                        autocomplete="name">
-
-                </div>
-
-
-                <!-- ==============================
-                     EMAIL
-                =============================== -->
-
-                <div class="form-group" style="width: 50%;">
-
-                    <input
-                        type="email"
-                        id="chatEmail"
-                        name="chatEmail"
-                        placeholder="Tu correo electrónico"
-                        autocomplete="email">
-
-                </div>
-
-
-                <!-- ==============================
-                     CONFIRMAR ENVÍO
-                =============================== -->
-
-                <button
-                    type="button"
-                    id="confirmSendChatEmail">
-
-                    📧 Enviar conversación
-
-                </button>
-
+                id="chatMessages"
+                class="chat-messages">
 
             </div>
 
+
+            <!-- INPUT -->
+
+            <form
+                id="chatForm"
+                class="chat-input">
+
+
+                <input
+                    type="text"
+                    id="message"
+                    name="message"
+                    placeholder="Escribe tu mensaje..."
+                    autocomplete="off"
+                    required>
+
+
+                <button
+                    type="submit"
+                    title="Enviar mensaje">
+
+                    ▶️
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         ENVÍO DE CONVERSACIÓN
+    =========================================== -->
+
+    <div class="whatsapp-tittle">
+
+
+        <div class="chat-whatsapp-container">
+
+            <button
+                type="button"
+                id="sendChatEmail"
+                hidden>
+
+                📧 Enviar conversación por correo
+
+            </button>
+
+        </div>
+
+
+        <!-- DATOS CLIENTE -->
+
+        <div
+            id="chatEmailForm"
+            class="chat-email-form"
+            hidden>
 
 
             <p>
 
-                En el caso de que tengas algún problema con
-                el soporte o con el asistente, puedes enviarnos
-                un mensaje directamente a nuestro WhatsApp
-                completando el formulario y te atenderemos
-                lo antes posible.
+                Para poder enviarte la conversación
+                y que nuestro equipo pueda contactar
+                contigo, introduce tus datos:
+
+            </p>
+
+
+            <div class="form-group">
+
+                <input
+                    type="text"
+                    id="chatNombre"
+                    name="chatNombre"
+                    placeholder="Tu nombre"
+                    autocomplete="name">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <input
+                    type="email"
+                    id="chatEmail"
+                    name="chatEmail"
+                    placeholder="Tu correo electrónico"
+                    autocomplete="email">
+
+            </div>
+
+
+            <button
+                type="button"
+                id="confirmSendChatEmail">
+
+                📧 Enviar conversación
+
+            </button>
+
+
+        </div>
+
+
+        <p>
+
+            En el caso de que tengas algún problema con
+            el soporte o con el asistente, puedes enviarnos
+            un mensaje directamente a nuestro WhatsApp
+            completando el formulario y te atenderemos
+            lo antes posible.
+
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================
+     CONTACTO
+=========================================== -->
+
+<section
+    id="contacto"
+    class="contact-section">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <span>
+                CONTACTO
+            </span>
+
+            <h2>
+                ¿Quieres hablar con nosotros?
+            </h2>
+
+            <p>
+
+                Rellena el formulario y continúa
+                la conversación directamente
+                por WhatsApp.
 
             </p>
 
         </div>
 
-    </section>
+
+        <div class="contact-card">
+
+            <form id="contactForm">
 
 
-
-    <!-- ==========================================
-         CONTACTO
-    =========================================== -->
-
-    <section
-        id="contacto"
-        class="contact-section">
+                <div class="form-grid">
 
 
-        <div class="container">
+                    <div class="form-group">
 
-
-            <div class="section-title">
-
-
-                <span>
-                    CONTACTO
-                </span>
-
-
-                <h2>
-
-                    ¿Quieres hablar con nosotros?
-
-                </h2>
-
-
-                <p>
-
-                    Rellena el formulario y continúa
-                    la conversación directamente
-                    por WhatsApp.
-
-                </p>
-
-            </div>
-
-
-
-            <div class="contact-card">
-
-
-                <form id="contactForm">
-
-
-                    <div class="form-grid">
-
-
-                        <div class="form-group">
-
-
-                            <input
-                                type="text"
-                                name="nombre"
-                                required
-                                placeholder="Tu nombre del solicitante">
-
-                        </div>
-
-
-
-                        <div class="form-group">
-
-
-                            <input
-                                type="text"
-                                name="Empresa"
-                                required
-                                placeholder="Nombre de la empresa u organización">
-
-                        </div>
-
-
-
-                        <div class="form-group full">
-
-
-                            <input
-                                type="email"
-                                name="email"
-                                required
-                                placeholder="Correo electrónico de contacto">
-
-                        </div>
-
-
-
-                        <div class="form-group full">
-
-
-                            <textarea
-                                name="mensaje"
-                                rows="5"
-                                required
-                                placeholder="Cuéntanos qué necesitas..."
-                            ></textarea>
-
-
-                        </div>
-
+                        <input
+                            type="text"
+                            name="nombre"
+                            required
+                            placeholder="Tu nombre del solicitante">
 
                     </div>
 
 
+                    <div class="form-group">
 
-                    <button
-                        type="submit"
-                        class="whatsapp-button">
+                        <input
+                            type="text"
+                            name="Empresa"
+                            required
+                            placeholder="Nombre de la empresa u organización">
 
-
-                        <span>
-                            💬
-                        </span>
-
-
-                        Contactar por WhatsApp
+                    </div>
 
 
-                    </button>
+                    <div class="form-group full">
+
+                        <input
+                            type="email"
+                            name="email"
+                            required
+                            placeholder="Correo electrónico de contacto">
+
+                    </div>
 
 
-                    <div id="formResult"></div>
+                    <div class="form-group full">
+
+                        <textarea
+                            name="mensaje"
+                            rows="5"
+                            required
+                            placeholder="Cuéntanos qué necesitas..."
+                        ></textarea>
+
+                    </div>
+
+                </div>
 
 
-                </form>
+                <button
+                    type="submit"
+                    class="whatsapp-button">
+
+                    <span>
+                        💬
+                    </span>
+
+                    Contactar por WhatsApp
+
+                </button>
 
 
-            </div>
+                <div id="formResult"></div>
+
+            </form>
 
         </div>
 
-    </section>
+    </div>
 
+</section>
 
 </main>
-
 
 
 <!-- ==========================================
@@ -495,27 +550,21 @@ session_start();
 
 <footer>
 
-
     <div class="container">
-
 
         <p>
 
             © <?php echo date("Y"); ?>
-            Mi Empresa
+            ViziuneAI
 
         </p>
 
-
     </div>
-
 
 </footer>
 
 
-
 <script src="js/app.js"></script>
-
 
 </body>
 

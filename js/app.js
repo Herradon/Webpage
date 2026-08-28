@@ -13,7 +13,187 @@ const chatMessages =
 
 
 /* ==========================================
-   BOTÓN ENVIAR CONVERSACIÓN POR EMAIL
+   IDENTIDADES DEL AGENTE
+========================================== */
+
+const agentButtons =
+    document.querySelectorAll(".agent-button");
+
+const assistantName =
+    document.getElementById("assistantName");
+
+const assistantDescription =
+    document.getElementById("assistantDescription");
+
+const assistantAvatar =
+    document.getElementById("assistantAvatar");
+
+
+/*
+   Identidad seleccionada por defecto
+*/
+
+let selectedAgent = "asesor";
+
+
+/*
+   Información visual de cada identidad
+*/
+
+const agentInfo = {
+
+    asesor: {
+
+        name:
+            "Alejandro Herradón, tu Asistente de confianza",
+
+        description:
+            "● Asesoramiento personalizado las 24 horas",
+
+        avatar:
+            "img/asset.png"
+
+    },
+
+    ventas: {
+
+        name:
+            "Alejandro, tu Asesor Comercial",
+
+        description:
+            "● Especialista en ventas y servicios",
+
+        avatar:
+            "img/asset.png"
+
+    },
+
+    ia: {
+
+        name:
+            "Alejandro, Consultor de Inteligencia Artificial",
+
+        description:
+            "● Especialista en IA y automatización",
+
+        avatar:
+            "img/asset.png"
+
+    },
+
+    soporte: {
+
+        name:
+            "Alejandro, Especialista de Soporte",
+
+        description:
+            "● Soporte técnico y resolución de problemas",
+
+        avatar:
+            "img/asset.png"
+
+    }
+
+};
+
+
+/* ==========================================
+   CAMBIAR IDENTIDAD
+========================================== */
+
+function cambiarIdentidad(agent) {
+
+    if (!agentInfo[agent]) {
+        return;
+    }
+
+
+    selectedAgent = agent;
+
+
+    /*
+       Cambiar botón activo
+    */
+
+    agentButtons.forEach(function(button) {
+
+        button.classList.remove("active");
+
+        if (
+            button.dataset.agent === agent
+        ) {
+
+            button.classList.add("active");
+
+        }
+
+    });
+
+
+    /*
+       Cambiar nombre
+    */
+
+    if (assistantName) {
+
+        assistantName.textContent =
+            agentInfo[agent].name;
+
+    }
+
+
+    /*
+       Cambiar descripción
+    */
+
+    if (assistantDescription) {
+
+        assistantDescription.textContent =
+            agentInfo[agent].description;
+
+    }
+
+
+    /*
+       Cambiar avatar
+    */
+
+    if (assistantAvatar) {
+
+        assistantAvatar.src =
+            agentInfo[agent].avatar;
+
+        assistantAvatar.alt =
+            agentInfo[agent].name;
+
+    }
+
+}
+
+
+/* ==========================================
+   EVENTOS DE LOS BOTONES
+========================================== */
+
+agentButtons.forEach(function(button) {
+
+    button.addEventListener(
+        "click",
+        function() {
+
+            const agent =
+                button.dataset.agent;
+
+            cambiarIdentidad(agent);
+
+        }
+    );
+
+});
+
+
+/* ==========================================
+   BOTÓN EMAIL
 ========================================== */
 
 const sendChatEmail =
@@ -21,7 +201,7 @@ const sendChatEmail =
 
 
 /* ==========================================
-   FORMULARIO DE DATOS DEL CHAT
+   FORMULARIO DATOS CHAT
 ========================================== */
 
 const chatEmailForm =
@@ -34,11 +214,13 @@ const chatEmail =
     document.getElementById("chatEmail");
 
 const confirmSendChatEmail =
-    document.getElementById("confirmSendChatEmail");
+    document.getElementById(
+        "confirmSendChatEmail"
+    );
 
 
 /* ==========================================
-   BOTÓN REINICIAR CHAT
+   BOTÓN REINICIAR
 ========================================== */
 
 const resetChat =
@@ -46,7 +228,7 @@ const resetChat =
 
 
 /* ==========================================
-   AVATAR DEL ASISTENTE
+   AVATAR MENSAJES
 ========================================== */
 
 function ponerAvatar(avatar, type) {
@@ -60,7 +242,7 @@ function ponerAvatar(avatar, type) {
             "img/asset.png";
 
         img.alt =
-            "Alejandro Herradón";
+            "Asistente";
 
         avatar.appendChild(img);
 
@@ -75,38 +257,30 @@ function ponerAvatar(avatar, type) {
 
 
 /* ==========================================
-   ENVIAR MENSAJE AL CHAT
+   ENVIAR MENSAJE
 ========================================== */
 
 if (chatForm) {
 
     chatForm.addEventListener(
-
         "submit",
-
-        async function (event) {
+        async function(event) {
 
             event.preventDefault();
 
-
-            /* ==============================
-               OBTENER MENSAJE
-            ============================== */
 
             const message =
                 messageInput.value.trim();
 
 
             if (!message) {
-
                 return;
-
             }
 
 
-            /* ==============================
-               MOSTRAR MENSAJE DEL CLIENTE
-            ============================== */
+            /*
+               Mostrar mensaje usuario
+            */
 
             addMessage(
                 message,
@@ -114,25 +288,21 @@ if (chatForm) {
             );
 
 
-            /* ==============================
-               LIMPIAR INPUT
-            ============================== */
-
             messageInput.value = "";
 
 
-            /* ==============================
-               COMPROBAR SI QUIERE CONTACTAR
-            ============================== */
+            /*
+               Detectar intención contacto
+            */
 
             comprobarSolicitudContacto(
                 message
             );
 
 
-            /* ==============================
-               MOSTRAR "ESCRIBIENDO..."
-            ============================== */
+            /*
+               Mostrar escribiendo
+            */
 
             const typing =
                 addMessage(
@@ -142,11 +312,8 @@ if (chatForm) {
                 );
 
 
-            /* ==============================
-               DESACTIVAR INPUT
-            ============================== */
-
-            messageInput.disabled = true;
+            messageInput.disabled =
+                true;
 
 
             const submitButton =
@@ -165,18 +332,17 @@ if (chatForm) {
 
             try {
 
-                /* ==============================
-                   ENVIAR A CHAT.PHP
-                ============================== */
+                /*
+                   Enviar mensaje + identidad
+                */
 
                 const response =
                     await fetch(
-
                         "chat.php",
-
                         {
 
-                            method: "POST",
+                            method:
+                                "POST",
 
                             headers: {
 
@@ -189,18 +355,16 @@ if (chatForm) {
                                 JSON.stringify({
 
                                     message:
-                                        message
+                                        message,
+
+                                    agent:
+                                        selectedAgent
 
                                 })
 
                         }
-
                     );
 
-
-                /* ==============================
-                   COMPROBAR RESPUESTA HTTP
-                ============================== */
 
                 if (!response.ok) {
 
@@ -212,28 +376,14 @@ if (chatForm) {
                 }
 
 
-                /* ==============================
-                   CONVERTIR A JSON
-                ============================== */
-
                 const data =
                     await response.json();
 
 
-                /* ==============================
-                   QUITAR ESCRIBIENDO
-                ============================== */
-
                 if (typing) {
-
                     typing.remove();
-
                 }
 
-
-                /* ==============================
-                   ERROR DEL SERVIDOR
-                ============================== */
 
                 if (!data.success) {
 
@@ -255,9 +405,9 @@ if (chatForm) {
                 }
 
 
-                /* ==============================
-                   RESPUESTA DEL ASISTENTE
-                ============================== */
+                /*
+                   Respuesta del agente
+                */
 
                 addMessage(
                     data.answer,
@@ -268,9 +418,7 @@ if (chatForm) {
             } catch (error) {
 
                 if (typing) {
-
                     typing.remove();
-
                 }
 
 
@@ -309,14 +457,13 @@ if (chatForm) {
             }
 
         }
-
     );
 
 }
 
 
 /* ==========================================
-   AÑADIR MENSAJE AL CHAT
+   AÑADIR MENSAJE
 ========================================== */
 
 function addMessage(
@@ -335,10 +482,6 @@ function addMessage(
     );
 
 
-    /* ======================================
-       AVATAR
-    ====================================== */
-
     const avatar =
         document.createElement("div");
 
@@ -354,10 +497,6 @@ function addMessage(
     );
 
 
-    /* ======================================
-       BURBUJA
-    ====================================== */
-
     const bubble =
         document.createElement("div");
 
@@ -371,10 +510,6 @@ function addMessage(
         text;
 
 
-    /* ======================================
-       AÑADIR AL MENSAJE
-    ====================================== */
-
     messageElement.appendChild(
         avatar
     );
@@ -385,18 +520,10 @@ function addMessage(
     );
 
 
-    /* ======================================
-       AÑADIR AL CHAT
-    ====================================== */
-
     chatMessages.appendChild(
         messageElement
     );
 
-
-    /* ======================================
-       SCROLL AUTOMÁTICO
-    ====================================== */
 
     chatMessages.scrollTop =
         chatMessages.scrollHeight;
@@ -408,20 +535,17 @@ function addMessage(
 
 
 /* ==========================================
-   REINICIAR SOLO EL CHAT
+   REINICIAR CHAT
 ========================================== */
 
 if (resetChat) {
 
     resetChat.addEventListener(
-
         "click",
-
-        function () {
+        function() {
 
             chatMessages.innerHTML =
                 "";
-
 
             messageInput.value =
                 "";
@@ -465,17 +589,25 @@ if (resetChat) {
             }
 
 
+            /*
+               Volvemos al asesor
+            */
+
+            cambiarIdentidad(
+                "asesor"
+            );
+
+
             messageInput.focus();
 
         }
-
     );
 
 }
 
 
 /* ==========================================
-   DETECTAR INTENCIÓN DE CONTACTO
+   DETECTAR CONTACTO
 ========================================== */
 
 function comprobarSolicitudContacto(
@@ -545,7 +677,7 @@ function comprobarSolicitudContacto(
 
 
 /* ==========================================
-   OBTENER TODA LA CONVERSACIÓN
+   OBTENER CONVERSACIÓN
 ========================================== */
 
 function obtenerConversacion() {
@@ -561,8 +693,7 @@ function obtenerConversacion() {
 
 
     mensajes.forEach(
-
-        function (mensaje) {
+        function(mensaje) {
 
             const bubble =
                 mensaje.querySelector(
@@ -571,9 +702,7 @@ function obtenerConversacion() {
 
 
             if (!bubble) {
-
                 return;
-
             }
 
 
@@ -582,9 +711,7 @@ function obtenerConversacion() {
 
 
             if (!texto) {
-
                 return;
-
             }
 
 
@@ -595,7 +722,6 @@ function obtenerConversacion() {
             ) {
 
                 conversacion +=
-
                     "ASISTENTE:\n" +
                     texto +
                     "\n\n";
@@ -603,7 +729,6 @@ function obtenerConversacion() {
             } else {
 
                 conversacion +=
-
                     "CLIENTE:\n" +
                     texto +
                     "\n\n";
@@ -611,7 +736,6 @@ function obtenerConversacion() {
             }
 
         }
-
     );
 
 
@@ -621,16 +745,14 @@ function obtenerConversacion() {
 
 
 /* ==========================================
-   BOTÓN "ENVIAR CONVERSACIÓN"
+   BOTÓN ENVIAR CONVERSACIÓN
 ========================================== */
 
 if (sendChatEmail) {
 
     sendChatEmail.addEventListener(
-
         "click",
-
-        function () {
+        function() {
 
             const conversacion =
                 obtenerConversacion();
@@ -663,34 +785,24 @@ if (sendChatEmail) {
                 chatEmailForm.scrollIntoView({
 
                     behavior: "smooth",
+
                     block: "nearest"
 
                 });
 
-            } else {
-
-                alert(
-                    "No se ha encontrado el formulario de datos del chat."
-                );
-
             }
 
         }
-
     );
 
 }
 
 
 /* ==========================================
-   ENVIAR CONVERSACIÓN DEFINITIVAMENTE
+   ENVIAR CONVERSACIÓN
 ========================================== */
 
 async function confirmarEnvioConversacion() {
-
-    /* ==============================
-       OBTENER CONVERSACIÓN
-    ============================== */
 
     const conversacion =
         obtenerConversacion();
@@ -707,19 +819,11 @@ async function confirmarEnvioConversacion() {
     }
 
 
-    /* ==============================
-       OBTENER NOMBRE
-    ============================== */
-
     const nombre =
         chatNombre
             ? chatNombre.value.trim()
             : "";
 
-
-    /* ==============================
-       OBTENER EMAIL
-    ============================== */
 
     const email =
         chatEmail
@@ -727,32 +831,18 @@ async function confirmarEnvioConversacion() {
             : "";
 
 
-    /* ==============================
-       VALIDAR NOMBRE
-    ============================== */
-
     if (!nombre) {
 
         alert(
             "Por favor, introduce tu nombre antes de enviar la conversación."
         );
 
-
-        if (chatNombre) {
-
-            chatNombre.focus();
-
-        }
-
+        chatNombre.focus();
 
         return;
 
     }
 
-
-    /* ==============================
-       VALIDAR EMAIL
-    ============================== */
 
     if (!email) {
 
@@ -760,22 +850,16 @@ async function confirmarEnvioConversacion() {
             "Por favor, introduce tu correo electrónico antes de enviar la conversación."
         );
 
-
-        if (chatEmail) {
-
-            chatEmail.focus();
-
-        }
-
+        chatEmail.focus();
 
         return;
 
     }
 
 
-    /* ==============================
-       VALIDAR FORMATO EMAIL
-    ============================== */
+    /*
+       VALIDACIÓN CORRECTA
+    */
 
     const emailValido =
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -787,22 +871,12 @@ async function confirmarEnvioConversacion() {
             "Por favor, introduce un correo electrónico válido."
         );
 
-
-        if (chatEmail) {
-
-            chatEmail.focus();
-
-        }
-
+        chatEmail.focus();
 
         return;
 
     }
 
-
-    /* ==============================
-       DESACTIVAR BOTÓN
-    ============================== */
 
     if (confirmSendChatEmail) {
 
@@ -817,18 +891,13 @@ async function confirmarEnvioConversacion() {
 
     try {
 
-        /* ==============================
-           ENVIAR A CHAT.PHP
-        ============================== */
-
         const response =
             await fetch(
-
                 "chat.php",
-
                 {
 
-                    method: "POST",
+                    method:
+                        "POST",
 
                     headers: {
 
@@ -850,28 +919,25 @@ async function confirmarEnvioConversacion() {
                                 email,
 
                             conversacion:
-                                conversacion
+                                conversacion,
+
+                            agent:
+                                selectedAgent
 
                         })
 
                 }
-
             );
 
-
-        /* ==============================
-           LEER RESPUESTA
-        ============================== */
 
         const data =
             await response.json();
 
 
-        /* ==============================
-           COMPROBAR ERROR
-        ============================== */
-
-        if (!response.ok || !data.success) {
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
             throw new Error(
 
@@ -883,10 +949,6 @@ async function confirmarEnvioConversacion() {
         }
 
 
-        /* ==============================
-           ÉXITO
-        ============================== */
-
         alert(
 
             "✅ Conversación enviada correctamente.\n\n" +
@@ -896,10 +958,6 @@ async function confirmarEnvioConversacion() {
         );
 
 
-        /* ==============================
-           OCULTAR FORMULARIO
-        ============================== */
-
         if (chatEmailForm) {
 
             chatEmailForm.hidden =
@@ -907,10 +965,6 @@ async function confirmarEnvioConversacion() {
 
         }
 
-
-        /* ==============================
-           CAMBIAR BOTÓN
-        ============================== */
 
         if (sendChatEmail) {
 
@@ -961,24 +1015,21 @@ async function confirmarEnvioConversacion() {
 
 
 /* ==========================================
-   EVENTO CONFIRMAR ENVÍO
+   EVENTO CONFIRMAR EMAIL
 ========================================== */
 
 if (confirmSendChatEmail) {
 
     confirmSendChatEmail.addEventListener(
-
         "click",
-
         confirmarEnvioConversacion
-
     );
 
 }
 
 
 /* ==========================================
-   FORMULARIO DE CONTACTO
+   FORMULARIO CONTACTO
 ========================================== */
 
 const contactForm =
@@ -996,10 +1047,8 @@ const formResult =
 if (contactForm) {
 
     contactForm.addEventListener(
-
         "submit",
-
-        async function (event) {
+        async function(event) {
 
             event.preventDefault();
 
@@ -1039,16 +1088,16 @@ if (contactForm) {
 
                 const response =
                     await fetch(
-
                         "contacto.php",
-
                         {
 
-                            method: "POST",
-                            body: formData
+                            method:
+                                "POST",
+
+                            body:
+                                formData
 
                         }
-
                     );
 
 
@@ -1080,7 +1129,6 @@ if (contactForm) {
                             </p>`;
 
                     }
-
 
                     return;
 
@@ -1130,6 +1178,7 @@ if (contactForm) {
 
                 }
 
+
             } finally {
 
                 if (button) {
@@ -1145,7 +1194,6 @@ if (contactForm) {
             }
 
         }
-
     );
 
 }

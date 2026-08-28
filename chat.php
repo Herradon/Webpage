@@ -60,6 +60,104 @@ $nombre =
 $email =
     trim($data["email"] ?? "");
 
+$agent =
+    trim($data["agent"] ?? "asesor");
+
+
+/* ==========================================================
+   IDENTIDADES DEL AGENTE
+========================================================== */
+
+$agentPrompts = [
+
+    "asesor" =>
+
+        "Eres Alejandro Herradón, el asistente virtual " .
+        "de ViziuneAI. " .
+
+        "Tu función principal es atender al usuario, " .
+        "entender sus necesidades y ofrecer asesoramiento " .
+        "claro, cercano y profesional. " .
+
+        "Responde siempre en español. " .
+
+        "No inventes información que no conozcas. " .
+
+        "Si necesitas más información para responder, " .
+        "pregunta al usuario.",
+
+
+    "ventas" =>
+
+        "Eres Alejandro, asesor comercial de ViziuneAI. " .
+
+        "Tu especialidad son las ventas, los servicios " .
+        "de la empresa, las necesidades de los clientes " .
+        "y la preparación de posibles presupuestos. " .
+
+        "Debes explicar las ventajas de los servicios " .
+        "de forma clara y profesional, sin presionar " .
+        "al cliente. " .
+
+        "Responde siempre en español. " .
+
+        "Nunca inventes precios, servicios o condiciones " .
+        "que no conozcas.",
+
+
+    "ia" =>
+
+        "Eres Alejandro, consultor especializado en " .
+        "inteligencia artificial y automatización para empresas. " .
+
+        "Tu función es analizar las necesidades del usuario " .
+        "y explicar cómo la inteligencia artificial puede " .
+        "ayudar a automatizar procesos, atención al cliente, " .
+        "ventas, gestión y otras tareas empresariales. " .
+
+        "Responde siempre en español. " .
+
+        "Utiliza explicaciones sencillas y profesionales. " .
+
+        "No inventes datos ni capacidades concretas de ViziuneAI.",
+
+
+    "soporte" =>
+
+        "Eres Alejandro, especialista de soporte técnico " .
+        "de ViziuneAI. " .
+
+        "Tu función es ayudar al usuario a solucionar " .
+        "problemas técnicos relacionados con los servicios " .
+        "y sistemas de la empresa. " .
+
+        "Explica las soluciones paso a paso y de forma sencilla. " .
+
+        "Responde siempre en español. " .
+
+        "Si no puedes determinar la solución, solicita " .
+        "la información necesaria o recomienda contactar " .
+        "con el equipo técnico."
+
+];
+
+
+/*
+   Si alguien manipula el valor desde el navegador,
+   utilizamos asesor como opción segura.
+*/
+
+if (!isset($agentPrompts[$agent])) {
+
+    $agent =
+        "asesor";
+
+}
+
+
+$systemPrompt =
+    $agentPrompts[$agent];
+
 
 /* ==========================================================
    ENVIAR CONVERSACIÓN POR EMAIL
@@ -133,81 +231,101 @@ if ($action === "email") {
         );
 
 
+    /* ==============================
+       NOMBRE IDENTIDAD
+    ============================== */
+
+    $nombresAgentes = [
+
+        "asesor" =>
+            "Asesor",
+
+        "ventas" =>
+            "Asesor Comercial",
+
+        "ia" =>
+            "Consultor de Inteligencia Artificial",
+
+        "soporte" =>
+            "Especialista de Soporte"
+
+    ];
+
+
+    $nombreAgente =
+        $nombresAgentes[$agent]
+        ?? "Asistente";
+
+
     /* ======================================================
-       GUARDAR CONVERSACIÓN COMPLETA EN MYSQL
+       GUARDAR EN MYSQL
     ====================================================== */
 
     try {
 
-    $stmt = $pdo->prepare("
+        $stmt = $pdo->prepare("
 
-        INSERT INTO conversaciones
-        (
-            conversacion_id,
-            nombre,
-            email,
-            usuario,
-            respuesta
-        )
+            INSERT INTO conversaciones
+            (
+                conversacion_id,
+                nombre,
+                email,
+                usuario,
+                respuesta
+            )
 
-        VALUES
-        (
-            :conversacion_id,
-            :nombre,
-            :email,
-            :usuario,
-            :respuesta
-        )
+            VALUES
+            (
+                :conversacion_id,
+                :nombre,
+                :email,
+                :usuario,
+                :respuesta
+            )
 
-    ");
-
-
-    $stmt->execute([
-
-        ":conversacion_id" =>
-            $conversacionId,
-
-        ":nombre" =>
-            $nombre,
-
-        ":email" =>
-            $email,
-
-        ":usuario" =>
-            $conversacion,
-
-        ":respuesta" =>
-            "CONVERSACIÓN ENVIADA POR EL CLIENTE"
-
-    ]);
+        ");
 
 
-} catch (PDOException $e) {
+        $stmt->execute([
 
-    error_log(
-        "Error guardando conversación: " .
-        $e->getMessage()
-    );
+            ":conversacion_id" =>
+                $conversacionId,
 
-    echo json_encode([
+            ":nombre" =>
+                $nombre,
 
-        "success" => false,
+            ":email" =>
+                $email,
 
-        "error" =>
-            "No se pudo guardar la conversación en la base de datos.",
+            ":usuario" =>
+                $conversacion,
 
-        /*
-           Esto nos ayudará a saber
-           exactamente qué está fallando.
-        */
+            ":respuesta" =>
+                "CONVERSACIÓN ENVIADA POR EL CLIENTE - " .
+                $nombreAgente
 
-        "debug" =>
+        ]);
+
+
+    } catch (PDOException $e) {
+
+        error_log(
+            "Error guardando conversación: " .
             $e->getMessage()
+        );
 
-    ], JSON_UNESCAPED_UNICODE);
 
-    exit;
-}
+        echo json_encode([
+
+            "success" => false,
+
+            "error" =>
+                "No se pudo guardar la conversación en la base de datos."
+
+        ], JSON_UNESCAPED_UNICODE);
+
+        exit;
+    }
 
 
     /* ======================================================
@@ -215,7 +333,10 @@ if ($action === "email") {
     ====================================================== */
 
     $asunto =
-        "Nueva conversación del asistente web";
+        "Nueva conversación - " .
+        $nombreAgente .
+        " - #" .
+        $conversacionId;
 
 
     $textoEmail =
@@ -234,7 +355,11 @@ if ($action === "email") {
 
         "Email: " .
         $email .
-        "\n\n" .
+        "\n" .
+
+        "Especialista seleccionado: " .
+        $nombreAgente .
+        "\n" .
 
         "ID DE CONVERSACIÓN: " .
         $conversacionId .
@@ -258,10 +383,6 @@ if ($action === "email") {
 
 
     try {
-
-        /* ==============================
-           SMTP
-        ============================== */
 
         $mail->isSMTP();
 
@@ -290,7 +411,7 @@ if ($action === "email") {
 
         $mail->setFrom(
             $SMTP_FROM,
-            "Asistente IA"
+            "ViziuneAI"
         );
 
 
@@ -337,10 +458,6 @@ if ($action === "email") {
         $mail->send();
 
 
-        /* ==============================
-           RESPUESTA
-        ============================== */
-
         echo json_encode([
 
             "success" =>
@@ -364,7 +481,9 @@ if ($action === "email") {
             $mail->ErrorInfo
         );
 
+
         http_response_code(500);
+
 
         echo json_encode([
 
@@ -395,8 +514,13 @@ $message =
 if ($message === "") {
 
     echo json_encode([
-        "success" => false,
-        "error" => "El mensaje está vacío."
+
+        "success" =>
+            false,
+
+        "error" =>
+            "El mensaje está vacío."
+
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
@@ -410,9 +534,13 @@ if ($message === "") {
 if (empty($OPENAI_API_KEY)) {
 
     echo json_encode([
-        "success" => false,
+
+        "success" =>
+            false,
+
         "error" =>
             "La API Key de OpenAI no está configurada."
+
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
@@ -429,15 +557,7 @@ $payload = [
         $OPENAI_MODEL,
 
     "instructions" =>
-
-        "Eres Alejandro Herradón, el asistente virtual " .
-        "de una inmobiliaria. " .
-
-        "Responde siempre en español, de forma clara, " .
-        "amable y profesional. " .
-
-        "Si no conoces una información, indica que no " .
-        "tienes esa información.",
+        $systemPrompt,
 
     "input" =>
         $message
@@ -449,9 +569,9 @@ $jsonPayload =
     json_encode($payload);
 
 
-/* ==============================
+/* ==========================================================
    CURL
-============================== */
+========================================================== */
 
 $ch =
     curl_init($url);
@@ -501,15 +621,16 @@ $curlError =
 curl_close($ch);
 
 
-/* ==============================
+/* ==========================================================
    ERROR CURL
-============================== */
+========================================================== */
 
 if ($response === false) {
 
     echo json_encode([
 
-        "success" => false,
+        "success" =>
+            false,
 
         "error" =>
             "Error conectando con OpenAI: " .
@@ -521,9 +642,9 @@ if ($response === false) {
 }
 
 
-/* ==============================
+/* ==========================================================
    DECODIFICAR
-============================== */
+========================================================== */
 
 $result =
     json_decode(
@@ -532,9 +653,9 @@ $result =
     );
 
 
-/* ==============================
+/* ==========================================================
    ERROR OPENAI
-============================== */
+========================================================== */
 
 if ($httpCode >= 400) {
 
@@ -545,7 +666,8 @@ if ($httpCode >= 400) {
 
     echo json_encode([
 
-        "success" => false,
+        "success" =>
+            false,
 
         "error" =>
             $errorMessage
@@ -556,17 +678,12 @@ if ($httpCode >= 400) {
 }
 
 
-/* ==============================
-   RESPUESTA
-============================== */
+/* ==========================================================
+   OBTENER RESPUESTA
+========================================================== */
 
 $answer = null;
 
-
-/*
-   Buscamos el texto dentro de
-   la respuesta de Responses API.
-*/
 
 if (
     isset($result["output"]) &&
@@ -624,7 +741,8 @@ if (!$answer) {
 
     echo json_encode([
 
-        "success" => false,
+        "success" =>
+            false,
 
         "error" =>
             "No se pudo obtener una respuesta."
@@ -640,16 +758,6 @@ if (!$answer) {
 ========================================================== */
 
 try {
-
-    /*
-       Si todavía no conocemos al cliente,
-       guardamos nombre/email vacíos.
-
-       Cuando el cliente pulse
-       "Enviar conversación", se guardará
-       también la conversación completa
-       con sus datos.
-    */
 
     $stmt =
         $pdo->prepare("
@@ -699,6 +807,7 @@ try {
 
     ]);
 
+
 } catch (PDOException $e) {
 
     error_log(
@@ -719,7 +828,10 @@ echo json_encode([
         true,
 
     "answer" =>
-        $answer
+        $answer,
+
+    "agent" =>
+        $agent
 
 ], JSON_UNESCAPED_UNICODE);
 
