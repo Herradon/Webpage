@@ -153,101 +153,6 @@ session_start();
             </p>
 
 
-            <div class="agent-buttons">
-
-
-                <button
-                    type="button"
-                    class="agent-button active"
-                    data-agent="asesor">
-
-                    <span class="agent-button-icon">
-                        👔
-                    </span>
-
-                    <span>
-                        <strong>
-                            Asesor
-                        </strong>
-
-                        <small>
-                            Atención personalizada
-                        </small>
-                    </span>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="agent-button"
-                    data-agent="ventas">
-
-                    <span class="agent-button-icon">
-                        💼
-                    </span>
-
-                    <span>
-                        <strong>
-                            Ventas
-                        </strong>
-
-                        <small>
-                            Servicios y presupuestos
-                        </small>
-                    </span>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="agent-button"
-                    data-agent="ia">
-
-                    <span class="agent-button-icon">
-                        🧠
-                    </span>
-
-                    <span>
-                        <strong>
-                            Consultor IA
-                        </strong>
-
-                        <small>
-                            Inteligencia artificial
-                        </small>
-                    </span>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="agent-button"
-                    data-agent="soporte">
-
-                    <span class="agent-button-icon">
-                        🛠️
-                    </span>
-
-                    <span>
-                        <strong>
-                            Soporte
-                        </strong>
-
-                        <small>
-                            Ayuda técnica
-                        </small>
-                    </span>
-
-                </button>
-
-            </div>
-
-        </div>
-
-
         <!-- ==========================================
              CHAT BOX
         =========================================== -->
@@ -260,45 +165,107 @@ session_start();
             <div class="chat-header">
 
 
-                <div class="assistant-avatar">
+                <div class="chat-intro">
+
+                    <div class="assistant-avatar">
 
                     <img
-                        id="assistantAvatar"
-                        src="img/asset.png"
-                        alt="Asistente">
+                        id="assistantAvatar" src="img/asset.png" alt="Asistente">
 
-                </div>
+                    </div>
 
 
-                <div>
+                    <div>
 
-                    <strong id="assistantName">
+                        <strong id="assistantName">
 
                         Alejandro Herradón,
                         tu Asistente de confianza
 
-                    </strong>
+                        </strong>
 
 
-                    <small id="assistantDescription">
+                        <small id="assistantDescription">
 
                         ● Asesoramiento personalizado
                         las 24 horas
 
-                    </small>
+                        </small>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="resetChat"
+                        class="reset-chat"
+                        title="Reiniciar chat">
+
+                        🔄
+
+                    </button>
 
                 </div>
 
+                <!-- ==========================================
+                     Identidades
+                =========================================== -->
 
-                <button
-                    type="button"
-                    id="resetChat"
-                    class="reset-chat"
-                    title="Reiniciar chat">
+                <div class="agent-buttons">
 
-                    🔄
 
-                </button>
+                    <button type="button" class="agent-button active" data-agent="asesor">
+
+                        <span class="agent-button-icon">
+                            
+                        </span>
+
+                        <span>
+                            <h1>Asesor</h1>
+                        </span>
+
+                    </button>
+
+
+                    <button type="button" class="agent-button" data-agent="ventas">
+
+                        <span class="agent-button-icon">
+                            
+                        </span>
+
+                        <span>
+                            <h1> Ventas</h1>
+                        </span>
+
+                    </button>
+
+
+                    <button type="button" class="agent-button" data-agent="ia">
+
+                        <span class="agent-button-icon">
+                            
+                        </span>
+
+                        <span>
+                            <h1>Consultor IA</h1>
+                        </span>
+
+                    </button>
+
+
+                    <button type="button" class="agent-button" data-agent="soporte">
+    
+                        <span class="agent-button-icon">
+                            
+                        </span>
+    
+                        <span>
+                            <h1>Soporte</h1>
+                        </span>
+    
+                    </button>
+
+                </div>
 
             </div>
 
