@@ -209,7 +209,7 @@ nav a:hover {
 }
 
 .chat-intro {
-    padding: 20px;
+    padding: 15px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -254,8 +254,8 @@ nav a:hover {
 .agent-buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
     justify-items: center;
+    padding: 15px;
 }
 
 
@@ -263,14 +263,13 @@ nav a:hover {
     justify-content: center;
     align-content: center;
     border: 2px solid #e5e7eb;
-    background: #ffffff;
+    background: #111827;
     border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
     width: 75%;
-    height: 55px;
+    height: 35px;
     transition:
         border-color 0.2s ease,
         transform 0.2s ease,
@@ -295,13 +294,6 @@ nav a:hover {
     flex-shrink: 0;
 }
 
-
-.agent-button strong {
-    display: block;
-    font-size: 15px;
-}
-
-
 .agent-button small {
     display: block;
     color: #6b7280;
@@ -310,6 +302,7 @@ nav a:hover {
 
 .agent-button h1{
     font-size: 15px;
+    color: #86efac;
 }
 
 /* ==========================================
