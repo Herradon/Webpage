@@ -46,7 +46,7 @@ const agentInfo = {
 
         name:
             "Alejandro Herradón, tu Asesor Inmobiliario",
-
+        
         description:
             "● Especialista en compra, venta y alquiler de inmuebles",
 

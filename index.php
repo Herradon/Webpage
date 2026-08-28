@@ -180,7 +180,7 @@ session_start();
                         <strong id="assistantName">
 
                         Alejandro Herradón,
-                        Asesor financiero.
+                        tu Asistente de confianza
 
                         </strong>
 
@@ -213,59 +213,38 @@ session_start();
 
                 <div class="agent-buttons">
 
-
-                    <button type="button" class="agent-button active" data-agent="asesor">
-
-                        <span class="agent-button-icon">
-                            
-                        </span>
-
-                        <span>
-                            <h1>Finanzas</h1>
-                        </span>
-
-                    </button>
+    <button
+        type="button"
+        class="agent-button active"
+        data-agent="asesor inmobiliario">
+        Asesor inmobiliario
+    </button>
 
 
-                    <button type="button" class="agent-button" data-agent="ventas">
-
-                        <span class="agent-button-icon">
-                            
-                        </span>
-
-                        <span>
-                            <h1>Legal</h1>
-                        </span>
-
-                    </button>
+    <button
+        type="button"
+        class="agent-button"
+        data-agent="asesor laboral">
+        Asesor laboral
+    </button>
 
 
-                    <button type="button" class="agent-button" data-agent="ia">
-
-                        <span class="agent-button-icon">
-                            
-                        </span>
-
-                        <span>
-                            <h1>inmobiliaria</h1>
-                        </span>
-
-                    </button>
+    <button
+        type="button"
+        class="agent-button"
+        data-agent="asesor legal">
+        Asesor legal
+    </button>
 
 
-                    <button type="button" class="agent-button" data-agent="soporte">
-    
-                        <span class="agent-button-icon">
-                            
-                        </span>
-    
-                        <span>
-                            <h1>laboral</h1>
-                        </span>
-    
-                    </button>
+    <button
+        type="button"
+        class="agent-button"
+        data-agent="asesor financiero">
+        Asesor financiero
+    </button>
 
-                </div>
+</div>
 
             </div>
 

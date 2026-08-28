@@ -259,11 +259,12 @@ nav a:hover {
 }
 
 
-.agent-button {
+.agent-buttons button {
     justify-content: center;
     align-content: center;
     border: 2px solid #e5e7eb;
     background: #111827;
+    color:  #e5e7eb;
     border-radius: 10px;
     cursor: pointer;
     display: flex;
