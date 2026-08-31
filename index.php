@@ -17,8 +17,7 @@ session_start();
 
     <title>Viziune.com</title>
 
-    <link rel="stylesheet"
-          href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
 
 </head>
 
