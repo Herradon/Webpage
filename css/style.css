@@ -214,6 +214,8 @@ nav a:hover {
     align-items: center;
     gap: 12px;
     color: white;
+    border-bottom: solid;
+    border-color: white;
 }
 
 
@@ -225,7 +227,8 @@ nav a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-
+    border-style: solid;
+    border-color: #fcfcfc;
     background: #92b4ff;
     overflow: hidden;
     flex-shrink: 0;
