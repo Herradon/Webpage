@@ -15,9 +15,9 @@ session_start();
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Viziune.com</title>
+    <title>ViziuneAI</title>
 
-    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/style.css?v=3">
 
 </head>
 
@@ -28,17 +28,16 @@ session_start();
 
     <div class="container nav">
 
-        <div class="logo" style="display: flex;">
+        <div class="logo">
 
-            <div style="color:blue; font-size: 25px;">V</div>
+            <div class="logo-v">V</div>
 
-            <div style="font-size: 25px;">
-
+            <div class="logo-text">
                 IZIUNE
-
             </div>
-            
+
         </div>
+
 
         <nav>
 
@@ -113,7 +112,6 @@ session_start();
 
 <section id="chat" class="chat-section">
 
-
     <div class="container">
 
 
@@ -128,6 +126,7 @@ session_start();
                 </span>
 
             </h1>
+
 
             <p>
 
@@ -160,225 +159,251 @@ session_start();
             </p>
 
 
-        <!-- ==========================================
-             CHAT BOX
-        =========================================== -->
+            <!-- ==========================================
+                 CHAT BOX
+            =========================================== -->
 
-        <div class="chat-box">
-
-
-            <!-- CABECERA -->
-
-            <div class="chat-header">
+            <div class="chat-box">
 
 
-                <div class="chat-intro">
+                <!-- CABECERA -->
 
-                    <div class="assistant-avatar">
+                <div class="chat-header">
 
-                    <img
-                        id="assistantAvatar" src="img/asset.png" alt="Asistente">
+
+                    <div class="chat-intro">
+
+
+                        <div class="assistant-avatar">
+
+                            <img
+                                id="assistantAvatar"
+                                src="img/asset.png"
+                                alt="Asistente">
+
+                        </div>
+
+
+                        <div class="chat-intro-info">
+
+                            <strong id="assistantName">
+
+                                Alejandro Herradón,
+                                tu Asistente de confianza
+
+                            </strong>
+
+
+                            <small id="assistantDescription">
+
+                                ● Asesoramiento personalizado
+                                las 24 horas
+
+                            </small>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            id="resetChat"
+                            class="reset-chat"
+                            title="Reiniciar chat">
+
+                            <img
+                                src="img/reload.svg"
+                                alt="Reiniciar chat">
+
+                        </button>
 
                     </div>
 
 
-                    <div>
+                    <!-- ==========================================
+                         IDENTIDADES
+                    =========================================== -->
 
-                        <strong id="assistantName">
-
-                        Alejandro Herradón,
-                        tu Asistente de confianza
-
-                        </strong>
+                    <div class="agent-buttons">
 
 
-                        <small id="assistantDescription">
+                        <button
+                            type="button"
+                            class="agent-button active"
+                            data-agent="asesor inmobiliario">
 
-                        ● Asesoramiento personalizado
-                        las 24 horas
+                            Asesor inmobiliario
 
-                        </small>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="agent-button"
+                            data-agent="asesor laboral">
+
+                            Asesor laboral
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="agent-button"
+                            data-agent="asesor legal">
+
+                            Asesor legal
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="agent-button"
+                            data-agent="asesor financiero">
+
+                            Asesor financiero
+
+                        </button>
+
 
                     </div>
-
-
-                    <button
-                        type="button"x
-                        id="resetChat"
-                        class="reset-chat"
-                        title="Reiniciar chat">
-
-                        <img id="assistantAvatar" src="img/reload.svg" alt="Asistente">
-
-                    </button>
 
                 </div>
 
+
                 <!-- ==========================================
-                     Identidades
+                     MENSAJES
                 =========================================== -->
 
-                <div class="agent-buttons">
-
-    <button
-        type="button"
-        class="agent-button active"
-        data-agent="asesor inmobiliario">
-        Asesor inmobiliario
-    </button>
+                <div
+                    id="chatMessages"
+                    class="chat-messages">
+                </div>
 
 
-    <button
-        type="button"
-        class="agent-button"
-        data-agent="asesor laboral">
-        Asesor laboral
-    </button>
+                <!-- ==========================================
+                     INPUT
+                =========================================== -->
+
+                <form
+                    id="chatForm"
+                    class="chat-input">
 
 
-    <button
-        type="button"
-        class="agent-button"
-        data-agent="asesor legal">
-        Asesor legal
-    </button>
+                    <input
+                        type="text"
+                        id="message"
+                        name="message"
+                        placeholder="Escribe tu mensaje..."
+                        autocomplete="off"
+                        required>
 
 
-    <button
-        type="button"
-        class="agent-button"
-        data-agent="asesor financiero">
-        Asesor financiero
-    </button>
+                    <button
+                        type="submit"
+                        title="Enviar mensaje">
 
-</div>
+                        <img
+                            id="arrow"
+                            src="img/arrow.svg"
+                            alt="Enviar">
+
+                    </button>
+
+
+                </form>
+
 
             </div>
 
-
-            <!-- MENSAJES -->
-
-            <div
-                id="chatMessages"
-                class="chat-messages">
-
-            </div>
+        </div>
 
 
-            <!-- INPUT -->
+        <!-- ==========================================
+             ENVÍO DE CONVERSACIÓN
+        =========================================== -->
 
-            <form
-                id="chatForm"
-                class="chat-input">
+        <div class="whatsapp-tittle">
 
 
-                <input
-                    type="text"
-                    id="message"
-                    name="message"
-                    placeholder="Escribe tu mensaje..."
-                    autocomplete="off"
-                    required>
-
+            <div class="chat-whatsapp-container">
 
                 <button
-                    type="submit"
-                    title="Enviar mensaje">
+                    type="button"
+                    id="sendChatEmail"
+                    hidden>
 
-                    <img id="arrow" src="img/arrow.svg" alt="Asistente">
+                    📧 Enviar conversación por correo
 
                 </button>
 
-            </form>
-
-        </div>
-
-    </div>
+            </div>
 
 
-    <!-- ==========================================
-         ENVÍO DE CONVERSACIÓN
-    =========================================== -->
+            <!-- DATOS CLIENTE -->
 
-    <div class="whatsapp-tittle">
-
-
-        <div class="chat-whatsapp-container">
-
-            <button
-                type="button"
-                id="sendChatEmail"
+            <div
+                id="chatEmailForm"
+                class="chat-email-form"
                 hidden>
 
-                📧 Enviar conversación por correo
 
-            </button>
+                <p>
 
-        </div>
+                    Para poder enviarte la conversación
+                    y que nuestro equipo pueda contactar
+                    contigo, introduce tus datos:
+
+                </p>
 
 
-        <!-- DATOS CLIENTE -->
+                <div class="form-group">
 
-        <div
-            id="chatEmailForm"
-            class="chat-email-form"
-            hidden>
+                    <input
+                        type="text"
+                        id="chatNombre"
+                        name="chatNombre"
+                        placeholder="Tu nombre"
+                        autocomplete="name">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <input
+                        type="email"
+                        id="chatEmail"
+                        name="chatEmail"
+                        placeholder="Tu correo electrónico"
+                        autocomplete="email">
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="confirmSendChatEmail">
+
+                    📧 Enviar conversación
+
+                </button>
+
+
+            </div>
 
 
             <p>
 
-                Para poder enviarte la conversación
-                y que nuestro equipo pueda contactar
-                contigo, introduce tus datos:
+                En el caso de que tengas algún problema con
+                el soporte o con el asistente, puedes enviarnos
+                un mensaje directamente a nuestro WhatsApp
+                completando el formulario y te atenderemos
+                lo antes posible.
 
             </p>
 
-
-            <div class="form-group">
-
-                <input
-                    type="text"
-                    id="chatNombre"
-                    name="chatNombre"
-                    placeholder="Tu nombre"
-                    autocomplete="name">
-
-            </div>
-
-
-            <div class="form-group">
-
-                <input
-                    type="email"
-                    id="chatEmail"
-                    name="chatEmail"
-                    placeholder="Tu correo electrónico"
-                    autocomplete="email">
-
-            </div>
-
-
-            <button
-                type="button"
-                id="confirmSendChatEmail">
-
-                📧 Enviar conversación
-
-            </button>
-
-
         </div>
-
-
-        <p>
-
-            En el caso de que tengas algún problema con
-            el soporte o con el asistente, puedes enviarnos
-            un mensaje directamente a nuestro WhatsApp
-            completando el formulario y te atenderemos
-            lo antes posible.
-
-        </p>
 
     </div>
 
@@ -394,7 +419,9 @@ session_start();
     id="contacto"
     class="contact-section">
 
+
     <div class="container">
+
 
         <div class="section-title">
 
@@ -418,6 +445,7 @@ session_start();
 
 
         <div class="contact-card">
+
 
             <form id="contactForm">
 
@@ -469,6 +497,7 @@ session_start();
 
                     </div>
 
+
                 </div>
 
 
@@ -487,7 +516,9 @@ session_start();
 
                 <div id="formResult"></div>
 
+
             </form>
+
 
         </div>
 
