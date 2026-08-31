@@ -23,9 +23,8 @@ body {
 
 
 .container {
-    width: 90%;
-    max-width: 1150px;
-    margin: auto;
+    width: 70%;
+    max-width: 2150px;
 }
 
 
@@ -80,8 +79,8 @@ nav a:hover {
 
 .hero {
     min-height: 600px;
-    display: flex;
-    align-items: center;
+    align-content: center;
+    justify-items: center;
     background: linear-gradient(
         135deg,
         #eef2ff,
@@ -92,7 +91,7 @@ nav a:hover {
 
 .hero-content {
     max-width: 100%;
-    justify-items: center;
+    justify-items: left;
 }
 
 
@@ -109,7 +108,7 @@ nav a:hover {
 
 
 .hero p {
-    width: 85%;
+    width: 80%;
     font-size: 20px;
     color: #6b7280;
     margin-bottom: 35px;
@@ -155,6 +154,9 @@ nav a:hover {
 .chat-section {
     padding: 100px 0;
     background: #ffffff;
+    display: flex;
+    width: 100%;
+    justify-content: center;
 }
 
 
@@ -603,6 +605,7 @@ nav a:hover {
 .contact-section {
     padding: 100px 0;
     background: #f6f7fb;
+    justify-items: center;
 }
 
 

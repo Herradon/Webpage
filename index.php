@@ -104,8 +104,8 @@ session_start();
      CHAT
 =========================================== -->
 
-<section id="chat"
-         class="chat-section">
+<section id="chat" class="chat-section">
+
 
     <div class="container">
 
