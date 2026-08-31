@@ -777,11 +777,17 @@ footer {
         grid-template-columns: 1fr 1fr;
 }
 
-.whatsapp-tittle p {
+    .whatsapp-tittle p {
     max-width: 85%;
     margin-bottom: 20px;
     color: #6b7280;
 }
+
+
+    .reset-chat img{
+    width: 40%;
+}
+
 
 }
 
