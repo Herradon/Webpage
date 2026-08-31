@@ -22,10 +22,7 @@ body {
 }
 
 
-.container {
-    width: 100%;
-    max-width: 2150px;
-}
+
 
 
 /* ==========================================
@@ -40,11 +37,11 @@ body {
     z-index: 100;
 }
 
-
 .nav {
+    max-width: 100%;
     height: 75px;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
 }
 
@@ -52,19 +49,20 @@ body {
 .logo {
     font-size: 22px;
     font-weight: 800;
+    margin: 20px;
 }
-
 
 nav {
-    display: flex;
-    gap: 30px;
+    width: 100%;
+    text-align: center;
+    margin: 20px;
 }
-
 
 nav a {
     color: #374151;
     text-decoration: none;
     font-weight: 600;
+    margin: 20px;
 }
 
 
@@ -90,15 +88,17 @@ nav a:hover {
 
 
 .hero-content {
-    max-width: 100%;
-    justify-items: left;
+    max-width: 60%;
+    justify-items: center;
 }
 
 
 .hero h1 {
+    width: 80%;
     font-size: 45px;
     line-height: 1.1;
     margin-bottom: 25px;
+    text-align: left;
 }
 
 
@@ -598,6 +598,7 @@ nav a:hover {
 }
 
 
+
 /* ==========================================
    CONTACTO
 ========================================== */
@@ -606,6 +607,10 @@ nav a:hover {
     padding: 100px 0;
     background: #f6f7fb;
     justify-items: center;
+}
+
+.contact-section .container {
+ width: 80%;
 }
 
 

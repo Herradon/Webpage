@@ -15,7 +15,7 @@ session_start();
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>ViziuneAI.com</title>
+    <title>Viziune.com</title>
 
     <link rel="stylesheet"
           href="css/style.css">
@@ -29,8 +29,16 @@ session_start();
 
     <div class="container nav">
 
-        <div class="logo">
-            ViziuneAI
+        <div class="logo" style="display: flex;">
+
+            <div style="color:blue; font-size: 25px;">V</div>
+
+            <div style="font-size: 25px;">
+
+                IZIUNE
+
+            </div>
+            
         </div>
 
         <nav>
@@ -376,6 +384,7 @@ session_start();
     </div>
 
 </section>
+
 
 
 <!-- ==========================================
