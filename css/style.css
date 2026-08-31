@@ -262,10 +262,9 @@ nav a:hover {
 .agent-buttons button {
     justify-content: center;
     align-content: center;
-    border: 2px solid #e5e7eb;
-    background: #111827;
+    border: none;
+    background: none;
     color:  #e5e7eb;
-    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -280,12 +279,11 @@ nav a:hover {
 
 .agent-button:hover {
     transform: translateY(-2px);
-    border-color: #2563eb;
 }
 
 
 .agent-button.active {
-    border-color: #2563eb;
+    color: #86efac;
     box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
 }
 
