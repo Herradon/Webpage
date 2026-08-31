@@ -5,10 +5,10 @@
 ========================================== */
 
 $host = "localhost";
-$dbname = "chatbot_web";
+$dbname = "u445133904_chatbot_web";
 
-$username = "root";
-$password = "";
+$username = "u445133904_viziuneai";
+$password = "Viziune_2026";
 
 
 /* ==========================================
