@@ -1,14 +1,16 @@
 <?php
 
 /* ==========================================
-   BASE DE DATOS
+   BASE DE DATOS HOSTINGER
 ========================================== */
 
-$host = "u671328244_chatbot_web1";
-$dbname = "u445133904_chatbot_web";
+$host = "localhost";
 
-$username = "u445133904_viziuneai";
-$password = "Viziune_2026"; 
+$dbname = "u671328244_chatbot_web1";
+
+$username = "u671328244_viziuneai";
+
+$password = "Viziune_2026";
 
 
 /* ==========================================
@@ -30,24 +32,21 @@ try {
 
 } catch (PDOException $e) {
 
-    error_log("Error MySQL: " . $e->getMessage());
-
     http_response_code(500);
 
     echo json_encode([
         "success" => false,
-        "error" => "No se pudo conectar con la base de datos."
+        "error" => "ERROR MYSQL REAL: " . $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
 
-
 /* ==========================================
    KIMI
 ========================================== */
 
-$KIMI_API_KEY = "sk-7qC4snxp2G9bC07wAkOB7Iaqkwx9GdqSnTFbemyFYdnkzBdN";
+$KIMI_API_KEY = "TU_API_KEY_DE_KIMI";
 
 $KIMI_MODEL = "kimi-k2.5";
 
