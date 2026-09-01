@@ -6,9 +6,9 @@
 
 $host = "localhost";
 
-$dbname = "u671328244_chatbot_web1";
+$dbname = "u445133904_chatbot_web";
 
-$username = "u671328244_viziuneai";
+$username = "u445133904_viziuneai";
 
 $password = "Viziune_2026";
 
