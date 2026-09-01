@@ -8,7 +8,7 @@ $host = "localhost";
 $dbname = "u445133904_chatbot_web";
 
 $username = "u445133904_viziuneai";
-$password = "Viziune_2026";
+$password = "Viziune_2026"; 
 
 
 /* ==========================================
@@ -44,12 +44,14 @@ try {
 
 
 /* ==========================================
-   OPENAI
+   KIMI
 ========================================== */
 
-$OPENAI_API_KEY = "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";
+$KIMI_API_KEY = "sk-7qC4snxp2G9bC07wAkOB7Iaqkwx9GdqSnTFbemyFYdnkzBdN";
 
-$OPENAI_MODEL = "gpt-5";
+$KIMI_MODEL = "kimi-k2.5";
+
+$KIMI_API_URL = "https://api.moonshot.ai/v1/chat/completions";
 
 
 /* ==========================================
@@ -60,22 +62,22 @@ $SMTP_HOST = "smtp.gmail.com";
 
 $SMTP_PORT = 587;
 
-$SMTP_USERNAME = "herradon45@gmail.com";
+$SMTP_USERNAME = "viziune.ainteligent@gmail.com";
 
-$SMTP_PASSWORD = "ijepvhhoyvoskdyq";
+$SMTP_PASSWORD = "pcnmcpffaaxsijit";
 
 
 /* ==========================================
    REMITENTE
 ========================================== */
 
-$SMTP_FROM = "herradon45@gmail.com";
+$SMTP_FROM = "viziune.ainteligent@gmail.com";
 
 
 /* ==========================================
    DESTINATARIO
 ========================================== */
 
-$SMTP_TO = "herradon45@gmail.com";
+$SMTP_TO = "viziune.ainteligent@gmail.com";
 
 ?>

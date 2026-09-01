@@ -12,11 +12,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const messageInput = document.getElementById("message");
     const chatMessages = document.getElementById("chatMessages");
 
+
     /* =====================================================
        ELEMENTOS DEL AGENTE
     ===================================================== */
 
-    const agentButtons = document.querySelectorAll(".agent-button");
+    const agentButtons =
+        document.querySelectorAll(".agent-button");
 
     const assistantName =
         document.getElementById("assistantName");
@@ -27,11 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const assistantAvatar =
         document.getElementById("assistantAvatar");
 
+
     /* =====================================================
        AGENTE SELECCIONADO
     ===================================================== */
 
-    let selectedAgent = "diseño y desarrollo web";
+    let selectedAgent =
+        "diseño y desarrollo web";
 
 
     /* =====================================================
@@ -104,11 +108,12 @@ document.addEventListener("DOMContentLoaded", function () {
             return null;
         }
 
-        const texto = agent
-            .toLowerCase()
-            .trim()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
+        const texto =
+            agent
+                .toLowerCase()
+                .trim()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
 
 
         if (
@@ -174,15 +179,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        /* Guardar agente */
-
         selectedAgent =
             agenteValido;
 
 
-        /* =================================================
-           BOTÓN ACTIVO
-        ================================================= */
+        /* BOTÓN ACTIVO */
 
         agentButtons.forEach(function (button) {
 
@@ -203,9 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
 
-        /* =================================================
-           CAMBIAR NOMBRE
-        ================================================= */
+        /* NOMBRE */
 
         if (assistantName) {
 
@@ -215,9 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        /* =================================================
-           CAMBIAR DESCRIPCIÓN
-        ================================================= */
+        /* DESCRIPCIÓN */
 
         if (assistantDescription) {
 
@@ -227,9 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        /* =================================================
-           CAMBIAR AVATAR
-        ================================================= */
+        /* AVATAR */
 
         if (assistantAvatar) {
 
@@ -256,21 +251,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     agentButtons.forEach(function (button) {
 
-        button.addEventListener("click", function (event) {
+        button.addEventListener(
+            "click",
+            function (event) {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            const agent =
-                this.dataset.agent;
+                const agent =
+                    this.dataset.agent;
 
-            console.log(
-                "Botón pulsado:",
-                agent
-            );
+                cambiarIdentidad(agent);
 
-            cambiarIdentidad(agent);
-
-        });
+            }
+        );
 
     });
 
@@ -284,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       FORMULARIO EMAIL DEL CHAT
+       FORMULARIO EMAIL
     ===================================================== */
 
     const chatEmailForm =
@@ -311,7 +304,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       AVATAR DE LOS MENSAJES
+       AVATAR MENSAJES
     ===================================================== */
 
     function ponerAvatar(avatar, type) {
@@ -421,7 +414,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         return messageElement;
-
     }
 
 
@@ -451,7 +443,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* Mensaje usuario */
+                /* MENSAJE USUARIO */
 
                 addMessage(
                     message,
@@ -463,14 +455,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     "";
 
 
-                /* Detectar contacto */
+                /* DETECTAR CONTACTO */
 
                 comprobarSolicitudContacto(
                     message
                 );
 
 
-                /* Escribiendo */
+                /* ESCRIBIENDO */
 
                 const typing =
                     addMessage(
@@ -501,21 +493,35 @@ document.addEventListener("DOMContentLoaded", function () {
                 try {
 
                     console.log(
-                        "Enviando agente:",
+                        "Enviando mensaje a chat.php..."
+                    );
+
+                    console.log(
+                        "Agente:",
                         selectedAgent
                     );
 
+
+                    /* =================================================
+                       PETICIÓN A CHAT.PHP
+
+                       IMPORTANTE:
+                       El JavaScript NO llama directamente a Kimi.
+
+                       chat.php será quien se conecte con Kimi.
+                    ================================================= */
 
                     const response =
                         await fetch(
                             "chat.php",
                             {
-
-                                method:
-                                    "POST",
+                                method: "POST",
 
                                 headers: {
                                     "Content-Type":
+                                        "application/json",
+
+                                    "Accept":
                                         "application/json"
                                 },
 
@@ -529,52 +535,94 @@ document.addEventListener("DOMContentLoaded", function () {
                                             selectedAgent
 
                                     })
-
                             }
                         );
 
 
-                    if (!response.ok) {
+                    /* =================================================
+                       LEER RESPUESTA COMO TEXTO PRIMERO
+
+                       Esto permite detectar errores PHP/HTML.
+                    ================================================= */
+
+                    const responseText =
+                        await response.text();
+
+
+                    console.log(
+                        "Respuesta de chat.php:",
+                        responseText
+                    );
+
+
+                    if (!responseText.trim()) {
 
                         throw new Error(
-                            "Error HTTP " +
-                            response.status
+                            "chat.php no ha devuelto ninguna respuesta."
                         );
 
                     }
 
 
-                    const data =
-                        await response.json();
+                    let data;
+
+
+                    try {
+
+                        data =
+                            JSON.parse(
+                                responseText
+                            );
+
+                    } catch (jsonError) {
+
+                        console.error(
+                            "Respuesta no válida:",
+                            responseText
+                        );
+
+
+                        throw new Error(
+                            "chat.php ha devuelto una respuesta que no es JSON. Revisa los errores de PHP."
+                        );
+
+                    }
 
 
                     if (typing) {
-
                         typing.remove();
-
                     }
 
 
-                    if (!data.success) {
+                    /* =================================================
+                       ERROR DEVUELTO POR PHP
+                    ================================================= */
 
-                        addMessage(
+                    if (
+                        !response.ok ||
+                        !data.success
+                    ) {
 
-                            "Lo siento, ha ocurrido un error: " +
-
-                            (
-                                data.error ||
-                                "Error desconocido."
-                            ),
-
-                            "bot"
-
+                        throw new Error(
+                            data.error ||
+                            "Error desconocido del servidor."
                         );
 
-                        return;
                     }
 
 
-                    /* Respuesta */
+                    /* =================================================
+                       RESPUESTA DEL CHAT
+                    ================================================= */
+
+                    if (!data.answer) {
+
+                        throw new Error(
+                            "El servidor no ha devuelto ninguna respuesta del asistente."
+                        );
+
+                    }
+
 
                     addMessage(
                         data.answer,
@@ -590,15 +638,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                     console.error(
-                        "Error del chatbot:",
+                        "ERROR COMPLETO DEL CHAT:",
                         error
                     );
 
 
+                    /* =================================================
+                       AHORA MOSTRAMOS EL ERROR REAL
+                    ================================================= */
+
                     addMessage(
 
-                        "No se ha podido conectar con el servidor. " +
-                        "Comprueba que XAMPP y Apache estén funcionando.",
+                        "❌ Error: " +
+                        (
+                            error.message ||
+                            "No se pudo conectar con el servidor."
+                        ),
 
                         "bot"
 
@@ -695,8 +750,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 }
 
-
-                /* Volver al primer agente */
 
                 cambiarIdentidad(
                     "diseño y desarrollo web"
@@ -813,8 +866,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         mensajes.forEach(
             function (mensaje) {
-
-                /* Ignorar "Escribiendo..." */
 
                 if (
                     mensaje.classList.contains(
@@ -968,8 +1019,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 : "";
 
 
-        /* Nombre */
-
         if (!nombre) {
 
             alert(
@@ -986,8 +1035,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
 
-
-        /* Email */
 
         if (!email) {
 
@@ -1007,7 +1054,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         /* =================================================
-           CORREGIDO: REGEX DEL EMAIL
+           REGEX CORREGIDA
         ================================================= */
 
         const emailValido =
@@ -1048,13 +1095,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 await fetch(
                     "chat.php",
                     {
-
                         method:
                             "POST",
 
                         headers: {
 
                             "Content-Type":
+                                "application/json",
+
+                            "Accept":
                                 "application/json"
 
                         },
@@ -1083,8 +1132,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
 
-            const data =
-                await response.json();
+            const responseText =
+                await response.text();
+
+
+            console.log(
+                "Respuesta email:",
+                responseText
+            );
+
+
+            let data;
+
+
+            try {
+
+                data =
+                    JSON.parse(
+                        responseText
+                    );
+
+            } catch (error) {
+
+                throw new Error(
+                    "El servidor no ha devuelto una respuesta JSON válida."
+                );
+
+            }
 
 
             if (
@@ -1241,29 +1315,53 @@ document.addEventListener("DOMContentLoaded", function () {
                         await fetch(
                             "contacto.php",
                             {
-
                                 method:
                                     "POST",
 
                                 body:
                                     formData
-
                             }
                         );
 
 
-                    if (!response.ok) {
+                    const responseText =
+                        await response.text();
+
+
+                    console.log(
+                        "Respuesta contacto:",
+                        responseText
+                    );
+
+
+                    let data;
+
+
+                    try {
+
+                        data =
+                            JSON.parse(
+                                responseText
+                            );
+
+                    } catch (error) {
 
                         throw new Error(
-                            "Error HTTP " +
-                            response.status
+                            "El servidor no ha devuelto una respuesta válida."
                         );
 
                     }
 
 
-                    const data =
-                        await response.json();
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.error ||
+                            "Error HTTP " +
+                            response.status
+                        );
+
+                    }
 
 
                     if (!data.success) {
@@ -1296,10 +1394,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
 
-                    /* =================================================
-                       CORREGIDO: window.open
-                    ================================================= */
-
                     if (data.whatsapp) {
 
                         window.open(
@@ -1325,11 +1419,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         formResult.innerHTML =
                             '<p class="error">' +
-                            "❌ Ha ocurrido un error al conectar con el servidor." +
+                            "❌ " +
+                            (
+                                error.message ||
+                                "Ha ocurrido un error al conectar con el servidor."
+                            ) +
                             "</p>";
 
                     }
-
 
                 } finally {
 
@@ -1366,6 +1463,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log(
         "ViziuneAI JavaScript cargado correctamente."
+    );
+
+    console.log(
+        "Sistema preparado para utilizar Kimi mediante chat.php."
     );
 
     console.log(

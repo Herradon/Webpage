@@ -32,14 +32,12 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
    RECIBIR JSON
 ========================================================== */
 
-$rawData =
-    file_get_contents("php://input");
+$rawData = file_get_contents("php://input");
 
-$data =
-    json_decode(
-        $rawData,
-        true
-    );
+$data = json_decode(
+    $rawData,
+    true
+);
 
 
 if (!is_array($data)) {
@@ -57,35 +55,25 @@ if (!is_array($data)) {
    DATOS
 ========================================================== */
 
-$action =
-    trim(
-        $data["action"] ?? ""
-    );
+$action = trim(
+    $data["action"] ?? ""
+);
 
+$message = trim(
+    $data["message"] ?? ""
+);
 
-$message =
-    trim(
-        $data["message"] ?? ""
-    );
+$nombre = trim(
+    $data["nombre"] ?? ""
+);
 
+$email = trim(
+    $data["email"] ?? ""
+);
 
-$nombre =
-    trim(
-        $data["nombre"] ?? ""
-    );
-
-
-$email =
-    trim(
-        $data["email"] ?? ""
-    );
-
-
-$agent =
-    trim(
-        $data["agent"] ??
-        "diseño y desarrollo web"
-    );
+$agent = trim(
+    $data["agent"] ?? "diseño y desarrollo web"
+);
 
 
 /* ==========================================================
@@ -170,14 +158,11 @@ $agentPrompts = [
 
 if (!isset($agentPrompts[$agent])) {
 
-    $agent =
-        "diseño y desarrollo web";
+    $agent = "diseño y desarrollo web";
 
 }
 
-
-$systemPrompt =
-    $agentPrompts[$agent];
+$systemPrompt = $agentPrompts[$agent];
 
 
 /* ==========================================================
@@ -186,10 +171,9 @@ $systemPrompt =
 
 if ($action === "email") {
 
-    $conversacion =
-        trim(
-            $data["conversacion"] ?? ""
-        );
+    $conversacion = trim(
+        $data["conversacion"] ?? ""
+    );
 
 
     if ($conversacion === "") {
@@ -279,28 +263,27 @@ if ($action === "email") {
 
     try {
 
-        $stmt =
-            $pdo->prepare("
+        $stmt = $pdo->prepare("
 
-                INSERT INTO conversaciones
-                (
-                    conversacion_id,
-                    nombre,
-                    email,
-                    usuario,
-                    respuesta
-                )
+            INSERT INTO conversaciones
+            (
+                conversacion_id,
+                nombre,
+                email,
+                usuario,
+                respuesta
+            )
 
-                VALUES
-                (
-                    :conversacion_id,
-                    :nombre,
-                    :email,
-                    :usuario,
-                    :respuesta
-                )
+            VALUES
+            (
+                :conversacion_id,
+                :nombre,
+                :email,
+                :usuario,
+                :respuesta
+            )
 
-            ");
+        ");
 
 
         $stmt->execute([
@@ -386,8 +369,11 @@ if ($action === "email") {
         $conversacion;
 
 
-    $mail =
-        new PHPMailer(true);
+    /* ======================================================
+       PHPMailer
+    ====================================================== */
+
+    $mail = new PHPMailer(true);
 
 
     try {
@@ -411,7 +397,6 @@ if ($action === "email") {
 
         $mail->Port =
             $SMTP_PORT;
-
 
         $mail->CharSet =
             "UTF-8";
@@ -492,13 +477,19 @@ if ($action === "email") {
 
 /* ==========================================================
    CHAT NORMAL
+   KIMI / MOONSHOT
 ========================================================== */
 
 if ($message === "") {
 
     echo json_encode([
-        "success" => false,
-        "error" => "El mensaje está vacío."
+
+        "success" =>
+            false,
+
+        "error" =>
+            "El mensaje está vacío."
+
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
@@ -506,14 +497,19 @@ if ($message === "") {
 
 
 /* ==========================================================
-   API KEY
+   COMPROBAR API KEY DE KIMI
 ========================================================== */
 
-if (empty($OPENAI_API_KEY)) {
+if (empty($KIMI_API_KEY)) {
 
     echo json_encode([
-        "success" => false,
-        "error" => "La API Key de OpenAI no está configurada."
+
+        "success" =>
+            false,
+
+        "error" =>
+            "La API Key de Kimi no está configurada."
+
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
@@ -521,35 +517,57 @@ if (empty($OPENAI_API_KEY)) {
 
 
 /* ==========================================================
-   OPENAI
+   URL KIMI
 ========================================================== */
 
 $url =
-    "https://api.openai.com/v1/responses";
+    $KIMI_API_URL;
 
+
+/* ==========================================================
+   PAYLOAD KIMI
+========================================================== */
 
 $payload = [
 
     "model" =>
-        $OPENAI_MODEL,
+        $KIMI_MODEL,
 
-    "instructions" =>
-        $systemPrompt,
+    "messages" => [
 
-    "input" =>
-        $message
+        [
+            "role" =>
+                "system",
+
+            "content" =>
+                $systemPrompt
+        ],
+
+        [
+            "role" =>
+                "user",
+
+            "content" =>
+                $message
+        ]
+
+    ],
+
+    "temperature" =>
+        0.7
 
 ];
 
 
 $jsonPayload =
     json_encode(
-        $payload
+        $payload,
+        JSON_UNESCAPED_UNICODE
     );
 
 
 /* ==========================================================
-   CURL
+   CURL KIMI
 ========================================================== */
 
 $ch =
@@ -577,7 +595,7 @@ curl_setopt_array(
                 "Content-Type: application/json",
 
                 "Authorization: Bearer " .
-                $OPENAI_API_KEY
+                $KIMI_API_KEY
 
             ],
 
@@ -624,7 +642,7 @@ if ($response === false) {
             false,
 
         "error" =>
-            "Error conectando con OpenAI: " .
+            "Error conectando con Kimi: " .
             $curlError
 
     ], JSON_UNESCAPED_UNICODE);
@@ -634,7 +652,7 @@ if ($response === false) {
 
 
 /* ==========================================================
-   RESPUESTA OPENAI
+   DECODIFICAR RESPUESTA
 ========================================================== */
 
 $result =
@@ -645,15 +663,14 @@ $result =
 
 
 /* ==========================================================
-   ERROR OPENAI
+   ERROR KIMI
 ========================================================== */
 
 if ($httpCode >= 400) {
 
     $errorMessage =
         $result["error"]["message"]
-        ?? "Error desconocido de OpenAI.";
-
+        ?? "Error desconocido de Kimi.";
 
     echo json_encode([
 
@@ -661,6 +678,7 @@ if ($httpCode >= 400) {
             false,
 
         "error" =>
+            "Kimi ha devuelto un error: " .
             $errorMessage
 
     ], JSON_UNESCAPED_UNICODE);
@@ -670,67 +688,12 @@ if ($httpCode >= 400) {
 
 
 /* ==========================================================
-   OBTENER TEXTO
+   OBTENER RESPUESTA DE KIMI
 ========================================================== */
 
 $answer =
-    null;
-
-
-if (
-    isset($result["output"]) &&
-    is_array($result["output"])
-) {
-
-    foreach (
-        $result["output"]
-        as $outputItem
-    ) {
-
-        if (
-            ($outputItem["type"] ?? "")
-            !== "message"
-        ) {
-
-            continue;
-
-        }
-
-
-        if (
-            !isset(
-                $outputItem["content"]
-            )
-        ) {
-
-            continue;
-
-        }
-
-
-        foreach (
-            $outputItem["content"]
-            as $contentItem
-        ) {
-
-            if (
-                ($contentItem["type"] ?? "")
-                === "output_text"
-            ) {
-
-                $answer =
-                    $contentItem["text"]
-                    ?? null;
-
-                break 2;
-
-            }
-
-        }
-
-    }
-
-}
+    $result["choices"][0]["message"]["content"]
+    ?? null;
 
 
 /* ==========================================================
@@ -745,7 +708,7 @@ if (!$answer) {
             false,
 
         "error" =>
-            "No se pudo obtener una respuesta de OpenAI."
+            "Kimi no devolvió ninguna respuesta."
 
     ], JSON_UNESCAPED_UNICODE);
 
