@@ -1,1203 +1,1376 @@
-/* ==========================================
-   CHATBOT
-========================================== */
+/* =========================================================
+   VIZIUNEAI - JAVASCRIPT PRINCIPAL
+========================================================= */
 
-const chatForm =
-    document.getElementById("chatForm");
+document.addEventListener("DOMContentLoaded", function () {
 
-const messageInput =
-    document.getElementById("message");
+    /* =====================================================
+       ELEMENTOS DEL CHAT
+    ===================================================== */
 
-const chatMessages =
-    document.getElementById("chatMessages");
+    const chatForm = document.getElementById("chatForm");
+    const messageInput = document.getElementById("message");
+    const chatMessages = document.getElementById("chatMessages");
 
+    /* =====================================================
+       ELEMENTOS DEL AGENTE
+    ===================================================== */
 
-/* ==========================================
-   IDENTIDADES DEL AGENTE
-========================================== */
+    const agentButtons = document.querySelectorAll(".agent-button");
 
-const agentButtons =
-    document.querySelectorAll(".agent-button");
+    const assistantName =
+        document.getElementById("assistantName");
 
-const assistantName =
-    document.getElementById("assistantName");
+    const assistantDescription =
+        document.getElementById("assistantDescription");
 
-const assistantDescription =
-    document.getElementById("assistantDescription");
+    const assistantAvatar =
+        document.getElementById("assistantAvatar");
 
-const assistantAvatar =
-    document.getElementById("assistantAvatar");
+    /* =====================================================
+       AGENTE SELECCIONADO
+    ===================================================== */
 
-
-/*
-   Identidad seleccionada por defecto
-*/
-
-let selectedAgent = "asesor";
+    let selectedAgent = "diseño y desarrollo web";
 
 
-/*
-   Información visual de cada identidad
-*/
+    /* =====================================================
+       INFORMACIÓN DE LOS AGENTES
+    ===================================================== */
 
-const agentInfo = {
+    const agentInfo = {
 
-    "asesor inmobiliario": {
+        "diseño y desarrollo web": {
 
-        name:
-            "Alejandro Herradón, tu Asesor Inmobiliario",
-        
-        description:
-            "● Especialista en compra, venta y alquiler de inmuebles",
+            name:
+                "Alejandro Herradón, tu Asesor en Diseño y Desarrollo Web",
 
-        avatar:
-            "img/asset.png"
+            description:
+                "● Diseño y desarrollo de páginas web profesionales, modernas y adaptadas a las necesidades de tu negocio.",
 
-    },
-
-
-    "asesor laboral": {
-
-        name:
-            "Alejandro Herradón, tu Asesor Laboral",
-
-        description:
-            "● Orientación sobre empleo y situaciones laborales",
-
-        avatar:
-            "img/asset.png"
-
-    },
+            avatar:
+                "img/asset.png"
+        },
 
 
-    "asesor legal": {
+        "tiendas online": {
 
-        name:
-            "Alejandro Herradón, tu Asesor Legal",
+            name:
+                "Alejandro Herradón, tu Asesor de Tiendas Online",
 
-        description:
-            "● Información sobre situaciones y conceptos jurídicos",
+            description:
+                "● Creación y desarrollo de tiendas online para vender productos y servicios por Internet.",
 
-        avatar:
-            "img/asset.png"
-
-    },
-
-
-    "asesor financiero": {
-
-        name:
-            "Alejandro Herradón, tu Asesor Financiero",
-
-        description:
-            "● Orientación sobre finanzas, presupuestos y alternativas económicas",
-
-        avatar:
-            "img/asset.png"
-
-    }
-
-};
+            avatar:
+                "img/asset.png"
+        },
 
 
-/* ==========================================
-   CAMBIAR IDENTIDAD
-========================================== */
+        "asesor seo y sem": {
 
-function cambiarIdentidad(agent) {
+            name:
+                "Alejandro Herradón, tu Asesor SEO y SEM",
 
-    if (!agentInfo["asesor inmobiliario"]) {
-        return;
-    }
+            description:
+                "● Estrategias SEO y SEM para mejorar la visibilidad de tu negocio, atraer tráfico y conseguir clientes.",
+
+            avatar:
+                "img/asset.png"
+        },
 
 
-    selectedAgent = agent;
+        "asesoramiento web": {
+
+            name:
+                "Alejandro Herradón, tu Asesor Web",
+
+            description:
+                "● Asesoramiento para mejorar, optimizar y hacer crecer la presencia online de tu negocio.",
+
+            avatar:
+                "img/asset.png"
+        }
+
+    };
 
 
-    /*
-       Cambiar botón activo
-    */
+    /* =====================================================
+       NORMALIZAR AGENTE
+    ===================================================== */
 
-    agentButtons.forEach(function(button) {
+    function obtenerAgenteValido(agent) {
 
-        button.classList.remove("active");
+        if (!agent) {
+            return null;
+        }
+
+        const texto = agent
+            .toLowerCase()
+            .trim()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
 
         if (
-            button.dataset.agent === agent
+            texto === "diseno y desarrollo web" ||
+            texto === "diseno y desarrollo"
         ) {
 
-            button.classList.add("active");
+            return "diseño y desarrollo web";
+        }
+
+
+        if (
+            texto === "tiendas online" ||
+            texto === "tienda online"
+        ) {
+
+            return "tiendas online";
+        }
+
+
+        if (
+            texto === "asesor seo y sem" ||
+            texto === "seo y sem" ||
+            texto === "seo sem" ||
+            texto === "seo"
+        ) {
+
+            return "asesor seo y sem";
+        }
+
+
+        if (
+            texto === "asesoramiento web" ||
+            texto === "asesor web"
+        ) {
+
+            return "asesoramiento web";
+        }
+
+
+        return null;
+    }
+
+
+    /* =====================================================
+       CAMBIAR IDENTIDAD DEL AGENTE
+    ===================================================== */
+
+    function cambiarIdentidad(agent) {
+
+        const agenteValido =
+            obtenerAgenteValido(agent);
+
+
+        if (!agenteValido) {
+
+            console.error(
+                "Agente no encontrado:",
+                agent
+            );
+
+            return;
+        }
+
+
+        /* Guardar agente */
+
+        selectedAgent =
+            agenteValido;
+
+
+        /* =================================================
+           BOTÓN ACTIVO
+        ================================================= */
+
+        agentButtons.forEach(function (button) {
+
+            button.classList.remove("active");
+
+            const botonAgent =
+                obtenerAgenteValido(
+                    button.dataset.agent
+                );
+
+
+            if (botonAgent === agenteValido) {
+
+                button.classList.add("active");
+
+            }
+
+        });
+
+
+        /* =================================================
+           CAMBIAR NOMBRE
+        ================================================= */
+
+        if (assistantName) {
+
+            assistantName.textContent =
+                agentInfo[agenteValido].name;
 
         }
+
+
+        /* =================================================
+           CAMBIAR DESCRIPCIÓN
+        ================================================= */
+
+        if (assistantDescription) {
+
+            assistantDescription.textContent =
+                agentInfo[agenteValido].description;
+
+        }
+
+
+        /* =================================================
+           CAMBIAR AVATAR
+        ================================================= */
+
+        if (assistantAvatar) {
+
+            assistantAvatar.src =
+                agentInfo[agenteValido].avatar;
+
+            assistantAvatar.alt =
+                agentInfo[agenteValido].name;
+
+        }
+
+
+        console.log(
+            "Agente seleccionado:",
+            selectedAgent
+        );
+
+    }
+
+
+    /* =====================================================
+       BOTONES DE AGENTE
+    ===================================================== */
+
+    agentButtons.forEach(function (button) {
+
+        button.addEventListener("click", function (event) {
+
+            event.preventDefault();
+
+            const agent =
+                this.dataset.agent;
+
+            console.log(
+                "Botón pulsado:",
+                agent
+            );
+
+            cambiarIdentidad(agent);
+
+        });
 
     });
 
 
-    /*
-       Cambiar nombre
-    */
+    /* =====================================================
+       BOTÓN EMAIL
+    ===================================================== */
 
-    if (assistantName) {
-
-        assistantName.textContent =
-            agentInfo[agent].name;
-
-    }
+    const sendChatEmail =
+        document.getElementById("sendChatEmail");
 
 
-    /*
-       Cambiar descripción
-    */
+    /* =====================================================
+       FORMULARIO EMAIL DEL CHAT
+    ===================================================== */
 
-    if (assistantDescription) {
+    const chatEmailForm =
+        document.getElementById("chatEmailForm");
 
-        assistantDescription.textContent =
-            agentInfo[agent].description;
+    const chatNombre =
+        document.getElementById("chatNombre");
 
-    }
+    const chatEmail =
+        document.getElementById("chatEmail");
 
-
-    /*
-       Cambiar avatar
-    */
-
-    if (assistantAvatar) {
-
-        assistantAvatar.src =
-            agentInfo[agent].avatar;
-
-        assistantAvatar.alt =
-            agentInfo[agent].name;
-
-    }
-
-}
+    const confirmSendChatEmail =
+        document.getElementById(
+            "confirmSendChatEmail"
+        );
 
 
-/* ==========================================
-   EVENTOS DE LOS BOTONES
-========================================== */
+    /* =====================================================
+       BOTÓN REINICIAR
+    ===================================================== */
 
-agentButtons.forEach(function(button) {
+    const resetChat =
+        document.getElementById("resetChat");
 
-    button.addEventListener(
-        "click",
-        function() {
 
-            const agent =
-                button.dataset.agent;
+    /* =====================================================
+       AVATAR DE LOS MENSAJES
+    ===================================================== */
 
-            cambiarIdentidad(agent);
+    function ponerAvatar(avatar, type) {
+
+        if (type === "bot") {
+
+            const img =
+                document.createElement("img");
+
+            img.src =
+                "img/asset.png";
+
+            img.alt =
+                "Asistente";
+
+            avatar.appendChild(img);
+
+        } else {
+
+            avatar.textContent =
+                "👤";
 
         }
-    );
-
-});
-
-
-/* ==========================================
-   BOTÓN EMAIL
-========================================== */
-
-const sendChatEmail =
-    document.getElementById("sendChatEmail");
-
-
-/* ==========================================
-   FORMULARIO DATOS CHAT
-========================================== */
-
-const chatEmailForm =
-    document.getElementById("chatEmailForm");
-
-const chatNombre =
-    document.getElementById("chatNombre");
-
-const chatEmail =
-    document.getElementById("chatEmail");
-
-const confirmSendChatEmail =
-    document.getElementById(
-        "confirmSendChatEmail"
-    );
-
-
-/* ==========================================
-   BOTÓN REINICIAR
-========================================== */
-
-const resetChat =
-    document.getElementById("resetChat");
-
-
-/* ==========================================
-   AVATAR MENSAJES
-========================================== */
-
-function ponerAvatar(avatar, type) {
-
-    if (type === "bot") {
-
-        const img =
-            document.createElement("img");
-
-        img.src =
-            "img/asset.png";
-
-        img.alt =
-            "Asistente";
-
-        avatar.appendChild(img);
-
-    } else {
-
-        avatar.textContent =
-            "👤";
 
     }
 
-}
+
+    /* =====================================================
+       AÑADIR MENSAJE
+    ===================================================== */
+
+    function addMessage(
+        text,
+        type,
+        temporary = false
+    ) {
+
+        if (!chatMessages) {
+            return null;
+        }
 
 
-/* ==========================================
-   ENVIAR MENSAJE
-========================================== */
-
-if (chatForm) {
-
-    chatForm.addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
+        const messageElement =
+            document.createElement("div");
 
 
-            const message =
-                messageInput.value.trim();
+        messageElement.classList.add(
+            "message",
+            type
+        );
 
 
-            if (!message) {
-                return;
-            }
+        if (temporary) {
 
-
-            /*
-               Mostrar mensaje usuario
-            */
-
-            addMessage(
-                message,
-                "user"
+            messageElement.classList.add(
+                "temporary"
             );
 
-
-            messageInput.value = "";
-
-
-            /*
-               Detectar intención contacto
-            */
-
-            comprobarSolicitudContacto(
-                message
-            );
+        }
 
 
-            /*
-               Mostrar escribiendo
-            */
-
-            const typing =
-                addMessage(
-                    "Escribiendo...",
-                    "bot",
-                    true
-                );
+        const avatar =
+            document.createElement("div");
 
 
-            messageInput.disabled =
-                true;
+        avatar.classList.add(
+            "avatar"
+        );
 
 
-            const submitButton =
-                chatForm.querySelector(
-                    "button[type='submit']"
-                );
+        ponerAvatar(
+            avatar,
+            type
+        );
 
 
-            if (submitButton) {
-
-                submitButton.disabled =
-                    true;
-
-            }
+        const bubble =
+            document.createElement("div");
 
 
-            try {
-
-                /*
-                   Enviar mensaje + identidad
-                */
-
-                const response =
-                    await fetch(
-                        "chat.php",
-                        {
-
-                            method:
-                                "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    message:
-                                        message,
-
-                                    agent:
-                                        selectedAgent
-
-                                })
-
-                        }
-                    );
+        bubble.classList.add(
+            "bubble"
+        );
 
 
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Error HTTP " +
-                        response.status
-                    );
-
-                }
+        bubble.innerText =
+            text;
 
 
-                const data =
-                    await response.json();
+        messageElement.appendChild(
+            avatar
+        );
 
 
-                if (typing) {
-                    typing.remove();
-                }
+        messageElement.appendChild(
+            bubble
+        );
 
 
-                if (!data.success) {
+        chatMessages.appendChild(
+            messageElement
+        );
 
-                    addMessage(
 
-                        "Lo siento, ha ocurrido un error: " +
+        chatMessages.scrollTop =
+            chatMessages.scrollHeight;
 
-                        (
-                            data.error ||
-                            "Error desconocido."
-                        ),
 
-                        "bot"
+        return messageElement;
 
-                    );
+    }
 
+
+    /* =====================================================
+       ENVIAR MENSAJE AL CHAT
+    ===================================================== */
+
+    if (
+        chatForm &&
+        messageInput &&
+        chatMessages
+    ) {
+
+        chatForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const message =
+                    messageInput.value.trim();
+
+
+                if (!message) {
                     return;
-
                 }
 
 
-                /*
-                   Respuesta del agente
-                */
+                /* Mensaje usuario */
 
                 addMessage(
-                    data.answer,
-                    "bot"
+                    message,
+                    "user"
                 );
 
 
-            } catch (error) {
-
-                if (typing) {
-                    typing.remove();
-                }
+                messageInput.value =
+                    "";
 
 
-                addMessage(
+                /* Detectar contacto */
 
-                    "No se ha podido conectar con el servidor. " +
-                    "Comprueba que XAMPP y Apache estén funcionando.",
-
-                    "bot"
-
+                comprobarSolicitudContacto(
+                    message
                 );
 
 
-                console.error(
-                    "Error del chatbot:",
-                    error
-                );
+                /* Escribiendo */
 
+                const typing =
+                    addMessage(
+                        "Escribiendo...",
+                        "bot",
+                        true
+                    );
 
-            } finally {
 
                 messageInput.disabled =
-                    false;
+                    true;
+
+
+                const submitButton =
+                    chatForm.querySelector(
+                        "button[type='submit']"
+                    );
 
 
                 if (submitButton) {
 
                     submitButton.disabled =
-                        false;
+                        true;
 
                 }
 
 
-                messageInput.focus();
+                try {
+
+                    console.log(
+                        "Enviando agente:",
+                        selectedAgent
+                    );
+
+
+                    const response =
+                        await fetch(
+                            "chat.php",
+                            {
+
+                                method:
+                                    "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        message:
+                                            message,
+
+                                        agent:
+                                            selectedAgent
+
+                                    })
+
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Error HTTP " +
+                            response.status
+                        );
+
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (typing) {
+
+                        typing.remove();
+
+                    }
+
+
+                    if (!data.success) {
+
+                        addMessage(
+
+                            "Lo siento, ha ocurrido un error: " +
+
+                            (
+                                data.error ||
+                                "Error desconocido."
+                            ),
+
+                            "bot"
+
+                        );
+
+                        return;
+                    }
+
+
+                    /* Respuesta */
+
+                    addMessage(
+                        data.answer,
+                        "bot"
+                    );
+
+
+                } catch (error) {
+
+                    if (typing) {
+                        typing.remove();
+                    }
+
+
+                    console.error(
+                        "Error del chatbot:",
+                        error
+                    );
+
+
+                    addMessage(
+
+                        "No se ha podido conectar con el servidor. " +
+                        "Comprueba que XAMPP y Apache estén funcionando.",
+
+                        "bot"
+
+                    );
+
+
+                } finally {
+
+                    messageInput.disabled =
+                        false;
+
+
+                    if (submitButton) {
+
+                        submitButton.disabled =
+                            false;
+
+                    }
+
+
+                    messageInput.focus();
+
+                }
 
             }
-
-        }
-    );
-
-}
-
-
-/* ==========================================
-   AÑADIR MENSAJE
-========================================== */
-
-function addMessage(
-    text,
-    type,
-    temporary = false
-) {
-
-    const messageElement =
-        document.createElement("div");
-
-
-    messageElement.classList.add(
-        "message",
-        type
-    );
-
-
-    const avatar =
-        document.createElement("div");
-
-
-    avatar.classList.add(
-        "avatar"
-    );
-
-
-    ponerAvatar(
-        avatar,
-        type
-    );
-
-
-    const bubble =
-        document.createElement("div");
-
-
-    bubble.classList.add(
-        "bubble"
-    );
-
-
-    bubble.innerText =
-        text;
-
-
-    messageElement.appendChild(
-        avatar
-    );
-
-
-    messageElement.appendChild(
-        bubble
-    );
-
-
-    chatMessages.appendChild(
-        messageElement
-    );
-
-
-    chatMessages.scrollTop =
-        chatMessages.scrollHeight;
-
-
-    return messageElement;
-
-}
-
-
-/* ==========================================
-   REINICIAR CHAT
-========================================== */
-
-if (resetChat) {
-
-    resetChat.addEventListener(
-        "click",
-        function() {
-
-            chatMessages.innerHTML =
-                "";
-
-            messageInput.value =
-                "";
-
-
-            if (sendChatEmail) {
-
-                sendChatEmail.hidden =
-                    true;
-
-                sendChatEmail.disabled =
-                    false;
-
-                sendChatEmail.innerText =
-                    "📧 Enviar conversación por correo";
-
-            }
-
-
-            if (chatEmailForm) {
-
-                chatEmailForm.hidden =
-                    true;
-
-            }
-
-
-            if (chatNombre) {
-
-                chatNombre.value =
-                    "";
-
-            }
-
-
-            if (chatEmail) {
-
-                chatEmail.value =
-                    "";
-
-            }
-
-
-            /*
-               Volvemos al asesor
-            */
-
-            cambiarIdentidad(
-                "asesor"
-            );
-
-
-            messageInput.focus();
-
-        }
-    );
-
-}
-
-
-/* ==========================================
-   DETECTAR CONTACTO
-========================================== */
-
-function comprobarSolicitudContacto(
-    message
-) {
-
-    const texto =
-        message
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(
-                /[\u0300-\u036f]/g,
-                ""
-            );
-
-
-    const palabrasContacto = [
-
-        "quiero contactar",
-        "quiero contacto",
-        "contactar",
-        "contacto",
-        "quiero hablar",
-        "hablar con alguien",
-        "hablar con la empresa",
-        "hablar con vosotros",
-        "hablar con ustedes",
-        "quiero contratar",
-        "quiero contrataros",
-        "contratar",
-        "quiero presupuesto",
-        "necesito presupuesto",
-        "presupuesto",
-        "precio",
-        "precios",
-        "informacion",
-        "mas informacion",
-        "quiero informacion",
-        "me interesa",
-        "estoy interesado",
-        "estoy interesada",
-        "quiero saber mas",
-        "necesito ayuda",
-        "hablar con una persona"
-
-    ];
-
-
-    const quiereContactar =
-        palabrasContacto.some(
-            palabra =>
-                texto.includes(palabra)
         );
-
-
-    if (
-        quiereContactar &&
-        sendChatEmail
-    ) {
-
-        sendChatEmail.hidden =
-            false;
 
     }
 
-}
+
+    /* =====================================================
+       REINICIAR CHAT
+    ===================================================== */
+
+    if (resetChat) {
+
+        resetChat.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
 
 
-/* ==========================================
-   OBTENER CONVERSACIÓN
-========================================== */
+                if (chatMessages) {
 
-function obtenerConversacion() {
+                    chatMessages.innerHTML =
+                        "";
 
-    const mensajes =
-        chatMessages.querySelectorAll(
-            ".message"
-        );
+                }
 
 
-    let conversacion =
-        "";
+                if (messageInput) {
+
+                    messageInput.value =
+                        "";
+
+                }
 
 
-    mensajes.forEach(
-        function(mensaje) {
+                if (sendChatEmail) {
 
-            const bubble =
-                mensaje.querySelector(
-                    ".bubble"
-                );
+                    sendChatEmail.hidden =
+                        true;
 
+                    sendChatEmail.disabled =
+                        false;
 
-            if (!bubble) {
-                return;
-            }
+                    sendChatEmail.innerText =
+                        "📧 Enviar conversación por correo";
 
-
-            const texto =
-                bubble.innerText.trim();
+                }
 
 
-            if (!texto) {
-                return;
-            }
+                if (chatEmailForm) {
 
+                    chatEmailForm.hidden =
+                        true;
 
-            if (
-                mensaje.classList.contains(
-                    "bot"
-                )
-            ) {
-
-                conversacion +=
-                    "ASISTENTE:\n" +
-                    texto +
-                    "\n\n";
-
-            } else {
-
-                conversacion +=
-                    "CLIENTE:\n" +
-                    texto +
-                    "\n\n";
-
-            }
-
-        }
-    );
-
-
-    return conversacion.trim();
-
-}
-
-
-/* ==========================================
-   BOTÓN ENVIAR CONVERSACIÓN
-========================================== */
-
-if (sendChatEmail) {
-
-    sendChatEmail.addEventListener(
-        "click",
-        function() {
-
-            const conversacion =
-                obtenerConversacion();
-
-
-            if (!conversacion) {
-
-                alert(
-                    "No hay ninguna conversación para enviar."
-                );
-
-                return;
-
-            }
-
-
-            if (chatEmailForm) {
-
-                chatEmailForm.hidden =
-                    false;
+                }
 
 
                 if (chatNombre) {
 
-                    chatNombre.focus();
+                    chatNombre.value =
+                        "";
 
                 }
 
 
-                chatEmailForm.scrollIntoView({
+                if (chatEmail) {
 
-                    behavior: "smooth",
+                    chatEmail.value =
+                        "";
 
-                    block: "nearest"
+                }
 
-                });
+
+                /* Volver al primer agente */
+
+                cambiarIdentidad(
+                    "diseño y desarrollo web"
+                );
+
+
+                if (messageInput) {
+
+                    messageInput.focus();
+
+                }
 
             }
+        );
 
+    }
+
+
+    /* =====================================================
+       DETECTAR SOLICITUD DE CONTACTO
+    ===================================================== */
+
+    function comprobarSolicitudContacto(message) {
+
+        if (!sendChatEmail) {
+            return;
         }
-    );
-
-}
 
 
-/* ==========================================
-   ENVIAR CONVERSACIÓN
-========================================== */
-
-async function confirmarEnvioConversacion() {
-
-    const conversacion =
-        obtenerConversacion();
-
-
-    if (!conversacion) {
-
-        alert(
-            "No hay ninguna conversación para enviar."
-        );
-
-        return;
-
-    }
+        const texto =
+            message
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(
+                    /[\u0300-\u036f]/g,
+                    ""
+                );
 
 
-    const nombre =
-        chatNombre
-            ? chatNombre.value.trim()
-            : "";
+        const palabrasContacto = [
+
+            "quiero contactar",
+            "quiero contacto",
+            "contactar",
+            "contacto",
+            "quiero hablar",
+            "hablar con alguien",
+            "hablar con la empresa",
+            "hablar con vosotros",
+            "hablar con ustedes",
+            "quiero contratar",
+            "quiero contrataros",
+            "contratar",
+            "quiero presupuesto",
+            "necesito presupuesto",
+            "presupuesto",
+            "precio",
+            "precios",
+            "informacion",
+            "mas informacion",
+            "quiero informacion",
+            "me interesa",
+            "estoy interesado",
+            "estoy interesada",
+            "quiero saber mas",
+            "necesito ayuda",
+            "hablar con una persona"
+
+        ];
 
 
-    const email =
-        chatEmail
-            ? chatEmail.value.trim()
-            : "";
+        const quiereContactar =
+            palabrasContacto.some(
+                function (palabra) {
 
-
-    if (!nombre) {
-
-        alert(
-            "Por favor, introduce tu nombre antes de enviar la conversación."
-        );
-
-        chatNombre.focus();
-
-        return;
-
-    }
-
-
-    if (!email) {
-
-        alert(
-            "Por favor, introduce tu correo electrónico antes de enviar la conversación."
-        );
-
-        chatEmail.focus();
-
-        return;
-
-    }
-
-
-    /*
-       VALIDACIÓN CORRECTA
-    */
-
-    const emailValido =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-    if (!emailValido.test(email)) {
-
-        alert(
-            "Por favor, introduce un correo electrónico válido."
-        );
-
-        chatEmail.focus();
-
-        return;
-
-    }
-
-
-    if (confirmSendChatEmail) {
-
-        confirmSendChatEmail.disabled =
-            true;
-
-        confirmSendChatEmail.innerText =
-            "📧 Enviando...";
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                "chat.php",
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            action:
-                                "email",
-
-                            nombre:
-                                nombre,
-
-                            email:
-                                email,
-
-                            conversacion:
-                                conversacion,
-
-                            agent:
-                                selectedAgent
-
-                        })
+                    return texto.includes(
+                        palabra
+                    );
 
                 }
             );
 
 
-        const data =
-            await response.json();
+        if (quiereContactar) {
 
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            throw new Error(
-
-                data.error ||
-                "No se pudo enviar la conversación."
-
-            );
-
-        }
-
-
-        alert(
-
-            "✅ Conversación enviada correctamente.\n\n" +
-
-            "Hemos recibido tus datos y la conversación."
-
-        );
-
-
-        if (chatEmailForm) {
-
-            chatEmailForm.hidden =
-                true;
-
-        }
-
-
-        if (sendChatEmail) {
-
-            sendChatEmail.innerText =
-                "✓ Conversación enviada";
-
-            sendChatEmail.disabled =
-                true;
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Error al enviar conversación:",
-            error
-        );
-
-
-        alert(
-
-            "❌ " +
-
-            (
-                error.message ||
-                "No se pudo enviar la conversación."
-            )
-
-        );
-
-
-    } finally {
-
-        if (confirmSendChatEmail) {
-
-            confirmSendChatEmail.disabled =
+            sendChatEmail.hidden =
                 false;
 
-            confirmSendChatEmail.innerText =
-                "📧 Enviar conversación";
-
         }
 
     }
 
-}
+
+    /* =====================================================
+       OBTENER CONVERSACIÓN
+    ===================================================== */
+
+    function obtenerConversacion() {
+
+        if (!chatMessages) {
+            return "";
+        }
 
 
-/* ==========================================
-   EVENTO CONFIRMAR EMAIL
-========================================== */
-
-if (confirmSendChatEmail) {
-
-    confirmSendChatEmail.addEventListener(
-        "click",
-        confirmarEnvioConversacion
-    );
-
-}
+        const mensajes =
+            chatMessages.querySelectorAll(
+                ".message"
+            );
 
 
-/* ==========================================
-   FORMULARIO CONTACTO
-========================================== */
-
-const contactForm =
-    document.getElementById(
-        "contactForm"
-    );
+        let conversacion =
+            "";
 
 
-const formResult =
-    document.getElementById(
-        "formResult"
-    );
+        mensajes.forEach(
+            function (mensaje) {
 
+                /* Ignorar "Escribiendo..." */
 
-if (contactForm) {
-
-    contactForm.addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-
-            const formData =
-                new FormData(
-                    contactForm
-                );
-
-
-            const button =
-                contactForm.querySelector(
-                    "button[type='submit']"
-                );
-
-
-            if (button) {
-
-                button.disabled =
-                    true;
-
-                button.innerText =
-                    "Enviando...";
-
-            }
-
-
-            if (formResult) {
-
-                formResult.innerHTML =
-                    "";
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        "contacto.php",
-                        {
-
-                            method:
-                                "POST",
-
-                            body:
-                                formData
-
-                        }
-                    );
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Error HTTP " +
-                        response.status
-                    );
-
-                }
-
-
-                const data =
-                    await response.json();
-
-
-                if (!data.success) {
-
-                    if (formResult) {
-
-                        formResult.innerHTML =
-
-                            `<p class="error">
-                                ${
-                                    data.error ||
-                                    "No se pudieron guardar los datos."
-                                }
-                            </p>`;
-
-                    }
+                if (
+                    mensaje.classList.contains(
+                        "temporary"
+                    )
+                ) {
 
                     return;
 
                 }
 
 
-                if (formResult) {
-
-                    formResult.innerHTML =
-
-                        `<p class="success">
-                            ✅ Datos guardados correctamente.
-                            Abriendo WhatsApp...
-                        </p>`;
-
-                }
-
-
-                if (data.whatsapp) {
-
-                    window.open(
-                        data.whatsapp,
-                        "_blank"
+                const bubble =
+                    mensaje.querySelector(
+                        ".bubble"
                     );
 
+
+                if (!bubble) {
+                    return;
                 }
 
 
-                contactForm.reset();
+                const texto =
+                    bubble.innerText.trim();
 
 
-            } catch (error) {
-
-                console.error(
-                    "Error del formulario:",
-                    error
-                );
-
-
-                if (formResult) {
-
-                    formResult.innerHTML =
-
-                        `<p class="error">
-                            ❌ Ha ocurrido un error al conectar con el servidor.
-                        </p>`;
-
+                if (!texto) {
+                    return;
                 }
 
 
-            } finally {
+                if (
+                    mensaje.classList.contains(
+                        "bot"
+                    )
+                ) {
 
-                if (button) {
+                    conversacion +=
+                        "ASISTENTE:\n" +
+                        texto +
+                        "\n\n";
 
-                    button.disabled =
-                        false;
+                } else {
 
-                    button.innerText =
-                        "💬 Contactar por WhatsApp";
+                    conversacion +=
+                        "CLIENTE:\n" +
+                        texto +
+                        "\n\n";
 
                 }
 
             }
+        );
+
+
+        return conversacion.trim();
+
+    }
+
+
+    /* =====================================================
+       BOTÓN ENVIAR CONVERSACIÓN
+    ===================================================== */
+
+    if (sendChatEmail) {
+
+        sendChatEmail.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+
+                const conversacion =
+                    obtenerConversacion();
+
+
+                if (!conversacion) {
+
+                    alert(
+                        "No hay ninguna conversación para enviar."
+                    );
+
+                    return;
+
+                }
+
+
+                if (chatEmailForm) {
+
+                    chatEmailForm.hidden =
+                        false;
+
+
+                    if (chatNombre) {
+
+                        chatNombre.focus();
+
+                    }
+
+
+                    chatEmailForm.scrollIntoView({
+
+                        behavior:
+                            "smooth",
+
+                        block:
+                            "nearest"
+
+                    });
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       ENVIAR CONVERSACIÓN POR EMAIL
+    ===================================================== */
+
+    async function confirmarEnvioConversacion() {
+
+        const conversacion =
+            obtenerConversacion();
+
+
+        if (!conversacion) {
+
+            alert(
+                "No hay ninguna conversación para enviar."
+            );
+
+            return;
 
         }
+
+
+        const nombre =
+            chatNombre
+                ? chatNombre.value.trim()
+                : "";
+
+
+        const email =
+            chatEmail
+                ? chatEmail.value.trim()
+                : "";
+
+
+        /* Nombre */
+
+        if (!nombre) {
+
+            alert(
+                "Por favor, introduce tu nombre antes de enviar la conversación."
+            );
+
+
+            if (chatNombre) {
+                chatNombre.focus();
+            }
+
+
+            return;
+
+        }
+
+
+        /* Email */
+
+        if (!email) {
+
+            alert(
+                "Por favor, introduce tu correo electrónico antes de enviar la conversación."
+            );
+
+
+            if (chatEmail) {
+                chatEmail.focus();
+            }
+
+
+            return;
+
+        }
+
+
+        /* =================================================
+           CORREGIDO: REGEX DEL EMAIL
+        ================================================= */
+
+        const emailValido =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+        if (!emailValido.test(email)) {
+
+            alert(
+                "Por favor, introduce un correo electrónico válido."
+            );
+
+
+            if (chatEmail) {
+                chatEmail.focus();
+            }
+
+
+            return;
+
+        }
+
+
+        if (confirmSendChatEmail) {
+
+            confirmSendChatEmail.disabled =
+                true;
+
+            confirmSendChatEmail.innerText =
+                "📧 Enviando...";
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "chat.php",
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                action:
+                                    "email",
+
+                                nombre:
+                                    nombre,
+
+                                email:
+                                    email,
+
+                                conversacion:
+                                    conversacion,
+
+                                agent:
+                                    selectedAgent
+
+                            })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.error ||
+                    "No se pudo enviar la conversación."
+                );
+
+            }
+
+
+            alert(
+                "✅ Conversación enviada correctamente.\n\n" +
+                "Hemos recibido tus datos y la conversación."
+            );
+
+
+            if (chatEmailForm) {
+
+                chatEmailForm.hidden =
+                    true;
+
+            }
+
+
+            if (sendChatEmail) {
+
+                sendChatEmail.innerText =
+                    "✓ Conversación enviada";
+
+                sendChatEmail.disabled =
+                    true;
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Error al enviar conversación:",
+                error
+            );
+
+
+            alert(
+                "❌ " +
+                (
+                    error.message ||
+                    "No se pudo enviar la conversación."
+                )
+            );
+
+
+        } finally {
+
+            if (confirmSendChatEmail) {
+
+                confirmSendChatEmail.disabled =
+                    false;
+
+                confirmSendChatEmail.innerText =
+                    "📧 Enviar conversación";
+
+            }
+
+        }
+
+    }
+
+
+    /* =====================================================
+       BOTÓN CONFIRMAR EMAIL
+    ===================================================== */
+
+    if (confirmSendChatEmail) {
+
+        confirmSendChatEmail.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                confirmarEnvioConversacion();
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       FORMULARIO DE CONTACTO
+    ===================================================== */
+
+    const contactForm =
+        document.getElementById(
+            "contactForm"
+        );
+
+
+    const formResult =
+        document.getElementById(
+            "formResult"
+        );
+
+
+    if (contactForm) {
+
+        contactForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const formData =
+                    new FormData(
+                        contactForm
+                    );
+
+
+                const button =
+                    contactForm.querySelector(
+                        "button[type='submit']"
+                    );
+
+
+                if (button) {
+
+                    button.disabled =
+                        true;
+
+                    button.innerText =
+                        "Enviando...";
+
+                }
+
+
+                if (formResult) {
+
+                    formResult.innerHTML =
+                        "";
+
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "contacto.php",
+                            {
+
+                                method:
+                                    "POST",
+
+                                body:
+                                    formData
+
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Error HTTP " +
+                            response.status
+                        );
+
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!data.success) {
+
+                        if (formResult) {
+
+                            formResult.innerHTML =
+                                '<p class="error">' +
+                                (
+                                    data.error ||
+                                    "No se pudieron guardar los datos."
+                                ) +
+                                "</p>";
+
+                        }
+
+                        return;
+
+                    }
+
+
+                    if (formResult) {
+
+                        formResult.innerHTML =
+                            '<p class="success">' +
+                            "✅ Datos guardados correctamente. " +
+                            "Abriendo WhatsApp..." +
+                            "</p>";
+
+                    }
+
+
+                    /* =================================================
+                       CORREGIDO: window.open
+                    ================================================= */
+
+                    if (data.whatsapp) {
+
+                        window.open(
+                            data.whatsapp,
+                            "_blank"
+                        );
+
+                    }
+
+
+                    contactForm.reset();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Error del formulario:",
+                        error
+                    );
+
+
+                    if (formResult) {
+
+                        formResult.innerHTML =
+                            '<p class="error">' +
+                            "❌ Ha ocurrido un error al conectar con el servidor." +
+                            "</p>";
+
+                    }
+
+
+                } finally {
+
+                    if (button) {
+
+                        button.disabled =
+                            false;
+
+                        button.innerText =
+                            "💬 Contactar por WhatsApp";
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       ACTIVAR AGENTE INICIAL
+    ===================================================== */
+
+    cambiarIdentidad(
+        "diseño y desarrollo web"
     );
 
-}
 
+    /* =====================================================
+       COMPROBACIÓN
+    ===================================================== */
+
+    console.log(
+        "ViziuneAI JavaScript cargado correctamente."
+    );
+
+    console.log(
+        "Agente inicial:",
+        selectedAgent
+    );
+
+});

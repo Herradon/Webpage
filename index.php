@@ -1,6 +1,3 @@
-<!-- http://localhost:8080/chatbot/#chat -->
-<!-- http://localhost:8080/phpmyadmin/ -->
-
 <?php
 session_start();
 ?>
@@ -17,12 +14,17 @@ session_start();
 
     <title>ViziuneAI</title>
 
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
 
 </head>
 
+
 <body>
 
+
+<!-- ==========================================
+     HEADER
+========================================== -->
 
 <header class="header">
 
@@ -30,7 +32,9 @@ session_start();
 
         <div class="logo">
 
-            <div class="logo-v">V</div>
+            <div class="logo-v">
+                V
+            </div>
 
             <div class="logo-text">
                 IZIUNE
@@ -60,12 +64,13 @@ session_start();
 </header>
 
 
+
 <main>
 
 
 <!-- ==========================================
      HERO
-=========================================== -->
+========================================== -->
 
 <section id="inicio"
          class="hero">
@@ -88,6 +93,7 @@ session_start();
             Transformamos la forma en la que trabajan usando
             agentes de inteligencia artificial capaces de atender,
             responder y automatizar tareas de forma inteligente.
+
             Nuestros agentes pueden interactuar con clientes,
             resolver consultas, gestionar solicitudes, recopilar
             información y asistir en diferentes procesos del negocio
@@ -96,8 +102,9 @@ session_start();
             <br><br>
 
             Creamos agentes adaptados a las necesidades de cada
-            negocio para aplicarlos en una página web aportando
-            soluciones integradas con WhatsApp y otros servicios.
+            negocio para aplicarlos en una página web, aportando
+            soluciones integradas con WhatsApp, correo electrónico
+            y otros servicios.
 
         </p>
 
@@ -106,14 +113,20 @@ session_start();
 </section>
 
 
+
 <!-- ==========================================
      CHAT
-=========================================== -->
+========================================== -->
 
-<section id="chat" class="chat-section">
+<section id="chat"
+         class="chat-section">
 
     <div class="container">
 
+
+        <!-- ======================================
+             TÍTULO
+        ======================================= -->
 
         <div class="section-title">
 
@@ -141,32 +154,37 @@ session_start();
         </div>
 
 
-        <!-- ==========================================
-             SELECTOR DE IDENTIDAD
-        =========================================== -->
+
+        <!-- ======================================
+             SELECTOR DE ESPECIALIDAD
+        ======================================= -->
 
         <div class="agent-selector">
 
             <h3>
-                ¿Con quién quieres hablar?
+                ¿Qué necesitas?
             </h3>
+
 
             <p class="agent-selector-description">
 
-                Selecciona el especialista que mejor se adapte
+                Selecciona el área que mejor se adapte
                 a lo que necesitas.
 
             </p>
 
 
-            <!-- ==========================================
+
+            <!-- ==================================
                  CHAT BOX
-            =========================================== -->
+            ================================== -->
 
             <div class="chat-box">
 
 
-                <!-- CABECERA -->
+                <!-- ==================================
+                     CABECERA DEL CHAT
+                ================================== -->
 
                 <div class="chat-header">
 
@@ -174,35 +192,46 @@ session_start();
                     <div class="chat-intro">
 
 
+                        <!-- AVATAR -->
+
                         <div class="assistant-avatar">
 
                             <img
                                 id="assistantAvatar"
                                 src="img/asset.png"
-                                alt="Asistente">
+                                alt="Asistente de Diseño y Desarrollo Web">
 
                         </div>
 
 
+
+                        <!-- INFORMACIÓN DEL AGENTE -->
+
                         <div class="chat-intro-info">
+
 
                             <strong id="assistantName">
 
                                 Alejandro Herradón,
-                                tu Asistente de confianza
+                                tu Asesor en Diseño y Desarrollo Web
 
                             </strong>
 
 
                             <small id="assistantDescription">
 
-                                ● Asesoramiento personalizado
-                                las 24 horas
+                                ● Diseño y desarrollo de páginas web
+                                profesionales, modernas y adaptadas
+                                a las necesidades de tu negocio.
 
                             </small>
 
+
                         </div>
 
+
+
+                        <!-- BOTÓN REINICIAR -->
 
                         <button
                             type="button"
@@ -216,74 +245,91 @@ session_start();
 
                         </button>
 
+
                     </div>
 
 
-                    <!-- ==========================================
-                         IDENTIDADES
-                    =========================================== -->
+
+                    <!-- ==================================
+                         BOTONES DE ESPECIALIDAD
+                    ================================== -->
 
                     <div class="agent-buttons">
 
 
+                        <!-- DISEÑO Y DESARROLLO WEB -->
+
                         <button
                             type="button"
                             class="agent-button active"
-                            data-agent="asesor inmobiliario">
+                            data-agent="diseño y desarrollo web">
 
-                            Asesor inmobiliario
-
-                        </button>
-
-
-                        <button
-                            type="button"
-                            class="agent-button"
-                            data-agent="asesor laboral">
-
-                            Asesor laboral
+                            Diseño y desarrollo web
 
                         </button>
 
 
+
+                        <!-- TIENDAS ONLINE -->
+
                         <button
                             type="button"
                             class="agent-button"
-                            data-agent="asesor legal">
+                            data-agent="tiendas online">
 
-                            Asesor legal
+                            Tiendas online
 
                         </button>
 
 
+
+                        <!-- SEO Y SEM -->
+
                         <button
                             type="button"
                             class="agent-button"
-                            data-agent="asesor financiero">
+                            data-agent="asesor seo y sem">
 
-                            Asesor financiero
+                            Asesor SEO y SEM
+
+                        </button>
+
+
+
+                        <!-- ASESORAMIENTO WEB -->
+
+                        <button
+                            type="button"
+                            class="agent-button"
+                            data-agent="asesoramiento web">
+
+                            Asesoramiento web
 
                         </button>
 
 
                     </div>
 
+
                 </div>
 
 
-                <!-- ==========================================
-                     MENSAJES
-                =========================================== -->
+
+                <!-- ==================================
+                     MENSAJES DEL CHAT
+                ================================== -->
 
                 <div
                     id="chatMessages"
                     class="chat-messages">
+
                 </div>
 
 
-                <!-- ==========================================
-                     INPUT
-                =========================================== -->
+
+                <!-- ==================================
+                     FORMULARIO DEL CHAT
+                ================================== -->
 
                 <form
                     id="chatForm"
@@ -316,7 +362,9 @@ session_start();
 
             </div>
 
+
         </div>
+
 
 
         <!-- ==========================================
@@ -328,6 +376,9 @@ session_start();
 
             <div class="chat-whatsapp-container">
 
+
+                <!-- BOTÓN OCULTO INICIALMENTE -->
+
                 <button
                     type="button"
                     id="sendChatEmail"
@@ -337,10 +388,14 @@ session_start();
 
                 </button>
 
+
             </div>
 
 
-            <!-- DATOS CLIENTE -->
+
+            <!-- ======================================
+                 FORMULARIO DATOS DEL CLIENTE
+            ======================================= -->
 
             <div
                 id="chatEmailForm"
@@ -350,12 +405,15 @@ session_start();
 
                 <p>
 
-                    Para poder enviarte la conversación
-                    y que nuestro equipo pueda contactar
-                    contigo, introduce tus datos:
+                    Para poder enviar la conversación
+                    a nuestro equipo y que podamos
+                    contactar contigo, introduce tus datos:
 
                 </p>
 
+
+
+                <!-- NOMBRE -->
 
                 <div class="form-group">
 
@@ -369,6 +427,9 @@ session_start();
                 </div>
 
 
+
+                <!-- EMAIL -->
+
                 <div class="form-group">
 
                     <input
@@ -380,6 +441,9 @@ session_start();
 
                 </div>
 
+
+
+                <!-- CONFIRMAR ENVÍO -->
 
                 <button
                     type="button"
@@ -393,17 +457,22 @@ session_start();
             </div>
 
 
+
+            <!-- TEXTO INFORMATIVO -->
+
             <p>
 
-                En el caso de que tengas algún problema con
-                el soporte o con el asistente, puedes enviarnos
-                un mensaje directamente a nuestro WhatsApp
-                completando el formulario y te atenderemos
-                lo antes posible.
+                Si durante la conversación necesitas
+                contactar directamente con nuestro equipo,
+                puedes enviar la conversación por correo
+                electrónico y nos pondremos en contacto
+                contigo.
 
             </p>
 
+
         </div>
+
 
     </div>
 
@@ -413,7 +482,7 @@ session_start();
 
 <!-- ==========================================
      CONTACTO
-=========================================== -->
+========================================== -->
 
 <section
     id="contacto"
@@ -423,26 +492,36 @@ session_start();
     <div class="container">
 
 
+        <!-- ======================================
+             TÍTULO CONTACTO
+        ======================================= -->
+
         <div class="section-title">
 
             <span>
                 CONTACTO
             </span>
 
+
             <h2>
                 ¿Quieres hablar con nosotros?
             </h2>
 
+
             <p>
 
-                Rellena el formulario y continúa
-                la conversación directamente
-                por WhatsApp.
+                Rellena el formulario y nos pondremos
+                en contacto contigo.
 
             </p>
 
         </div>
 
+
+
+        <!-- ======================================
+             TARJETA CONTACTO
+        ======================================= -->
 
         <div class="contact-card">
 
@@ -453,16 +532,21 @@ session_start();
                 <div class="form-grid">
 
 
+                    <!-- NOMBRE -->
+
                     <div class="form-group">
 
                         <input
                             type="text"
                             name="nombre"
                             required
-                            placeholder="Tu nombre del solicitante">
+                            placeholder="Tu nombre">
 
                     </div>
 
+
+
+                    <!-- EMPRESA -->
 
                     <div class="form-group">
 
@@ -475,6 +559,9 @@ session_start();
                     </div>
 
 
+
+                    <!-- EMAIL -->
+
                     <div class="form-group full">
 
                         <input
@@ -485,6 +572,9 @@ session_start();
 
                     </div>
 
+
+
+                    <!-- MENSAJE -->
 
                     <div class="form-group full">
 
@@ -501,6 +591,11 @@ session_start();
                 </div>
 
 
+
+                <!-- ==================================
+                     BOTÓN WHATSAPP
+                ================================== -->
+
                 <button
                     type="submit"
                     class="whatsapp-button">
@@ -514,6 +609,9 @@ session_start();
                 </button>
 
 
+
+                <!-- RESULTADO -->
+
                 <div id="formResult"></div>
 
 
@@ -522,11 +620,15 @@ session_start();
 
         </div>
 
+
     </div>
+
 
 </section>
 
+
 </main>
+
 
 
 <!-- ==========================================
@@ -534,6 +636,7 @@ session_start();
 ========================================== -->
 
 <footer>
+
 
     <div class="container">
 
@@ -546,10 +649,17 @@ session_start();
 
     </div>
 
+
 </footer>
 
 
-<script src="js/app.js"></script>
+
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
+
+<script src="js/app.js?v=4"></script>
+
 
 </body>
 
