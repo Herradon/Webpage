@@ -6,9 +6,9 @@
 
 $host = "localhost";
 
-$dbname = "u445133904_chatbot_web";
+$dbname = "u671328244_chatbot_web";
 
-$username = "u445133904_viziuneai";
+$username = "u671328244_viziuneai";
 
 $password = "Viziune_2026";
 
@@ -32,6 +32,8 @@ try {
 
 } catch (PDOException $e) {
 
+    error_log("Error MySQL: " . $e->getMessage());
+
     http_response_code(500);
 
     echo json_encode([
@@ -46,7 +48,7 @@ try {
    KIMI
 ========================================== */
 
-$KIMI_API_KEY = "TU_API_KEY_DE_KIMI";
+$KIMI_API_KEY = "sk-zKyp1zO2MwPbuWXEV25oF7TzT8uesbTyqVMfZLtDwWdtfYvA";
 
 $KIMI_MODEL = "kimi-k2.5";
 
