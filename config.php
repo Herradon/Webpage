@@ -4,7 +4,7 @@
    BASE DE DATOS
 ========================================== */
 
-$host = "localhost";
+$host = "u671328244_chatbot_web1";
 $dbname = "u445133904_chatbot_web";
 
 $username = "u445133904_viziuneai";
