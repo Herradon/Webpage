@@ -105,16 +105,26 @@ nav a:hover {
 
 .hero {
     width: 100%;
-    min-height: 600px;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 80px 20px;
-    background: linear-gradient(
-        135deg,
-        #eef2ff,
-        #ffffff
-    );
+    background: linear-gradient(180deg, #111827, #1E3A8A, #111827);
+    background-size: 400% 400%;
+    animation: animacionHero cubic-bezier(0.6, 0.04, 0.98, 0.335) ease infinite;
+}
+
+@keyframes animacionHero {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .hero-content {
@@ -126,7 +136,8 @@ nav a:hover {
 }
 
 .hero h1 {
-    width: 80%;
+    color: white;
+    width: 85%;
     font-size: 45px;
     line-height: 1.1;
     margin-bottom: 25px;
@@ -138,9 +149,9 @@ nav a:hover {
 }
 
 .hero p {
-    width: 80%;
+    width: 85%;
     font-size: 20px;
-    color: #6b7280;
+    color: #fdfdfd;
     margin-bottom: 35px;
     text-align: justify;
 }
@@ -554,6 +565,8 @@ nav a:hover {
     max-width: 600px;
     margin: 0 auto 30px;
     padding: 25px;
+    border-style: solid;
+    border-color: #e3e3e3;
     background: #f9fafb;
     border-radius: 15px;
 }

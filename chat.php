@@ -336,13 +336,8 @@ if ($action === "email") {
 
     $textoEmail =
 
-        "NUEVO CONTACTO DESDE VIZIUNEAI\n\n" .
+        "NUEVO CONTACTO DESDE VIZIUNEAI:\n\n" .
 
-        "========================================\n" .
-
-        "DATOS DEL CLIENTE\n" .
-
-        "========================================\n\n" .
 
         "Nombre: " .
         $nombre .
@@ -359,12 +354,6 @@ if ($action === "email") {
         "ID conversación: " .
         $conversacionId .
         "\n\n" .
-
-        "========================================\n" .
-
-        "CONVERSACIÓN\n" .
-
-        "========================================\n\n" .
 
         $conversacion;
 
