@@ -16,22 +16,8 @@ session_start();
 
 <header class="header">
 
-    <div class="container nav">
 
-        <div class="logo">
-
-            <div class="logo-v">
-                V
-            </div>
-
-            <div class="logo-text">
-                IZIUNE
-            </div>
-
-        </div>
-
-
-        <nav>
+        <!--<nav>
 
             <a href="home.php">
                 Inicio
@@ -45,11 +31,11 @@ session_start();
                 Contacto
             </a>
 
-        </nav>
-
-    </div>
+        </nav>-->
 
 </header>
+
+
 
 <body>
     

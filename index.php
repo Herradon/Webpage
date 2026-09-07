@@ -1,5 +1,6 @@
 <?php
-session_start();
+header("location: home.php");
+exit();
 ?>
 
 <!DOCTYPE html>
@@ -26,22 +27,9 @@ session_start();
      HEADER
 ========================================== -->
 
-<header class="header">
+<!--<header class="header">
 
     <div class="container nav">
-
-        <div class="logo">
-
-            <div class="logo-v">
-                V
-            </div>
-
-            <div class="logo-text">
-                IZIUNE
-            </div>
-
-        </div>
-
 
         <nav>
 
@@ -53,7 +41,7 @@ session_start();
                 Asistente IA
             </a>
 
-            <a href="contacto.php">
+            <a href="#contacto">
                 Contacto
             </a>
 
@@ -61,7 +49,7 @@ session_start();
 
     </div>
 
-</header>
+</header>-->
 
 
 
