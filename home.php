@@ -22,6 +22,7 @@ session_start();
 <body>
 
 
+
 <!-- ==========================================
      HEADER
 ========================================== -->
@@ -57,8 +58,8 @@ session_start();
 
 
 
-<section id="inicio"
-         class="hero">
+<section id="inicio" class="hero">
+
 
     <div class="container hero-content">
 
