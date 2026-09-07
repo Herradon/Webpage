@@ -71,7 +71,7 @@ textarea {
 
 /* --- CANVAS (RED NEURONAL DE FONDO) --- */
 canvas {
-    background-color:#050505;
+    background: linear-gradient(180deg, #111827, #1E3A8A, #111827);
     display: block;
     position: absolute;
     top: 0;
