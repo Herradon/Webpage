@@ -97,6 +97,97 @@ document.addEventListener("DOMContentLoaded", function () {
 
     };
 
+     /* =====================================================
+       NEURONAS
+    ===================================================== */
+
+    const canvas = document.getElementById('neural-network');
+    const ctx = canvas.getContext('2d');
+    
+    let width, height;
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    
+    // Configuración de los nodos
+    const numNodes = 60;
+    const nodes = [];
+    
+    for (let i = 0; i < numNodes; i++) {
+        nodes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 1.5, // Velocidad en X
+            vy: (Math.random() - 0.5) * 1.5, // Velocidad en Y
+            radius: Math.random() * 2 + 2
+        });
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+    
+        // Actualizar y dibujar nodos
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i];
+            
+            node.x += node.vx;
+            node.y += node.vy;
+        
+            // Rebote en los bordes
+            if (node.x < 0 || node.x > width) node.vx *= -1;
+            if (node.y < 0 || node.y > height) node.vy *= -1;
+        
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fill();
+        
+            // Conectar nodos cercanos (sinapsis)
+            for (let j = i + 1; j < nodes.length; j++) {
+                let other = nodes[j];
+                let dx = node.x - other.x;
+                let dy = node.y - other.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+            
+                if (dist < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(node.x, node.y);
+                    ctx.lineTo(other.x, other.y);
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist / 120})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+    
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
+
+
+ /* =====================================================
+       BOTON INICIO
+    ===================================================== */
+
+    const boton = document.getElementById('btn-probar');
+    const cortina = document.getElementById('inicio');
+
+    boton.addEventListener('click', function(event) {
+        event.preventDefault(); 
+        const destino = this.href; 
+
+       
+        cortina.classList.add('active');
+
+        
+        setTimeout(function() {
+            window.location.href = destino;
+        }, 150);
+    });
 
     /* =====================================================
        NORMALIZAR AGENTE
