@@ -45,15 +45,15 @@ session_start();
 
         <nav>
 
-            <a href="#inicio">
+            <a href="home.php">
                 Inicio
             </a>
 
-            <a href="#chat">
+            <a href="index.php">
                 Asistente IA
             </a>
 
-            <a href="#contacto">
+            <a href="contacto.php">
                 Contacto
             </a>
 
