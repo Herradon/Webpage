@@ -14,7 +14,7 @@ session_start();
 
     <title>ViziuneAI</title>
 
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css">
 
 </head>
 
@@ -658,7 +658,7 @@ session_start();
      JAVASCRIPT
 ========================================== -->
 
-<script src="js/app.js?v=4"></script>
+<script src="js/app.js"></script>
 
 
 </body>
