@@ -97,6 +97,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     };
 
+       /* =====================================================
+       CHIP CODE
+    ===================================================== */
+
+    const chip = document.querySelector('.cpu-chip');
+    const lines = document.querySelectorAll('.power-line');
+
+    chip.addEventListener('click', () => {
+      // Aplicar efecto de sobrecarga rápido
+      lines.forEach(line => {
+        line.style.animationDuration = '0.4s';
+        line.style.stroke = '#ff0055';
+        line.style.filter = 'drop-shadow(0 0 12px #ff0055)';
+      });
+      chip.style.borderColor = '#ff0055';
+
+      // Volver a la normalidad después de 1 segundo
+      setTimeout(() => {
+        lines.forEach(line => {
+          line.style.animationDuration = '5s';
+          line.style.stroke = '#00f3ff';
+          line.style.filter = 'drop-shadow(0 0 8px #00f3ff)';
+        });
+        chip.style.borderColor = '#00f3ff';
+      }, 1000);
+    });
+
 
      /* =====================================================
        NEURONAS

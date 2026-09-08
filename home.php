@@ -60,6 +60,38 @@ session_start();
 
 <section id="inicio" class="hero">
 
+        <div class="canvas-container">
+        
+          <div class="circuit-board">
+        
+            <div class="cpu-chip">
+        
+              <div class="chip-core"></div>
+            </div>
+            
+            <svg class="energy-lines" viewBox="0 0 400 400">
+            
+              <path class="power-line" d="M200,160 L200,90" />
+        
+              <path class="power-line" d="M175,160 L140,90 L60,90" />
+        
+              <path class="power-line" d="M225,160 L260,90 L340,90" />
+        
+            
+              <path class="power-line" d="M200,240 L200,360" />
+        
+              <path class="power-line" d="M175,240 L140,310 L60,310" />
+        
+              <path class="power-line" d="M225,240 L260,310 L340,310" />
+        
+        
+              <path class="power-line" d="M160,200 L40,200" />
+        
+              <path class="power-line" d="M240,200 L360,200" />
+            </svg>
+          </div>
+        </div>
+        
 
     <div class="container hero-content">
 
