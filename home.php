@@ -93,7 +93,7 @@ session_start();
         </div>
         
 
-    <div class="container hero-content">
+    <div class="hero-content">
 
         <h1>
 

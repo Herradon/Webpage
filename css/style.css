@@ -207,8 +207,8 @@ canvas {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 25%;
-  height: 40%;
+  width: 20%;
+  height: 36%;
   background: #111625;
   border: 4px solid #00f3ff;
   border-radius: 8px;
@@ -239,7 +239,7 @@ canvas {
 .power-line {
   fill:none;
   stroke: #00f3ff;
-  stroke-width: 1;
+  stroke-width: 0.8;
   stroke-linecap: round;
   /* El truco: define el largo del haz eléctrico y el espacio vacío */
   stroke-dasharray: 50 160; 
@@ -251,10 +251,10 @@ canvas {
 /* Animaciones */
 @keyframes discharge {
   0% {
-    stroke-dashoffset: 400; /* Comienza dentro del chip */
+    stroke-dashoffset: 1000; /* Comienza dentro del chip */
   }
   100% {
-    stroke-dashoffset: -400;   /* Se aleja del chip */
+    stroke-dashoffset: 0;   /* Se aleja del chip */
   }
 }
 
@@ -348,7 +348,6 @@ nav a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 80px 20px;
     background: none;
     background-size: 400% 400%;
     animation: animacionHero cubic-bezier(0.6, 0.04, 0.98, 0.335) ease infinite;
@@ -369,19 +368,23 @@ nav a:hover {
 
 .hero-content {
     width: 100%;
-    max-width: 1000px;
+    height: 100vh;
+    justify-content: center;
     display: flex;
     flex-direction: column;
     align-items: center;
+     background: rgba(13, 27, 42, 0.6);
+  backdrop-filter: blur(13px);        
+  -webkit-backdrop-filter: blur(5px);
 }
 
 .hero h1 {
     color: white;
-    width: 85%;
+    width: 60%;
     font-size: 45px;
     line-height: 1.1;
     margin-bottom: 25px;
-    text-align: left;
+    text-align: center;
 }
 
 .hero h1 span {
@@ -389,7 +392,7 @@ nav a:hover {
 }
 
 .hero p {
-    width: 85%;
+    width: 43%;
     font-size: 20px;
     color: #fdfdfd;
     margin-bottom: 35px;
