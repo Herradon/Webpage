@@ -145,8 +145,23 @@ try {
    NÚMERO DE WHATSAPP
 ========================================== */
 
+/*
+   PON AQUÍ EL NÚMERO DE WHATSAPP
+   DE TU EMPRESA.
+
+   IMPORTANTE:
+   - Sin +
+   - Sin espacios
+   - Sin guiones
+
+   Ejemplo España:
+
+   34600123456
+*/
+
 $numeroWhatsApp =
-    "626976795";
+    "34689976427";
+
 
 /* ==========================================
    CREAR MENSAJE PARA WHATSAPP

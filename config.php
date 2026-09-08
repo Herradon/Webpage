@@ -6,13 +6,11 @@
 
 $host = "localhost";
 
-$dbname = "chatbot_web";
+$dbname = "u671328244_chatbot_web";
 
-$username = "root";
+$username = "u671328244_viziuneai";
 
-$password = "";
-
-
+$password = "Viziune_2026";
 
 
 /* ==========================================
