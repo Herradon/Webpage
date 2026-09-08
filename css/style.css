@@ -55,10 +55,7 @@ textarea {
     
     /* Capa por encima del canvas pero controlada */
     position: relative;
-    z-index: 2;
-         background: rgba(13, 27, 42, 0.6);
-  backdrop-filter: blur(2px);        
-  -webkit-backdrop-filter: blur(3px);
+    z-index: 2; 
 }
 
 /* Al hacer clic, toda la sección (.home) se desvanece rápido */
@@ -254,7 +251,7 @@ canvas {
 /* Animaciones */
 @keyframes discharge {
   0% {
-    stroke-dashoffset: 1500; /* Comienza dentro del chip */
+    stroke-dashoffset: 400; /* Comienza dentro del chip */
   }
   100% {
     stroke-dashoffset: 0;   /* Se aleja del chip */
@@ -263,7 +260,7 @@ canvas {
 
 @keyframes pulse-core {
   0%, 100% {
-    box-shadow: 0 0 50px rgba(0, 243, 255, 0.4);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
     border-color: #00f3ff;
   }
   50% {
@@ -377,8 +374,8 @@ nav a:hover {
     flex-direction: column;
     align-items: center;
      background: rgba(13, 27, 42, 0.6);
-  backdrop-filter: blur(18px);        
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(13px);        
+  -webkit-backdrop-filter: blur(5px);
 }
 
 .hero h1 {
