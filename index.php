@@ -26,7 +26,7 @@ session_start();
      HEADER
 ========================================== -->
 
-<header class="header">
+<!--<header class="header">
 
     <div class="container nav">
 
@@ -61,7 +61,7 @@ session_start();
 
     </div>
 
-</header>
+</header>!-->
 
 
 
@@ -72,8 +72,9 @@ session_start();
      HERO
 ========================================== -->
 
-<section id="inicio"
-         class="hero">
+<section id="inicio" class="hero">
+
+      <canvas id="neural-network"></canvas>
 
     <div class="container hero-content">
 
