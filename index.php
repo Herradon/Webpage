@@ -6,6 +6,7 @@ session_start();
 <html lang="es">
 
 <head>
+    <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="c73a4920-9b86-4f59-b4e9-a3f8e1dfba1d" data-blockingmode="auto" type="text/javascript"></script> 
 
     <meta charset="UTF-8">
 
@@ -16,6 +17,7 @@ session_start();
 
     <link rel="stylesheet" href="css/style.css">
 
+   
 </head>
 
 
@@ -74,8 +76,6 @@ session_start();
 
 <section id="inicio" class="hero">
 
-      <canvas id="neural-network"></canvas>
-
     <div class="container hero-content">
 
         <h1>
@@ -110,6 +110,7 @@ session_start();
         </p>
 
     </div>
+
 
 </section>
 
@@ -637,6 +638,7 @@ session_start();
 ========================================== -->
 
 <footer>
+
 
 
     <div class="container">

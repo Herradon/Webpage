@@ -30,19 +30,7 @@ textarea {
     font-family: inherit;
 }
 
-/* ==========================================
-   neuronal
-========================================== */
 
-
-#neural-network {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  z-index: -1;
-}
 
 
 /* ==========================================
@@ -111,7 +99,6 @@ nav a:hover {
     color: #2563eb;
 }
 
-
 /* ==========================================
    HERO
 ========================================== */
@@ -120,23 +107,25 @@ nav a:hover {
     width: 100%;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 80px 20px;
-    background: none;
-    z-index: 1;
+    background: none;   
 }
+
 
 .hero-content {
     width: 100%;
-    max-width: 1000px;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .hero h1 {
-    width: 80%;
+    color: #ffffff;
+    width: 45%;
     font-size: 45px;
     line-height: 1.1;
     margin-bottom: 25px;
@@ -148,9 +137,9 @@ nav a:hover {
 }
 
 .hero p {
-    width: 80%;
+    width: 45%;
     font-size: 20px;
-    color: #6b7280;
+    color: #ffffff;
     margin-bottom: 35px;
     text-align: justify;
 }
