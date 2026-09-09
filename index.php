@@ -76,6 +76,8 @@ session_start();
 
 <section id="inicio" class="hero">
 
+       <canvas id="neural-canvas"></canvas>
+
     <div class="container hero-content">
 
         <h1>

@@ -96,7 +96,117 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
     };
+
+    /* =====================================================
+       NEURONAS
+    ===================================================== */
+
+
+    // Obtención del lienzo y contexto de dibujo
+const canvas = document.getElementById('neural-canvas');
+const ctx = canvas.getContext('2d');
+
+// Variables y constantes ajustables
+const CONFIG = {
+  particleCount: 50,       // Número de neuronas flotando en pantalla
+  maxDistance: 130,        // Distancia máxima para trazar una conexión
+  nodeColor: '#00f3ff',    // Color celeste fluorescente de los puntos
+  lineColor: '0, 243, 255',// Color RGB base para la opacidad de los axones
+  speed: 0.5               // Velocidad de movimiento de flotación
+};
+
+let particles = [];
+
+// Redimensionar el lienzo adaptándose a cualquier pantalla (Monitor o Móvil)
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Clase constructora para cada Neurona (Nodo)
+class Neuron {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    // Vectores de dirección aleatoria
+    this.vx = (Math.random() - 0.5) * CONFIG.speed;
+    this.vy = (Math.random() - 0.5) * CONFIG.speed;
+    this.radius = Math.random() * 2 + 2; // Diámetros variados entre 2px y 4px
+  }
+
+  // Actualizar la posición y rebotar sutilmente al tocar el límite de la pantalla
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+  }
+
+  // Dibujar el nodo con un sutil efecto de brillo incandescente
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = CONFIG.nodeColor;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = CONFIG.nodeColor;
+    ctx.fill();
+    ctx.shadowBlur = 0; // Desactivar sombras tras pintar para optimizar rendimiento de las líneas
+  }
+}
+
+// Inicializar la red
+function init() {
+  particles = [];
+  for (let i = 0; i < CONFIG.particleCount; i++) {
+    particles.push(new Neuron());
+  }
+}
+
+// Bucle de animación principal (Se ejecuta cuadro por cuadro)
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 1. Dibujar y mover cada neurona
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
+
+  // 2. Calcular distancias recíprocas (Mapeo de conexiones dinámicas)
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      
+      // Teorema de Pitágoras para medir distancias en tiempo real
+      const distance = Math.sqrt(dx * dx + dy * dy); 
+
+      // Si se cruzan dentro del rango límite, el axón se conecta solo
+      if (distance < CONFIG.maxDistance) {
+        // La opacidad de la línea aumenta proporcionalmente si están más cerca
+        const opacity = (1 - (distance / CONFIG.maxDistance)) * 0.25;
         
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(${CONFIG.lineColor}, ${opacity})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// Arrancar el proceso de la red neuronal viva
+init();
+animate();
+
+    
 
     /* =====================================================
        NORMALIZAR AGENTE

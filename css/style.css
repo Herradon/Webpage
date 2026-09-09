@@ -15,9 +15,10 @@ body {
     min-width: 320px;
     font-family: Arial, Helvetica, sans-serif;
     background: none;
-    background-color: #0b0f19;
+    background: radial-gradient(circle at center, #0d1b2a 0%, #080f1a 100%);
     line-height: 1.6;
     overflow: hidden;
+    z-index: -1;
 }
 
 img {
@@ -97,6 +98,36 @@ nav a {
 
 nav a:hover {
     color: #2563eb;
+}
+
+
+/* ==========================================
+   NEURONAS
+========================================== */
+
+/* Estructura base de fondo */
+
+
+/* ESTILOS ESPECÍFICOS DEL CANVAS DE FONDO */
+#neural-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: -1; /* Lo manda estrictamente detrás de todo el contenido */
+  pointer-events: none; /* Crucial: permite hacer clic en tus tarjetas y botones verdes */
+  background: transparent;
+  opacity: 6; /* Controla la intensidad visual de la red de fondo */
+}
+
+/* Contenedor de tu interfaz (Ejemplo) */
+.main-content {
+  position: relative;
+  max-width: 1000px;
+  margin: 80px auto;
+  text-align: center;
+  padding: 20px;
 }
 
 /* ==========================================
