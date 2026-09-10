@@ -82,7 +82,7 @@ session_start();
 
 <section id="inicio" class="hero">
 
-
+<canvas id="neural-canvas"></canvas>
 
 <div class="container hero-content">
 
@@ -195,7 +195,6 @@ session_start();
 
 <section id="chat" class="chat-section">
 
-    <canvas id="neural-canvas"></canvas>
 
     <div class="container">
 
