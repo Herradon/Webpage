@@ -9,12 +9,7 @@ session_start();
 <head>
 
 
-<script
-    id="Cookiebot"
-    src="https://consent.cookiebot.com/uc.js"
-    data-cbid="c73a4920-9b86-4f59-b4e9-a3f8e1dfba1d"
-    data-blockingmode="auto"
-    type="text/javascript">
+<script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="c73a4920-9b86-4f59-b4e9-a3f8e1dfba1d" data-blockingmode="auto" type="text/javascript">
 </script>
 
 <meta charset="UTF-8">
