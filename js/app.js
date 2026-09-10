@@ -12,13 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const messageInput = document.getElementById("message");
     const chatMessages = document.getElementById("chatMessages");
 
-
     /* =====================================================
        ELEMENTOS DEL AGENTE
     ===================================================== */
 
-    const agentButtons =
-        document.querySelectorAll(".agent-button");
+    const agentButtons = document.querySelectorAll(".agent-button");
 
     const assistantName =
         document.getElementById("assistantName");
@@ -29,14 +27,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const assistantAvatar =
         document.getElementById("assistantAvatar");
 
-
     /* =====================================================
        AGENTE SELECCIONADO
     ===================================================== */
 
-    let selectedAgent =
-        "diseño y desarrollo web";
-
+    let selectedAgent = "diseño y desarrollo web";
 
     /* =====================================================
        INFORMACIÓN DE LOS AGENTES
@@ -45,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const agentInfo = {
 
         "diseño y desarrollo web": {
-
             name:
                 "Alejandro Herradón, tu Asesor en Diseño y Desarrollo Web",
 
@@ -56,9 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "img/asset.png"
         },
 
-
         "tiendas online": {
-
             name:
                 "Alejandro Herradón, tu Asesor de Tiendas Online",
 
@@ -69,9 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "img/asset.png"
         },
 
-
         "asesor seo y sem": {
-
             name:
                 "Alejandro Herradón, tu Asesor SEO y SEM",
 
@@ -82,9 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "img/asset.png"
         },
 
-
         "asesoramiento web": {
-
             name:
                 "Alejandro Herradón, tu Asesor Web",
 
@@ -97,289 +85,250 @@ document.addEventListener("DOMContentLoaded", function () {
 
     };
 
-
     /* =====================================================
        NEURONAS
     ===================================================== */
 
-
-    // Obtención del lienzo y contexto de dibujo
     const canvas =
-        document.getElementById('neural-canvas');
+        document.getElementById("neural-canvas");
 
-    const ctx =
-        canvas.getContext('2d');
+    if (canvas) {
 
+        const ctx = canvas.getContext("2d");
 
-    // Variables y constantes ajustables
-    const CONFIG = {
+        const CONFIG = {
+            particleCount: 50,
+            maxDistance: 130,
+            nodeColor: "#00f3ff",
+            lineColor: "0, 243, 255",
+            speed: 0.5
+        };
 
-        particleCount: 50,
+        let particles = [];
 
-        maxDistance: 130,
+        function resizeCanvas() {
 
-        nodeColor: '#00f3ff',
+            const dpr =
+                window.devicePixelRatio || 1;
 
-        lineColor: '0, 243, 255',
+            canvas.width =
+                window.innerWidth * dpr;
 
-        speed: 0.5
+            canvas.height =
+                window.innerHeight * dpr;
 
-    };
+            canvas.style.width =
+                window.innerWidth + "px";
 
+            canvas.style.height =
+                window.innerHeight + "px";
 
-    let particles = [];
-
-
-    // Redimensionar el lienzo adaptándose a cualquier pantalla
-    function resizeCanvas() {
-
-        canvas.width =
-            window.innerWidth;
-
-        canvas.height =
-            window.innerHeight;
-
-    }
-
-
-    window.addEventListener(
-        'resize',
-        resizeCanvas
-    );
-
-
-    resizeCanvas();
-
-
-    // Clase constructora para cada Neurona
-    class Neuron {
-
-        constructor() {
-
-            this.x =
-                Math.random() *
-                canvas.width;
-
-            this.y =
-                Math.random() *
-                canvas.height;
-
-
-            this.vx =
-                (Math.random() - 0.5) *
-                CONFIG.speed;
-
-            this.vy =
-                (Math.random() - 0.5) *
-                CONFIG.speed;
-
-
-            this.radius =
-                Math.random() * 2 + 2;
-
-        }
-
-
-        update() {
-
-            this.x +=
-                this.vx;
-
-            this.y +=
-                this.vy;
-
-
-            if (
-                this.x < 0 ||
-                this.x > canvas.width
-            ) {
-
-                this.vx *= -1;
-
-            }
-
-
-            if (
-                this.y < 0 ||
-                this.y > canvas.height
-            ) {
-
-                this.vy *= -1;
-
-            }
-
-        }
-
-
-        draw() {
-
-            ctx.beginPath();
-
-            ctx.arc(
-                this.x,
-                this.y,
-                this.radius,
+            ctx.setTransform(
+                dpr,
                 0,
-                Math.PI * 2
+                0,
+                dpr,
+                0,
+                0
             );
 
-
-            ctx.fillStyle =
-                CONFIG.nodeColor;
-
-
-            ctx.shadowBlur =
-                8;
-
-
-            ctx.shadowColor =
-                CONFIG.nodeColor;
-
-
-            ctx.fill();
-
-
-            ctx.shadowBlur =
-                0;
+            init();
 
         }
 
-    }
-
-
-    // Inicializar la red
-    function init() {
-
-        particles = [];
-
-
-        for (
-            let i = 0;
-            i < CONFIG.particleCount;
-            i++
-        ) {
-
-            particles.push(
-                new Neuron()
-            );
-
-        }
-
-    }
-
-
-    // Bucle de animación principal
-    function animate() {
-
-        ctx.clearRect(
-            0,
-            0,
-            canvas.width,
-            canvas.height
+        window.addEventListener(
+            "resize",
+            resizeCanvas
         );
 
+        class Neuron {
 
-        particles.forEach(
-            p => {
+            constructor() {
 
-                p.update();
+                this.x =
+                    Math.random() *
+                    window.innerWidth;
 
-                p.draw();
+                this.y =
+                    Math.random() *
+                    window.innerHeight;
 
+                this.vx =
+                    (Math.random() - 0.5) *
+                    CONFIG.speed;
+
+                this.vy =
+                    (Math.random() - 0.5) *
+                    CONFIG.speed;
+
+                this.radius =
+                    Math.random() * 2 + 2;
             }
-        );
 
+            update() {
 
-        for (
-            let i = 0;
-            i < particles.length;
-            i++
-        ) {
-
-            for (
-                let j = i + 1;
-                j < particles.length;
-                j++
-            ) {
-
-                const dx =
-                    particles[i].x -
-                    particles[j].x;
-
-
-                const dy =
-                    particles[i].y -
-                    particles[j].y;
-
-
-                const distance =
-                    Math.sqrt(
-                        dx * dx +
-                        dy * dy
-                    );
-
+                this.x += this.vx;
+                this.y += this.vy;
 
                 if (
-                    distance <
-                    CONFIG.maxDistance
+                    this.x < 0 ||
+                    this.x > window.innerWidth
                 ) {
 
-                    const opacity =
-                        (
-                            1 -
-                            (
-                                distance /
-                                CONFIG.maxDistance
-                            )
-                        ) *
-                        0.25;
+                    this.vx *= -1;
 
+                }
 
-                    ctx.beginPath();
+                if (
+                    this.y < 0 ||
+                    this.y > window.innerHeight
+                ) {
 
-
-                    ctx.moveTo(
-                        particles[i].x,
-                        particles[i].y
-                    );
-
-
-                    ctx.lineTo(
-                        particles[j].x,
-                        particles[j].y
-                    );
-
-
-                    ctx.strokeStyle =
-                        `rgba(${CONFIG.lineColor}, ${opacity})`;
-
-
-                    ctx.lineWidth =
-                        1;
-
-
-                    ctx.stroke();
+                    this.vy *= -1;
 
                 }
 
             }
 
+            draw() {
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    this.x,
+                    this.y,
+                    this.radius,
+                    0,
+                    Math.PI * 2
+                );
+
+                ctx.fillStyle =
+                    CONFIG.nodeColor;
+
+                ctx.shadowBlur = 8;
+
+                ctx.shadowColor =
+                    CONFIG.nodeColor;
+
+                ctx.fill();
+
+                ctx.shadowBlur = 0;
+
+            }
+
         }
 
+        function init() {
 
-        requestAnimationFrame(
-            animate
-        );
+            particles = [];
+
+            for (
+                let i = 0;
+                i < CONFIG.particleCount;
+                i++
+            ) {
+
+                particles.push(
+                    new Neuron()
+                );
+
+            }
+
+        }
+
+        function animate() {
+
+            ctx.clearRect(
+                0,
+                0,
+                window.innerWidth,
+                window.innerHeight
+            );
+
+            particles.forEach(
+                function (particle) {
+
+                    particle.update();
+                    particle.draw();
+
+                }
+            );
+
+            for (
+                let i = 0;
+                i < particles.length;
+                i++
+            ) {
+
+                for (
+                    let j = i + 1;
+                    j < particles.length;
+                    j++
+                ) {
+
+                    const dx =
+                        particles[i].x -
+                        particles[j].x;
+
+                    const dy =
+                        particles[i].y -
+                        particles[j].y;
+
+                    const distance =
+                        Math.sqrt(
+                            dx * dx +
+                            dy * dy
+                        );
+
+                    if (
+                        distance <
+                        CONFIG.maxDistance
+                    ) {
+
+                        const opacity =
+                            (
+                                1 -
+                                (
+                                    distance /
+                                    CONFIG.maxDistance
+                                )
+                            ) * 0.25;
+
+                        ctx.beginPath();
+
+                        ctx.moveTo(
+                            particles[i].x,
+                            particles[i].y
+                        );
+
+                        ctx.lineTo(
+                            particles[j].x,
+                            particles[j].y
+                        );
+
+                        ctx.strokeStyle =
+                            `rgba(${CONFIG.lineColor}, ${opacity})`;
+
+                        ctx.lineWidth = 1;
+
+                        ctx.stroke();
+
+                    }
+
+                }
+
+            }
+
+            requestAnimationFrame(
+                animate
+            );
+
+        }
+
+        resizeCanvas();
+        animate();
 
     }
-
-
-    // Arrancar el proceso
-    init();
-
-    animate();
-
-
 
     /* =====================================================
        NORMALIZAR AGENTE
@@ -388,11 +337,8 @@ document.addEventListener("DOMContentLoaded", function () {
     function obtenerAgenteValido(agent) {
 
         if (!agent) {
-
             return null;
-
         }
-
 
         const texto =
             agent
@@ -404,18 +350,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     ""
                 );
 
-
         if (
-            texto ===
-                "diseno y desarrollo web" ||
-            texto ===
-                "diseno y desarrollo"
+            texto === "diseno y desarrollo web" ||
+            texto === "diseno y desarrollo"
         ) {
 
             return "diseño y desarrollo web";
 
         }
-
 
         if (
             texto === "tiendas online" ||
@@ -425,7 +367,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return "tiendas online";
 
         }
-
 
         if (
             texto === "asesor seo y sem" ||
@@ -438,7 +379,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
 
-
         if (
             texto === "asesoramiento web" ||
             texto === "asesor web"
@@ -448,12 +388,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
 
-
         return null;
 
     }
-
-
 
     /* =====================================================
        CAMBIAR IDENTIDAD DEL AGENTE
@@ -462,10 +399,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function cambiarIdentidad(agent) {
 
         const agenteValido =
-            obtenerAgenteValido(
-                agent
-            );
-
+            obtenerAgenteValido(agent);
 
         if (!agenteValido) {
 
@@ -478,10 +412,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
 
-
         selectedAgent =
             agenteValido;
-
 
         agentButtons.forEach(
             function (button) {
@@ -490,12 +422,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     "active"
                 );
 
-
                 const botonAgent =
                     obtenerAgenteValido(
                         button.dataset.agent
                     );
-
 
                 if (
                     botonAgent ===
@@ -511,54 +441,41 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         );
 
+        const info =
+            agentInfo[agenteValido];
+
+        if (!info) {
+            return;
+        }
 
         if (assistantName) {
 
             assistantName.textContent =
-                agentInfo[
-                    agenteValido
-                ].name;
+                info.name;
 
         }
-
 
         if (assistantDescription) {
 
             assistantDescription.textContent =
-                agentInfo[
-                    agenteValido
-                ].description;
+                info.description;
 
         }
-
 
         if (assistantAvatar) {
 
             assistantAvatar.src =
-                agentInfo[
-                    agenteValido
-                ].avatar;
-
+                info.avatar;
 
             assistantAvatar.alt =
-                agentInfo[
-                    agenteValido
-                ].name;
+                info.name;
 
         }
 
-
-        console.log(
-            "Agente seleccionado:",
-            selectedAgent
-        );
-
     }
 
-
-
     /* =====================================================
-       BOTONES DE AGENTE
+       BOTONES AGENTE
     ===================================================== */
 
     agentButtons.forEach(
@@ -570,13 +487,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     event.preventDefault();
 
-
-                    const agent =
-                        this.dataset.agent;
-
-
                     cambiarIdentidad(
-                        agent
+                        this.dataset.agent
                     );
 
                 }
@@ -585,10 +497,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     );
 
-
-
     /* =====================================================
-       BOTÓN EMAIL
+       EMAIL
     ===================================================== */
 
     const sendChatEmail =
@@ -596,146 +506,845 @@ document.addEventListener("DOMContentLoaded", function () {
             "sendChatEmail"
         );
 
-
-
-    /* =====================================================
-       FORMULARIO EMAIL
-    ===================================================== */
-
     const chatEmailForm =
         document.getElementById(
             "chatEmailForm"
         );
-
 
     const chatNombre =
         document.getElementById(
             "chatNombre"
         );
 
-
     const chatEmail =
         document.getElementById(
             "chatEmail"
         );
-
-
-    /* =====================================================
-       ARCHIVO ADJUNTO
-    ===================================================== */
 
     const chatFile =
         document.getElementById(
             "chatFile"
         );
 
-
     const confirmSendChatEmail =
         document.getElementById(
             "confirmSendChatEmail"
         );
 
-
-
     /* =====================================================
-       BOTÓN REINICIAR
+       ELEMENTOS REUNIÓN
     ===================================================== */
 
-const resetChat =
-    document.getElementById(
-        "resetChat"
-    );
+    const chatReunion =
+        document.getElementById(
+            "chatReunion"
+        );
 
+    const reunionFields =
+        document.getElementById(
+            "reunionFields"
+        );
 
-if (resetChat) {
+    const chatFechaReunion =
+        document.getElementById(
+            "chatFechaReunion"
+        );
 
-    resetChat.addEventListener(
-        "click",
-        function (event) {
+    const chatHoraReunion =
+        document.getElementById(
+            "chatHoraReunion"
+        );
 
-            event.preventDefault();
+    /* =====================================================
+       MODAL REUNIÓN
+    ===================================================== */
 
+    let reunionModal = null;
 
-            if (chatMessages) {
+    let reunionConfirmada = false;
 
-                chatMessages.innerHTML =
-                    "";
+    function crearModalReunion() {
 
-            }
+        if (reunionModal) {
+            return;
+        }
 
+        reunionModal =
+            document.createElement("div");
 
-            if (messageInput) {
+        reunionModal.id =
+            "reunionModal";
 
-                messageInput.value =
-                    "";
+        reunionModal.className =
+            "reunion-modal";
 
-            }
+        reunionModal.innerHTML = `
 
+            <div class="reunion-modal-overlay"></div>
 
-            if (sendChatEmail) {
+            <div
+                class="reunion-modal-content"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="reunionModalTitle"
+            >
 
-                sendChatEmail.hidden =
-                    true;
+                <div class="reunion-modal-header">
 
-                sendChatEmail.disabled =
-                    false;
+                    <div>
 
-                sendChatEmail.innerText =
-                    "📧 Enviar conversación por correo";
+                        <span class="reunion-modal-label">
+                            REUNIÓN
+                        </span>
 
-            }
+                        <h2 id="reunionModalTitle">
+                            Solicitar una reunión
+                        </h2>
 
+                    </div>
 
-            if (chatEmailForm) {
+                    <button
+                        type="button"
+                        class="reunion-modal-close"
+                        id="cerrarReunionModal"
+                        aria-label="Cerrar"
+                    >
+                        ×
+                    </button>
 
-                chatEmailForm.hidden =
-                    true;
+                </div>
 
-            }
+                <div class="reunion-modal-body">
 
+                    <p>
+                        Selecciona el día y la hora
+                        que prefieras para que podamos
+                        contactar contigo.
+                    </p>
 
-            if (chatNombre) {
+                    <div class="form-group">
 
-                chatNombre.value =
-                    "";
+                        <label for="modalFechaReunion">
+                            Fecha de la reunión
+                        </label>
 
-            }
+                        <input
+                            type="date"
+                            id="modalFechaReunion"
+                        >
 
+                    </div>
 
-            if (chatEmail) {
+                    <div class="form-group">
 
-                chatEmail.value =
-                    "";
+                        <label for="modalHoraReunion">
+                            Hora de la reunión
+                        </label>
 
-            }
+                        <input
+                            type="time"
+                            id="modalHoraReunion"
+                        >
 
-    /* =================================================
-       LIMPIAR ARCHIVO ADJUNTO
-    ================================================= */
+                    </div>
 
-            if (chatFile) {
+                </div>
 
-                chatFile.value =
-                    "";
+                <div class="reunion-modal-actions">
 
-            }
+                    <button
+                        type="button"
+                        id="cancelarReunion"
+                        class="reunion-modal-cancel"
+                    >
+                        Cancelar
+                    </button>
 
+                    <button
+                        type="button"
+                        id="confirmarReunion"
+                        class="reunion-modal-confirm"
+                    >
+                        ✓ Confirmar reunión
+                    </button>
 
-            cambiarIdentidad(
-                "diseño y desarrollo web"
+                </div>
+
+            </div>
+        `;
+
+        document.body.appendChild(
+            reunionModal
+        );
+
+        const modalFecha =
+            document.getElementById(
+                "modalFechaReunion"
             );
 
+        const modalHora =
+            document.getElementById(
+                "modalHoraReunion"
+            );
 
-            if (messageInput) {
+        /* =================================================
+           FECHA MÍNIMA
+        ================================================= */
 
-                messageInput.focus();
+        if (modalFecha) {
+
+            const hoy =
+                new Date();
+
+            const anio =
+                hoy.getFullYear();
+
+            const mes =
+                String(
+                    hoy.getMonth() + 1
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+            const dia =
+                String(
+                    hoy.getDate()
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+            modalFecha.min =
+                `${anio}-${mes}-${dia}`;
+
+        }
+
+        /* =================================================
+           CERRAR MODAL
+        ================================================= */
+
+        const cerrar =
+            function () {
+
+                cerrarModalReunion();
+
+            };
+
+        const botonCerrar =
+            document.getElementById(
+                "cerrarReunionModal"
+            );
+
+        const botonCancelar =
+            document.getElementById(
+                "cancelarReunion"
+            );
+
+        const overlay =
+            reunionModal.querySelector(
+                ".reunion-modal-overlay"
+            );
+
+        if (botonCerrar) {
+
+            botonCerrar.addEventListener(
+                "click",
+                cerrar
+            );
+
+        }
+
+        if (botonCancelar) {
+
+            botonCancelar.addEventListener(
+                "click",
+                cerrar
+            );
+
+        }
+
+        if (overlay) {
+
+            overlay.addEventListener(
+                "click",
+                cerrar
+            );
+
+        }
+
+        /* =================================================
+           CONFIRMAR REUNIÓN
+        ================================================= */
+
+        const confirmar =
+            document.getElementById(
+                "confirmarReunion"
+            );
+
+        if (confirmar) {
+
+            confirmar.addEventListener(
+                "click",
+                function () {
+
+                    const fecha =
+                        modalFecha
+                            ? modalFecha.value
+                            : "";
+
+                    const hora =
+                        modalHora
+                            ? modalHora.value
+                            : "";
+
+                    if (!fecha) {
+
+                        alert(
+                            "Por favor, selecciona el día de la reunión."
+                        );
+
+                        if (modalFecha) {
+                            modalFecha.focus();
+                        }
+
+                        return;
+
+                    }
+
+                    if (!hora) {
+
+                        alert(
+                            "Por favor, selecciona la hora de la reunión."
+                        );
+
+                        if (modalHora) {
+                            modalHora.focus();
+                        }
+
+                        return;
+
+                    }
+
+                    const fechaSeleccionada =
+                        new Date(
+                            `${fecha}T${hora}`
+                        );
+
+                    if (
+                        isNaN(
+                            fechaSeleccionada.getTime()
+                        )
+                    ) {
+
+                        alert(
+                            "La fecha u hora de la reunión no es válida."
+                        );
+
+                        return;
+
+                    }
+
+                    const ahora =
+                        new Date();
+
+                    if (
+                        fechaSeleccionada <= ahora
+                    ) {
+
+                        alert(
+                            "La fecha y hora deben ser posteriores a la hora actual."
+                        );
+
+                        return;
+
+                    }
+
+                    if (chatFechaReunion) {
+
+                        chatFechaReunion.value =
+                            fecha;
+
+                    }
+
+                    if (chatHoraReunion) {
+
+                        chatHoraReunion.value =
+                            hora;
+
+                    }
+
+                    reunionConfirmada =
+                        true;
+
+                    if (chatReunion) {
+
+                        chatReunion.checked =
+                            true;
+
+                    }
+
+                    cerrarModalReunion();
+
+                    actualizarEstadoReunion();
+
+                }
+            );
+
+        }
+
+    }
+
+    /* =====================================================
+       ABRIR MODAL
+    ===================================================== */
+
+    function abrirModalReunion() {
+
+        crearModalReunion();
+
+        const modalFecha =
+            document.getElementById(
+                "modalFechaReunion"
+            );
+
+        const modalHora =
+            document.getElementById(
+                "modalHoraReunion"
+            );
+
+        if (
+            modalFecha &&
+            chatFechaReunion &&
+            chatFechaReunion.value
+        ) {
+
+            modalFecha.value =
+                chatFechaReunion.value;
+
+        }
+
+        if (
+            modalHora &&
+            chatHoraReunion &&
+            chatHoraReunion.value
+        ) {
+
+            modalHora.value =
+                chatHoraReunion.value;
+
+        }
+
+        reunionModal.classList.add(
+            "active"
+        );
+
+        document.body.classList.add(
+            "reunion-modal-open"
+        );
+
+        setTimeout(
+            function () {
+
+                if (modalFecha) {
+                    modalFecha.focus();
+                }
+
+            },
+            100
+        );
+
+    }
+
+    /* =====================================================
+       CERRAR MODAL
+    ===================================================== */
+
+    function cerrarModalReunion() {
+
+        if (!reunionModal) {
+            return;
+        }
+
+        reunionModal.classList.remove(
+            "active"
+        );
+
+        document.body.classList.remove(
+            "reunion-modal-open"
+        );
+
+        if (!reunionConfirmada) {
+
+            if (chatReunion) {
+
+                chatReunion.checked =
+                    false;
+
+            }
+
+            if (chatFechaReunion) {
+
+                chatFechaReunion.value =
+                    "";
+
+            }
+
+            if (chatHoraReunion) {
+
+                chatHoraReunion.value =
+                    "";
+
+            }
+
+        }
+
+    }
+
+    /* =====================================================
+       ACTUALIZAR ESTADO REUNIÓN
+    ===================================================== */
+
+    function actualizarEstadoReunion() {
+
+        if (!chatReunion) {
+            return;
+        }
+
+        if (chatReunion.checked) {
+
+            if (reunionFields) {
+
+                reunionFields.hidden =
+                    false;
+
+            }
+
+            if (chatFechaReunion) {
+
+                chatFechaReunion.disabled =
+                    false;
+
+                chatFechaReunion.required =
+                    true;
+
+            }
+
+            if (chatHoraReunion) {
+
+                chatHoraReunion.disabled =
+                    false;
+
+                chatHoraReunion.required =
+                    true;
+
+            }
+
+        } else {
+
+            if (reunionFields) {
+
+                reunionFields.hidden =
+                    true;
+
+            }
+
+            if (chatFechaReunion) {
+
+                chatFechaReunion.disabled =
+                    true;
+
+                chatFechaReunion.required =
+                    false;
+
+                chatFechaReunion.value =
+                    "";
+
+            }
+
+            if (chatHoraReunion) {
+
+                chatHoraReunion.disabled =
+                    true;
+
+                chatHoraReunion.required =
+                    false;
+
+                chatHoraReunion.value =
+                    "";
+
+            }
+
+        }
+
+    }
+
+    /* =====================================================
+       CLICK SOLICITAR REUNIÓN
+    ===================================================== */
+
+    if (chatReunion) {
+
+        chatReunion.addEventListener(
+            "change",
+            function () {
+
+                if (chatReunion.checked) {
+
+                    reunionConfirmada =
+                        false;
+
+                    abrirModalReunion();
+
+                } else {
+
+                    reunionConfirmada =
+                        false;
+
+                    actualizarEstadoReunion();
+
+                }
+
+            }
+        );
+
+    }
+
+    /* =====================================================
+       ESC PARA CERRAR MODAL
+    ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape" &&
+                reunionModal &&
+                reunionModal.classList.contains("active")
+            ) {
+
+                cerrarModalReunion();
 
             }
 
         }
     );
 
-}
+    /* =====================================================
+       OBTENER DATOS REUNIÓN
+    ===================================================== */
+
+    function obtenerDatosReunion() {
+
+        const datos = {
+
+            quiereCita:
+                false,
+
+            fechaCita:
+                "",
+
+            horaCita:
+                ""
+
+        };
+
+        if (
+            !chatReunion ||
+            !chatReunion.checked
+        ) {
+
+            return datos;
+
+        }
+
+        datos.quiereCita =
+            true;
+
+        datos.fechaCita =
+            chatFechaReunion
+                ? chatFechaReunion.value
+                : "";
+
+        datos.horaCita =
+            chatHoraReunion
+                ? chatHoraReunion.value
+                : "";
+
+        if (!datos.fechaCita) {
+
+            alert(
+                "Por favor, selecciona el día de la reunión."
+            );
+
+            abrirModalReunion();
+
+            return null;
+
+        }
+
+        if (!datos.horaCita) {
+
+            alert(
+                "Por favor, selecciona la hora de la reunión."
+            );
+
+            abrirModalReunion();
+
+            return null;
+
+        }
+
+        const fechaSeleccionada =
+            new Date(
+                `${datos.fechaCita}T${datos.horaCita}`
+            );
+
+        if (
+            isNaN(
+                fechaSeleccionada.getTime()
+            )
+        ) {
+
+            alert(
+                "La fecha u hora de la reunión no es válida."
+            );
+
+            abrirModalReunion();
+
+            return null;
+
+        }
+
+        if (
+            fechaSeleccionada <= new Date()
+        ) {
+
+            alert(
+                "La fecha y hora de la reunión deben ser posteriores a la hora actual."
+            );
+
+            abrirModalReunion();
+
+            return null;
+
+        }
+
+        return datos;
+
+    }
+
+    /* =====================================================
+       BOTÓN REINICIAR CHAT
+    ===================================================== */
+
+    const resetChat =
+        document.getElementById(
+            "resetChat"
+        );
+
+    if (resetChat) {
+
+        resetChat.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                if (reunionModal) {
+
+                    reunionModal.classList.remove(
+                        "active"
+                    );
+
+                }
+
+                document.body.classList.remove(
+                    "reunion-modal-open"
+                );
+
+                reunionConfirmada =
+                    false;
+
+                if (chatMessages) {
+
+                    chatMessages.innerHTML =
+                        "";
+
+                }
+
+                if (messageInput) {
+
+                    messageInput.value =
+                        "";
+
+                }
+
+                if (sendChatEmail) {
+
+                    sendChatEmail.hidden =
+                        true;
+
+                    sendChatEmail.disabled =
+                        false;
+
+                    sendChatEmail.innerText =
+                        "Enviar conversación por correo";
+
+                }
+
+                if (chatEmailForm) {
+
+                    chatEmailForm.hidden =
+                        true;
+
+                }
+
+                if (chatNombre) {
+
+                    chatNombre.value =
+                        "";
+
+                }
+
+                if (chatEmail) {
+
+                    chatEmail.value =
+                        "";
+
+                }
+
+                if (chatFile) {
+
+                    chatFile.value =
+                        "";
+
+                }
+
+                if (chatReunion) {
+
+                    chatReunion.checked =
+                        false;
+
+                }
+
+                actualizarEstadoReunion();
+
+                cambiarIdentidad(
+                    "diseño y desarrollo web"
+                );
+
+                if (messageInput) {
+
+                    messageInput.focus();
+
+                }
+
+            }
+        );
+
+    }
 
     /* =====================================================
        AVATAR MENSAJES
@@ -753,14 +1362,11 @@ if (resetChat) {
                     "img"
                 );
 
-
             img.src =
                 "img/asset.png";
 
-
             img.alt =
                 "Asistente";
-
 
             avatar.appendChild(
                 img
@@ -774,8 +1380,6 @@ if (resetChat) {
         }
 
     }
-
-
 
     /* =====================================================
        AÑADIR MENSAJE
@@ -793,18 +1397,15 @@ if (resetChat) {
 
         }
 
-
         const messageElement =
             document.createElement(
                 "div"
             );
 
-
         messageElement.classList.add(
             "message",
             type
         );
-
 
         if (temporary) {
 
@@ -814,66 +1415,53 @@ if (resetChat) {
 
         }
 
-
         const avatar =
             document.createElement(
                 "div"
             );
 
-
         avatar.classList.add(
             "avatar"
         );
-
 
         ponerAvatar(
             avatar,
             type
         );
 
-
         const bubble =
             document.createElement(
                 "div"
             );
 
-
         bubble.classList.add(
             "bubble"
         );
 
-
         bubble.innerText =
             text;
-
 
         messageElement.appendChild(
             avatar
         );
 
-
         messageElement.appendChild(
             bubble
         );
-
 
         chatMessages.appendChild(
             messageElement
         );
 
-
         chatMessages.scrollTop =
             chatMessages.scrollHeight;
-
 
         return messageElement;
 
     }
 
-
-
     /* =====================================================
-       ENVIAR MENSAJE AL CHAT
+       ENVIAR MENSAJE A CHAT.PHP
     ===================================================== */
 
     if (
@@ -888,32 +1476,24 @@ if (resetChat) {
 
                 event.preventDefault();
 
-
                 const message =
                     messageInput.value.trim();
 
-
                 if (!message) {
-
                     return;
-
                 }
-
 
                 addMessage(
                     message,
                     "user"
                 );
 
-
                 messageInput.value =
                     "";
-
 
                 comprobarSolicitudContacto(
                     message
                 );
-
 
                 const typing =
                     addMessage(
@@ -922,16 +1502,13 @@ if (resetChat) {
                         true
                     );
 
-
                 messageInput.disabled =
                     true;
-
 
                 const submitButton =
                     chatForm.querySelector(
                         "button[type='submit']"
                     );
-
 
                 if (submitButton) {
 
@@ -940,19 +1517,16 @@ if (resetChat) {
 
                 }
 
-
                 try {
 
                     console.log(
                         "Enviando mensaje a chat.php..."
                     );
 
-
                     console.log(
                         "Agente:",
                         selectedAgent
                     );
-
 
                     const response =
                         await fetch(
@@ -962,39 +1536,31 @@ if (resetChat) {
                                     "POST",
 
                                 headers: {
-
                                     "Content-Type":
                                         "application/json",
 
                                     "Accept":
                                         "application/json"
-
                                 },
 
                                 body:
                                     JSON.stringify({
-
                                         message:
                                             message,
 
                                         agent:
                                             selectedAgent
-
                                     })
-
                             }
                         );
 
-
                     const responseText =
                         await response.text();
-
 
                     console.log(
                         "Respuesta de chat.php:",
                         responseText
                     );
-
 
                     if (
                         !responseText.trim()
@@ -1006,9 +1572,7 @@ if (resetChat) {
 
                     }
 
-
                     let data;
-
 
                     try {
 
@@ -1024,20 +1588,15 @@ if (resetChat) {
                             responseText
                         );
 
-
                         throw new Error(
                             "chat.php ha devuelto una respuesta que no es JSON. Revisa los errores de PHP."
                         );
 
                     }
 
-
                     if (typing) {
-
                         typing.remove();
-
                     }
-
 
                     if (
                         !response.ok ||
@@ -1051,7 +1610,6 @@ if (resetChat) {
 
                     }
 
-
                     if (!data.answer) {
 
                         throw new Error(
@@ -1060,46 +1618,35 @@ if (resetChat) {
 
                     }
 
-
                     addMessage(
                         data.answer,
                         "bot"
                     );
 
-
                 } catch (error) {
 
                     if (typing) {
-
                         typing.remove();
-
                     }
-
 
                     console.error(
                         "ERROR COMPLETO DEL CHAT:",
                         error
                     );
 
-
                     addMessage(
-
                         "❌ Error: " +
                         (
                             error.message ||
                             "No se pudo conectar con el servidor."
                         ),
-
                         "bot"
-
                     );
-
 
                 } finally {
 
                     messageInput.disabled =
                         false;
-
 
                     if (submitButton) {
 
@@ -1108,7 +1655,6 @@ if (resetChat) {
 
                     }
 
-
                     messageInput.focus();
 
                 }
@@ -1117,103 +1663,6 @@ if (resetChat) {
         );
 
     }
-
-
-
-    /* =====================================================
-       REINICIAR CHAT
-    ===================================================== */
-
-    if (resetChat) {
-
-        resetChat.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-
-                if (chatMessages) {
-
-                    chatMessages.innerHTML =
-                        "";
-
-                }
-
-
-                if (messageInput) {
-
-                    messageInput.value =
-                        "";
-
-                }
-
-
-                if (sendChatEmail) {
-
-                    sendChatEmail.hidden =
-                        true;
-
-                    sendChatEmail.disabled =
-                        false;
-
-                    sendChatEmail.innerText =
-                        "📧 Enviar conversación por correo";
-
-                }
-
-
-                if (chatEmailForm) {
-
-                    chatEmailForm.hidden =
-                        true;
-
-                }
-
-
-                if (chatNombre) {
-
-                    chatNombre.value =
-                        "";
-
-                }
-
-
-                if (chatEmail) {
-
-                    chatEmail.value =
-                        "";
-
-                }
-
-
-                /* LIMPIAR ARCHIVO */
-
-                if (chatFile) {
-
-                    chatFile.value =
-                        "";
-
-                }
-
-
-                cambiarIdentidad(
-                    "diseño y desarrollo web"
-                );
-
-
-                if (messageInput) {
-
-                    messageInput.focus();
-
-                }
-
-            }
-        );
-
-    }
-
-
 
     /* =====================================================
        DETECTAR SOLICITUD DE CONTACTO
@@ -1224,11 +1673,8 @@ if (resetChat) {
     ) {
 
         if (!sendChatEmail) {
-
             return;
-
         }
-
 
         const texto =
             message
@@ -1238,7 +1684,6 @@ if (resetChat) {
                     /[\u0300-\u036f]/g,
                     ""
                 );
-
 
         const palabrasContacto = [
 
@@ -1271,7 +1716,6 @@ if (resetChat) {
 
         ];
 
-
         const quiereContactar =
             palabrasContacto.some(
                 function (palabra) {
@@ -1283,7 +1727,6 @@ if (resetChat) {
                 }
             );
 
-
         if (quiereContactar) {
 
             sendChatEmail.hidden =
@@ -1293,8 +1736,6 @@ if (resetChat) {
 
     }
 
-
-
     /* =====================================================
        OBTENER CONVERSACIÓN
     ===================================================== */
@@ -1302,21 +1743,16 @@ if (resetChat) {
     function obtenerConversacion() {
 
         if (!chatMessages) {
-
             return "";
-
         }
-
 
         const mensajes =
             chatMessages.querySelectorAll(
                 ".message"
             );
 
-
         let conversacion =
             "";
-
 
         mensajes.forEach(
             function (mensaje) {
@@ -1331,30 +1767,21 @@ if (resetChat) {
 
                 }
 
-
                 const bubble =
                     mensaje.querySelector(
                         ".bubble"
                     );
 
-
                 if (!bubble) {
-
                     return;
-
                 }
-
 
                 const texto =
                     bubble.innerText.trim();
 
-
                 if (!texto) {
-
                     return;
-
                 }
-
 
                 if (
                     mensaje.classList.contains(
@@ -1379,12 +1806,9 @@ if (resetChat) {
             }
         );
 
-
         return conversacion.trim();
 
     }
-
-
 
     /* =====================================================
        BOTÓN ENVIAR CONVERSACIÓN
@@ -1398,10 +1822,8 @@ if (resetChat) {
 
                 event.preventDefault();
 
-
                 const conversacion =
                     obtenerConversacion();
-
 
                 if (!conversacion) {
 
@@ -1413,12 +1835,10 @@ if (resetChat) {
 
                 }
 
-
                 if (chatEmailForm) {
 
                     chatEmailForm.hidden =
                         false;
-
 
                     if (chatNombre) {
 
@@ -1426,15 +1846,12 @@ if (resetChat) {
 
                     }
 
-
                     chatEmailForm.scrollIntoView({
-
                         behavior:
                             "smooth",
 
                         block:
                             "nearest"
-
                     });
 
                 }
@@ -1444,8 +1861,6 @@ if (resetChat) {
 
     }
 
-
-
     /* =====================================================
        ENVIAR CONVERSACIÓN POR EMAIL
     ===================================================== */
@@ -1454,7 +1869,6 @@ if (resetChat) {
 
         const conversacion =
             obtenerConversacion();
-
 
         if (!conversacion) {
 
@@ -1466,18 +1880,15 @@ if (resetChat) {
 
         }
 
-
         const nombre =
             chatNombre
                 ? chatNombre.value.trim()
                 : "";
 
-
         const email =
             chatEmail
                 ? chatEmail.value.trim()
                 : "";
-
 
         if (!nombre) {
 
@@ -1485,18 +1896,13 @@ if (resetChat) {
                 "Por favor, introduce tu nombre antes de enviar la conversación."
             );
 
-
             if (chatNombre) {
-
                 chatNombre.focus();
-
             }
-
 
             return;
 
         }
-
 
         if (!email) {
 
@@ -1504,26 +1910,16 @@ if (resetChat) {
                 "Por favor, introduce tu correo electrónico antes de enviar la conversación."
             );
 
-
             if (chatEmail) {
-
                 chatEmail.focus();
-
             }
-
 
             return;
 
         }
 
-
-        /* =================================================
-           REGEX CORREGIDA
-        ================================================= */
-
         const emailValido =
             /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 
         if (!emailValido.test(email)) {
 
@@ -1531,122 +1927,112 @@ if (resetChat) {
                 "Por favor, introduce un correo electrónico válido."
             );
 
-
             if (chatEmail) {
-
                 chatEmail.focus();
-
             }
-
 
             return;
 
         }
 
+        const datosReunion =
+            obtenerDatosReunion();
+
+        if (datosReunion === null) {
+            return;
+        }
 
         if (confirmSendChatEmail) {
 
             confirmSendChatEmail.disabled =
                 true;
 
-
             confirmSendChatEmail.innerText =
                 "📧 Enviando...";
 
         }
 
-
         try {
 
-            /* =================================================
-               CREAR FORMDATA
+            const formData =
+                new FormData();
 
-               IMPORTANTE:
-               Aquí NO usamos JSON.
+            formData.append(
+                "action",
+                "email"
+            );
 
-               FormData permite enviar:
-               - nombre
-               - email
-               - conversación
-               - agente
-               - archivo
-            ================================================= */
+            formData.append(
+                "nombre",
+                nombre
+            );
 
-           const formData = new FormData();
+            formData.append(
+                "email",
+                email
+            );
 
-formData.append(
-    "action",
-    "email"
-);
+            formData.append(
+                "conversacion",
+                conversacion
+            );
 
-formData.append(
-    "nombre",
-    nombre
-);
+            formData.append(
+                "agent",
+                selectedAgent
+            );
 
-formData.append(
-    "email",
-    email
-);
+            formData.append(
+                "quiereCita",
+                datosReunion.quiereCita
+                    ? "1"
+                    : "0"
+            );
 
-formData.append(
-    "conversacion",
-    conversacion
-);
+            formData.append(
+                "fecha_reunion",
+                datosReunion.fechaCita
+            );
 
-formData.append(
-    "agent",
-    selectedAgent
-);
+            formData.append(
+                "hora_reunion",
+                datosReunion.horaCita
+            );
 
+            if (
+                chatFile &&
+                chatFile.files &&
+                chatFile.files.length > 0
+            ) {
 
-/* =================================================
-   ARCHIVO
-================================================= */
+                formData.append(
+                    "chatFile",
+                    chatFile.files[0]
+                );
 
-if (
-    chatFile &&
-    chatFile.files &&
-    chatFile.files.length > 0
-) {
+            }
 
-    formData.append(
-        "chatFile",
-        chatFile.files[0]
-    );
+            const response =
+                await fetch(
+                    "chat.php",
+                    {
+                        method:
+                            "POST",
 
-}
-
-
-/* =================================================
-   ENVIAR
-================================================= */
-
-const response =
-    await fetch(
-        "chat.php",
-        {
-            method:
-                "POST",
-
-            body:
-                formData
-        }
-    );
-
+                        body:
+                            formData
+                    }
+                );
 
             const responseText =
                 await response.text();
-
 
             console.log(
                 "Respuesta email:",
                 responseText
             );
 
-
             let data;
-
 
             try {
 
@@ -1662,13 +2048,11 @@ const response =
                     responseText
                 );
 
-
                 throw new Error(
                     "El servidor no ha devuelto una respuesta JSON válida."
                 );
 
             }
-
 
             if (
                 !response.ok ||
@@ -1682,12 +2066,27 @@ const response =
 
             }
 
+            let mensajeFinal =
+                "✅ Conversación enviada correctamente.\n\n" +
+                "Hemos recibido tus datos y la conversación.";
+
+            if (
+                datosReunion.quiereCita &&
+                datosReunion.fechaCita &&
+                datosReunion.horaCita
+            ) {
+
+                mensajeFinal +=
+                    "\n\n📅 Reunión solicitada:\n" +
+                    datosReunion.fechaCita +
+                    " a las " +
+                    datosReunion.horaCita;
+
+            }
 
             alert(
-                "✅ Conversación enviada correctamente.\n\n" +
-                "Hemos recibido tus datos y la conversación."
+                mensajeFinal
             );
-
 
             if (chatEmailForm) {
 
@@ -1695,7 +2094,6 @@ const response =
                     true;
 
             }
-
 
             if (sendChatEmail) {
 
@@ -1707,14 +2105,12 @@ const response =
 
             }
 
-
         } catch (error) {
 
             console.error(
                 "Error al enviar conversación:",
                 error
             );
-
 
             alert(
                 "❌ " +
@@ -1723,7 +2119,6 @@ const response =
                     "No se pudo enviar la conversación."
                 )
             );
-
 
         } finally {
 
@@ -1741,8 +2136,6 @@ const response =
 
     }
 
-
-
     /* =====================================================
        BOTÓN CONFIRMAR EMAIL
     ===================================================== */
@@ -1755,15 +2148,12 @@ const response =
 
                 event.preventDefault();
 
-
                 confirmarEnvioConversacion();
 
             }
         );
 
     }
-
-
 
     /* =====================================================
        FORMULARIO DE CONTACTO
@@ -1774,12 +2164,10 @@ const response =
             "contactForm"
         );
 
-
     const formResult =
         document.getElementById(
             "formResult"
         );
-
 
     if (contactForm) {
 
@@ -1789,18 +2177,15 @@ const response =
 
                 event.preventDefault();
 
-
                 const formData =
                     new FormData(
                         contactForm
                     );
 
-
                 const button =
                     contactForm.querySelector(
                         "button[type='submit']"
                     );
-
 
                 if (button) {
 
@@ -1812,14 +2197,12 @@ const response =
 
                 }
 
-
                 if (formResult) {
 
                     formResult.innerHTML =
                         "";
 
                 }
-
 
                 try {
 
@@ -1835,19 +2218,15 @@ const response =
                             }
                         );
 
-
                     const responseText =
                         await response.text();
-
 
                     console.log(
                         "Respuesta contacto:",
                         responseText
                     );
 
-
                     let data;
-
 
                     try {
 
@@ -1864,7 +2243,6 @@ const response =
 
                     }
 
-
                     if (!response.ok) {
 
                         throw new Error(
@@ -1874,7 +2252,6 @@ const response =
                         );
 
                     }
-
 
                     if (!data.success) {
 
@@ -1894,7 +2271,6 @@ const response =
 
                     }
 
-
                     if (formResult) {
 
                         formResult.innerHTML =
@@ -1905,7 +2281,6 @@ const response =
 
                     }
 
-
                     if (data.whatsapp) {
 
                         window.open(
@@ -1915,9 +2290,7 @@ const response =
 
                     }
 
-
                     contactForm.reset();
-
 
                 } catch (error) {
 
@@ -1925,7 +2298,6 @@ const response =
                         "Error del formulario:",
                         error
                     );
-
 
                     if (formResult) {
 
@@ -1959,17 +2331,19 @@ const response =
 
     }
 
-
-
     /* =====================================================
-       ACTIVAR AGENTE INICIAL
+       AGENTE INICIAL
     ===================================================== */
 
     cambiarIdentidad(
         "diseño y desarrollo web"
     );
 
+    /* =====================================================
+       ESTADO INICIAL REUNIÓN
+    ===================================================== */
 
+    actualizarEstadoReunion();
 
     /* =====================================================
        COMPROBACIÓN
@@ -1979,11 +2353,13 @@ const response =
         "ViziuneAI JavaScript cargado correctamente."
     );
 
-
     console.log(
         "Sistema preparado para utilizar Kimi mediante chat.php."
     );
 
+    console.log(
+        "Sistema de reuniones preparado con ventana emergente."
+    );
 
     console.log(
         "Agente inicial:",

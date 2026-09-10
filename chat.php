@@ -2,7 +2,9 @@
 
 session_start();
 
-header("Content-Type: application/json; charset=utf-8");
+header(
+    "Content-Type: application/json; charset=utf-8"
+);
 
 require_once __DIR__ . "/config.php";
 require_once __DIR__ . "/vendor/autoload.php";
@@ -19,34 +21,26 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
     http_response_code(405);
 
-    echo json_encode([
-        "success" => false,
-        "error" => "Método no permitido."
-    ], JSON_UNESCAPED_UNICODE);
+    echo json_encode(
+        [
+            "success" => false,
+            "error" => "Método no permitido."
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
 
     exit;
 }
 
 
 /* ==========================================================
-   COMPROBAR SI ES ENVÍO DE CONVERSACIÓN POR EMAIL
+   COMPROBAR ACTION
 ========================================================== */
 
-/*
-   IMPORTANTE:
-
-   El envío de la conversación utiliza FormData porque
-   también puede contener un archivo.
-
-   Por eso aquí NO usamos php://input para esta parte.
-
-   Los datos llegan mediante $_POST
-   y el archivo mediante $_FILES.
-*/
-
-$action = trim(
-    $_POST["action"] ?? ""
-);
+$action =
+    trim(
+        $_POST["action"] ?? ""
+    );
 
 
 /* ==========================================================
@@ -57,28 +51,59 @@ if ($action === "email") {
 
 
     /* ======================================================
-       RECIBIR DATOS
+       DATOS
     ====================================================== */
 
-    $conversacion = trim(
-        $_POST["conversacion"] ?? ""
-    );
+    $conversacion =
+        trim(
+            $_POST["conversacion"] ?? ""
+        );
 
 
-    $nombre = trim(
-        $_POST["nombre"] ?? ""
-    );
+    $nombre =
+        trim(
+            $_POST["nombre"] ?? ""
+        );
 
 
-    $email = trim(
-        $_POST["email"] ?? ""
-    );
+    $email =
+        trim(
+            $_POST["email"] ?? ""
+        );
 
 
-    $agent = trim(
-        $_POST["agent"] ??
-        "diseño y desarrollo web"
-    );
+    $agent =
+        trim(
+            $_POST["agent"] ??
+            "diseño y desarrollo web"
+        );
+
+
+    /* ======================================================
+       REUNIÓN
+
+       Estos nombres coinciden con app.js:
+
+       fecha_reunion
+       hora_reunion
+    ====================================================== */
+
+    $quiereCita =
+        trim(
+            $_POST["quiereCita"] ?? "0"
+        );
+
+
+    $fechaReunion =
+        trim(
+            $_POST["fecha_reunion"] ?? ""
+        );
+
+
+    $horaReunion =
+        trim(
+            $_POST["hora_reunion"] ?? ""
+        );
 
 
     /* ======================================================
@@ -87,14 +112,14 @@ if ($action === "email") {
 
     if ($conversacion === "") {
 
-        echo json_encode([
-
-            "success" => false,
-
-            "error" =>
-                "No hay ninguna conversación para enviar."
-
-        ], JSON_UNESCAPED_UNICODE);
+        echo json_encode(
+            [
+                "success" => false,
+                "error" =>
+                    "No hay ninguna conversación para enviar."
+            ],
+            JSON_UNESCAPED_UNICODE
+        );
 
         exit;
     }
@@ -106,14 +131,14 @@ if ($action === "email") {
 
     if ($nombre === "") {
 
-        echo json_encode([
-
-            "success" => false,
-
-            "error" =>
-                "El nombre es obligatorio."
-
-        ], JSON_UNESCAPED_UNICODE);
+        echo json_encode(
+            [
+                "success" => false,
+                "error" =>
+                    "El nombre es obligatorio."
+            ],
+            JSON_UNESCAPED_UNICODE
+        );
 
         exit;
     }
@@ -131,16 +156,114 @@ if ($action === "email") {
         )
     ) {
 
-        echo json_encode([
-
-            "success" => false,
-
-            "error" =>
-                "El correo electrónico no es válido."
-
-        ], JSON_UNESCAPED_UNICODE);
+        echo json_encode(
+            [
+                "success" => false,
+                "error" =>
+                    "El correo electrónico no es válido."
+            ],
+            JSON_UNESCAPED_UNICODE
+        );
 
         exit;
+    }
+
+
+    /* ======================================================
+       DETERMINAR SI HAY REUNIÓN
+    ====================================================== */
+
+    $reunionSolicitada =
+        ($quiereCita === "1");
+
+
+    /* ======================================================
+       VALIDAR FECHA Y HORA
+    ====================================================== */
+
+    $fechaValida = null;
+
+
+    if ($reunionSolicitada) {
+
+
+        if (
+            $fechaReunion === "" ||
+            $horaReunion === ""
+        ) {
+
+            echo json_encode(
+                [
+                    "success" => false,
+                    "error" =>
+                        "Para solicitar una reunión debes seleccionar una fecha y una hora."
+                ],
+                JSON_UNESCAPED_UNICODE
+            );
+
+            exit;
+        }
+
+
+        /* ================================================
+           FECHA
+        ================================================= */
+
+        $fechaValida =
+            DateTime::createFromFormat(
+                "Y-m-d",
+                $fechaReunion
+            );
+
+
+        if (
+            !$fechaValida ||
+            $fechaValida->format("Y-m-d") !==
+                $fechaReunion
+        ) {
+
+            echo json_encode(
+                [
+                    "success" => false,
+                    "error" =>
+                        "La fecha seleccionada no es válida."
+                ],
+                JSON_UNESCAPED_UNICODE
+            );
+
+            exit;
+        }
+
+
+        /* ================================================
+           HORA
+        ================================================= */
+
+        $horaValida =
+            DateTime::createFromFormat(
+                "H:i",
+                $horaReunion
+            );
+
+
+        if (
+            !$horaValida ||
+            $horaValida->format("H:i") !==
+                $horaReunion
+        ) {
+
+            echo json_encode(
+                [
+                    "success" => false,
+                    "error" =>
+                        "La hora seleccionada no es válida."
+                ],
+                JSON_UNESCAPED_UNICODE
+            );
+
+            exit;
+        }
+
     }
 
 
@@ -187,53 +310,110 @@ if ($action === "email") {
 
 
     /* ======================================================
+       INFORMACIÓN REUNIÓN
+    ====================================================== */
+
+    $informacionReunion = "";
+
+
+    if ($reunionSolicitada) {
+
+        $fechaFormateada =
+            $fechaValida->format(
+                "d/m/Y"
+            );
+
+
+        $informacionReunion =
+
+            "\n\n" .
+
+            "========================================\n" .
+
+            "REUNIÓN SOLICITADA\n" .
+
+            "========================================\n\n" .
+
+            "Fecha de la reunión: " .
+            $fechaFormateada .
+            "\n\n" .
+
+            "Hora de la reunión: " .
+            $horaReunion .
+            "\n\n" .
+
+            "Duración: 60 minutos\n\n";
+
+    }
+
+
+    /* ======================================================
        MYSQL
     ====================================================== */
 
     try {
 
-        $stmt = $pdo->prepare("
+        $stmt =
+            $pdo->prepare(
+                "
+                INSERT INTO conversaciones
+                (
+                    conversacion_id,
+                    nombre,
+                    email,
+                    usuario,
+                    respuesta
+                )
 
-            INSERT INTO conversaciones
-            (
-                conversacion_id,
-                nombre,
-                email,
-                usuario,
-                respuesta
-            )
-
-            VALUES
-            (
-                :conversacion_id,
-                :nombre,
-                :email,
-                :usuario,
-                :respuesta
-            )
-
-        ");
+                VALUES
+                (
+                    :conversacion_id,
+                    :nombre,
+                    :email,
+                    :usuario,
+                    :respuesta
+                )
+                "
+            );
 
 
-        $stmt->execute([
+        $respuestaBase =
+            "CONVERSACIÓN ENVIADA - " .
+            $nombreAgente;
 
-            ":conversacion_id" =>
-                $conversacionId,
 
-            ":nombre" =>
-                $nombre,
+        if ($reunionSolicitada) {
 
-            ":email" =>
-                $email,
+            $respuestaBase .=
 
-            ":usuario" =>
-                $conversacion,
+                " | REUNIÓN: " .
+                $fechaReunion .
+                " " .
+                $horaReunion;
 
-            ":respuesta" =>
-                "CONVERSACIÓN ENVIADA - " .
-                $nombreAgente
+        }
 
-        ]);
+
+        $stmt->execute(
+            [
+
+                ":conversacion_id" =>
+                    $conversacionId,
+
+                ":nombre" =>
+                    $nombre,
+
+                ":email" =>
+                    $email,
+
+                ":usuario" =>
+                    $conversacion,
+
+                ":respuesta" =>
+                    $respuestaBase
+
+            ]
+        );
 
 
     } catch (PDOException $e) {
@@ -244,16 +424,107 @@ if ($action === "email") {
         );
 
 
-        echo json_encode([
-
-            "success" => false,
-
-            "error" =>
-                "No se pudo guardar la conversación."
-
-        ], JSON_UNESCAPED_UNICODE);
+        echo json_encode(
+            [
+                "success" => false,
+                "error" =>
+                    "No se pudo guardar la conversación."
+            ],
+            JSON_UNESCAPED_UNICODE
+        );
 
         exit;
+    }
+
+
+    /* ======================================================
+       GUARDAR REUNIÓN EN MYSQL
+
+       IMPORTANTE:
+       Este bloque pertenece únicamente al flujo EMAIL,
+       porque aquí existen las variables de la reunión.
+    ====================================================== */
+
+    if ($reunionSolicitada) {
+
+        try {
+
+            $stmtReunion =
+                $pdo->prepare(
+                    "
+                    INSERT INTO reuniones
+                    (
+                        conversacion_id,
+                        nombre,
+                        email,
+                        especialista,
+                        fecha,
+                        hora,
+                        duracion
+                    )
+
+                    VALUES
+                    (
+                        :conversacion_id,
+                        :nombre,
+                        :email,
+                        :especialista,
+                        :fecha,
+                        :hora,
+                        :duracion
+                    )
+                    "
+                );
+
+
+            $stmtReunion->execute(
+                [
+
+                    ":conversacion_id" =>
+                        $conversacionId,
+
+                    ":nombre" =>
+                        $nombre,
+
+                    ":email" =>
+                        $email,
+
+                    ":especialista" =>
+                        $nombreAgente,
+
+                    ":fecha" =>
+                        $fechaReunion,
+
+                    ":hora" =>
+                        $horaReunion,
+
+                    ":duracion" =>
+                        60
+
+                ]
+            );
+
+
+        } catch (PDOException $e) {
+
+            error_log(
+                "Error guardando reunión: " .
+                $e->getMessage()
+            );
+
+
+            echo json_encode(
+                [
+                    "success" => false,
+                    "error" =>
+                        "No se pudo guardar la reunión."
+                ],
+                JSON_UNESCAPED_UNICODE
+            );
+
+            exit;
+        }
+
     }
 
 
@@ -294,6 +565,8 @@ if ($action === "email") {
         $conversacionId .
         "\n\n" .
 
+        $informacionReunion .
+
         "========================================\n" .
 
         "CONVERSACIÓN\n" .
@@ -307,10 +580,12 @@ if ($action === "email") {
        CREAR PHPMailer
     ====================================================== */
 
-    $mail = new PHPMailer(true);
+    $mail =
+        new PHPMailer(true);
 
 
     try {
+
 
         /* ==================================================
            SMTP
@@ -318,23 +593,30 @@ if ($action === "email") {
 
         $mail->isSMTP();
 
+
         $mail->Host =
             $SMTP_HOST;
+
 
         $mail->SMTPAuth =
             true;
 
+
         $mail->Username =
             $SMTP_USERNAME;
+
 
         $mail->Password =
             $SMTP_PASSWORD;
 
+
         $mail->SMTPSecure =
             PHPMailer::ENCRYPTION_STARTTLS;
 
+
         $mail->Port =
             $SMTP_PORT;
+
 
         $mail->CharSet =
             "UTF-8";
@@ -376,8 +658,10 @@ if ($action === "email") {
 
         $mail->isHTML(false);
 
+
         $mail->Subject =
             $asunto;
+
 
         $mail->Body =
             $textoEmail;
@@ -389,16 +673,18 @@ if ($action === "email") {
 
         if (
             isset($_FILES["chatFile"]) &&
-            $_FILES["chatFile"]["error"] !== UPLOAD_ERR_NO_FILE
+            $_FILES["chatFile"]["error"] !==
+                UPLOAD_ERR_NO_FILE
         ) {
 
 
             /* ==============================================
-               COMPROBAR ERROR DE SUBIDA
+               ERROR DE SUBIDA
             ============================================== */
 
             if (
-                $_FILES["chatFile"]["error"] !== UPLOAD_ERR_OK
+                $_FILES["chatFile"]["error"] !==
+                    UPLOAD_ERR_OK
             ) {
 
                 throw new Exception(
@@ -409,7 +695,7 @@ if ($action === "email") {
 
 
             /* ==============================================
-               DATOS DEL ARCHIVO
+               DATOS
             ============================================== */
 
             $archivoTmp =
@@ -425,7 +711,7 @@ if ($action === "email") {
 
 
             /* ==============================================
-               COMPROBAR QUE EXISTE
+               COMPROBAR SUBIDA
             ============================================== */
 
             if (
@@ -442,9 +728,7 @@ if ($action === "email") {
 
 
             /* ==============================================
-               LÍMITE DE TAMAÑO
-               
-               10 MB
+               LÍMITE 10 MB
             ============================================== */
 
             if (
@@ -460,7 +744,7 @@ if ($action === "email") {
 
 
             /* ==============================================
-               DETECTAR TIPO REAL DEL ARCHIVO
+               DETECTAR MIME REAL
             ============================================== */
 
             $finfo =
@@ -520,7 +804,7 @@ if ($action === "email") {
 
 
             /* ==============================================
-               LIMPIAR NOMBRE DEL ARCHIVO
+               LIMPIAR NOMBRE
             ============================================== */
 
             $nombreArchivo =
@@ -530,7 +814,7 @@ if ($action === "email") {
 
 
             /* ==============================================
-               AÑADIR ARCHIVO AL EMAIL
+               ADJUNTAR
             ============================================== */
 
             $mail->addAttachment(
@@ -542,7 +826,7 @@ if ($action === "email") {
 
 
         /* ==================================================
-           ENVIAR EMAIL
+           ENVIAR
         ================================================== */
 
         $mail->send();
@@ -552,18 +836,30 @@ if ($action === "email") {
            RESPUESTA CORRECTA
         ================================================== */
 
-        echo json_encode([
+        echo json_encode(
+            [
 
-            "success" =>
-                true,
+                "success" =>
+                    true,
 
-            "message" =>
-                "La conversación se ha enviado correctamente.",
+                "message" =>
+                    "La conversación se ha enviado correctamente.",
 
-            "conversacion_id" =>
-                $conversacionId
+                "conversacion_id" =>
+                    $conversacionId,
 
-        ], JSON_UNESCAPED_UNICODE);
+                "reunion" =>
+                    $reunionSolicitada,
+
+                "fecha_reunion" =>
+                    $fechaReunion,
+
+                "hora_reunion" =>
+                    $horaReunion
+
+            ],
+            JSON_UNESCAPED_UNICODE
+        );
 
         exit;
 
@@ -572,24 +868,30 @@ if ($action === "email") {
 
         error_log(
             "PHPMailer: " .
-            $mail->ErrorInfo
+            $mail->ErrorInfo .
+            " | " .
+            $e->getMessage()
         );
 
 
         http_response_code(500);
 
 
-        echo json_encode([
+        echo json_encode(
+            [
 
-            "success" =>
-                false,
+                "success" =>
+                    false,
 
-            "error" =>
-                $e->getMessage()
+                "error" =>
+                    $e->getMessage()
 
-        ], JSON_UNESCAPED_UNICODE);
+            ],
+            JSON_UNESCAPED_UNICODE
+        );
 
         exit;
+
     }
 
 }
@@ -599,7 +901,7 @@ if ($action === "email") {
    CHAT NORMAL
    KIMI / MOONSHOT
 
-   DESDE AQUÍ SE MANTIENE EL SISTEMA ORIGINAL DE KIMI
+   ESTA PARTE RECIBE JSON
 ========================================================== */
 
 
@@ -622,15 +924,18 @@ $data =
 
 if (!is_array($data)) {
 
-    echo json_encode([
+    echo json_encode(
+        [
 
-        "success" =>
-            false,
+            "success" =>
+                false,
 
-        "error" =>
-            "Los datos recibidos no son válidos."
+            "error" =>
+                "Los datos recibidos no son válidos."
 
-    ], JSON_UNESCAPED_UNICODE);
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
 
     exit;
 }
@@ -768,27 +1073,30 @@ $systemPrompt =
 
 
 /* ==========================================================
-   CHAT NORMAL
+   COMPROBAR MENSAJE
 ========================================================== */
 
 if ($message === "") {
 
-    echo json_encode([
+    echo json_encode(
+        [
 
-        "success" =>
-            false,
+            "success" =>
+                false,
 
-        "error" =>
-            "El mensaje está vacío."
+            "error" =>
+                "El mensaje está vacío."
 
-    ], JSON_UNESCAPED_UNICODE);
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
 
     exit;
 }
 
 
 /* ==========================================================
-   COMPROBAR API KEY DE KIMI
+   COMPROBAR API KEY KIMI
 ========================================================== */
 
 if (
@@ -797,15 +1105,18 @@ if (
     )
 ) {
 
-    echo json_encode([
+    echo json_encode(
+        [
 
-        "success" =>
-            false,
+            "success" =>
+                false,
 
-        "error" =>
-            "La API Key de Kimi no está configurada."
+            "error" =>
+                "La API Key de Kimi no está configurada."
 
-    ], JSON_UNESCAPED_UNICODE);
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
 
     exit;
 }
@@ -866,6 +1177,29 @@ $jsonPayload =
 
 
 /* ==========================================================
+   COMPROBAR JSON PAYLOAD
+========================================================== */
+
+if ($jsonPayload === false) {
+
+    echo json_encode(
+        [
+
+            "success" =>
+                false,
+
+            "error" =>
+                "No se pudo preparar la petición para Kimi."
+
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
+
+    exit;
+}
+
+
+/* ==========================================================
    CURL KIMI
 ========================================================== */
 
@@ -923,7 +1257,6 @@ $curlError =
         $ch
     );
 
-
 /* ==========================================================
    ERROR CURL
 ========================================================== */
@@ -932,16 +1265,19 @@ if (
     $response === false
 ) {
 
-    echo json_encode([
+    echo json_encode(
+        [
 
-        "success" =>
-            false,
+            "success" =>
+                false,
 
-        "error" =>
-            "Error conectando con Kimi: " .
-            $curlError
+            "error" =>
+                "Error conectando con Kimi: " .
+                $curlError
 
-    ], JSON_UNESCAPED_UNICODE);
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
 
     exit;
 }
@@ -959,6 +1295,29 @@ $result =
 
 
 /* ==========================================================
+   ERROR RESPUESTA JSON
+========================================================== */
+
+if (!is_array($result)) {
+
+    echo json_encode(
+        [
+
+            "success" =>
+                false,
+
+            "error" =>
+                "Kimi devolvió una respuesta no válida."
+
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
+
+    exit;
+}
+
+
+/* ==========================================================
    ERROR KIMI
 ========================================================== */
 
@@ -972,23 +1331,26 @@ if (
         "Error desconocido de Kimi.";
 
 
-    echo json_encode([
+    echo json_encode(
+        [
 
-        "success" =>
-            false,
+            "success" =>
+                false,
 
-        "error" =>
-            "Kimi ha devuelto un error: " .
-            $errorMessage
+            "error" =>
+                "Kimi ha devuelto un error: " .
+                $errorMessage
 
-    ], JSON_UNESCAPED_UNICODE);
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
 
     exit;
 }
 
 
 /* ==========================================================
-   OBTENER RESPUESTA DE KIMI
+   OBTENER RESPUESTA KIMI
 ========================================================== */
 
 $answer =
@@ -1001,17 +1363,23 @@ $answer =
    COMPROBAR RESPUESTA
 ========================================================== */
 
-if (!$answer) {
+if (
+    !is_string($answer) ||
+    trim($answer) === ""
+) {
 
-    echo json_encode([
+    echo json_encode(
+        [
 
-        "success" =>
-            false,
+            "success" =>
+                false,
 
-        "error" =>
-            "Kimi no devolvió ninguna respuesta."
+            "error" =>
+                "Kimi no devolvió ninguna respuesta."
 
-    ], JSON_UNESCAPED_UNICODE);
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
 
     exit;
 }
@@ -1024,8 +1392,8 @@ if (!$answer) {
 try {
 
     $stmt =
-        $pdo->prepare("
-
+        $pdo->prepare(
+            "
             INSERT INTO conversaciones
             (
                 conversacion_id,
@@ -1043,29 +1411,31 @@ try {
                 :usuario,
                 :respuesta
             )
+            "
+        );
 
-        ");
 
+    $stmt->execute(
+        [
 
-    $stmt->execute([
+            ":conversacion_id" =>
+                "CHAT-" .
+                session_id(),
 
-        ":conversacion_id" =>
-            "CHAT-" .
-            session_id(),
+            ":nombre" =>
+                null,
 
-        ":nombre" =>
-            null,
+            ":email" =>
+                null,
 
-        ":email" =>
-            null,
+            ":usuario" =>
+                $message,
 
-        ":usuario" =>
-            $message,
+            ":respuesta" =>
+                $answer
 
-        ":respuesta" =>
-            $answer
-
-    ]);
+        ]
+    );
 
 
 } catch (PDOException $e) {
@@ -1079,20 +1449,23 @@ try {
 
 
 /* ==========================================================
-   RESPUESTA AL JAVASCRIPT
+   RESPUESTA JAVASCRIPT
 ========================================================== */
 
-echo json_encode([
+echo json_encode(
+    [
 
-    "success" =>
-        true,
+        "success" =>
+            true,
 
-    "answer" =>
-        $answer,
+        "answer" =>
+            $answer,
 
-    "agent" =>
-        $agent
+        "agent" =>
+            $agent
 
-], JSON_UNESCAPED_UNICODE);
+    ],
+    JSON_UNESCAPED_UNICODE
+);
 
 ?>

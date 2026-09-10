@@ -34,3 +34,24 @@ CREATE TABLE conversaciones (
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP
 
 );
+
+CREATE TABLE reuniones (
+    
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    conversacion_id VARCHAR(50) NOT NULL,
+
+    nombre VARCHAR(255) NOT NULL,
+
+    email VARCHAR(255) NOT NULL,
+
+    especialista VARCHAR(255) NOT NULL,
+
+    fecha DATE NOT NULL,
+
+    hora TIME NOT NULL,
+
+    duracion INT DEFAULT 60,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
