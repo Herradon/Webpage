@@ -113,7 +113,11 @@ session_start();
 
     </div>
 
-        <div class="text-intro">
+</section>
+
+<section>
+
+    <div class="text-intro">
 
             <div class="d1">
 
@@ -150,6 +154,7 @@ session_start();
             
 
         </div>
+
 
 </section>
 

@@ -183,30 +183,33 @@ nav a:hover {
     display: flex;
     justify-content: center;
     justify-content: space-around;
+    margin-top: 20px;
 }
 
 .text-intro .d1 {
     width: 476px;
     margin: 2%;
     padding: 20px;
-    border-radius: 20px;
-    border: solid;
-    border-color: #ffffff;
     text-align: center;
     justify-items: center;
     backdrop-filter: blur(3px);
 }
 
 
+
+
 .text-intro .d1 h1 {
     text-align: center;
     width: 100%;
+    color: #ffffff;
+    
 }
 
 .text-intro .d1 p {
     text-align: center;
     text-align: justify;
     width: 100%;
+    color: #ffffff;
 }
 
 .text-intro .d2 {
@@ -214,8 +217,6 @@ nav a:hover {
     margin: 2%;
     padding: 20px;
     border-radius: 20px;
-    border: solid;
-    border-color: #ffffff;
    text-align: center;
     justify-items: center;
     backdrop-filter: blur(3px);
@@ -225,12 +226,14 @@ nav a:hover {
 .text-intro .d2 h1 {
     text-align: center;
     width: 100%;
+    color: #ffffff;
 }
 
 .text-intro .d2 p {
     text-align: center;
     width: 100%;
     text-align: justify;
+    color: #ffffff;
 }
 
 .text-intro .d3 {
@@ -238,8 +241,6 @@ nav a:hover {
     margin: 2%;
     padding: 20px;
     border-radius: 20px;
-    border: solid;
-    border-color: #ffffff;
    text-align: center;
    justify-items: center;
    backdrop-filter: blur(3px);
@@ -249,12 +250,14 @@ nav a:hover {
 .text-intro .d3 h1 {
     text-align: center;
     width: 100%;
+    color: #ffffff;
 }
 
 .text-intro .d3 p {
     text-align: center;
     width: 100%;
-        text-align: justify;
+    text-align: justify;
+    color: #ffffff;
 }
 
 .text-intro .d4 {
@@ -262,8 +265,6 @@ nav a:hover {
     margin: 2%;
     padding: 20px;
     border-radius: 20px;
-    border: solid;
-    border-color: #ffffff;
    text-align: center;
     justify-items: center;
     backdrop-filter: blur(3px);
@@ -273,12 +274,14 @@ nav a:hover {
 .text-intro .d4 h1 {
     text-align: center;
     width: 100%;
+    color: #ffffff;
 }
 
 .text-intro .d4 p {
     text-align: center;
     width: 100%;
     text-align: justify;
+    color: #ffffff;
 }
 
 
@@ -827,12 +830,37 @@ footer {
     color: white;
 }
 
+/* ==========================================
+   PANTALLA PORTATIL
+========================================== */
+ @media (max-width: 1800px) {
+
+    .text-intro {
+        display: flex;
+        justify-content: center;
+        justify-content: space-around;
+          display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px; 
+        margin-top: 20px;
+    }
+
+        .text-intro .d1 {
+        width: 476px;
+        margin: 2%;
+        padding: 20px;
+        text-align: center;
+        justify-items: center;
+        backdrop-filter: blur(3px);
+    }
+}
 
 /* ==========================================
    TABLET
 ========================================== */
 
 @media (max-width: 956px) {
+    
 
     .hero {
         min-height: auto;
@@ -859,6 +887,14 @@ footer {
 
     .whatsapp-tittle > p {
         max-width: 85%;
+    }
+
+    .text-intro {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        justify-content: space-around;
+        margin-top: 20px;
     }
 }
 
@@ -900,6 +936,14 @@ footer {
         width: 100%;
         font-size: 17px;
         text-align: justify;
+    }
+
+    .text-intro {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        justify-content: space-around;
+        margin-top: 20px;
     }
 
 
@@ -997,6 +1041,51 @@ footer {
         width: 100%;
         font-size: 16px;
         line-height: 1.6;
+    }
+
+    .text-intro {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+
+        .text-intro .d1 {
+        width: 350px;
+        margin: 2%;
+        padding: 10px;
+        text-align: center;
+        justify-items: center;
+        backdrop-filter: blur(3px);
+    }
+
+          .text-intro .d2 {
+        width: 350px;
+        margin: 2%;
+        padding: 10px;
+        text-align: center;
+        justify-items: center;
+        backdrop-filter: blur(3px);
+    }
+
+          .text-intro .d3 {
+        width: 350px;
+        margin: 2%;
+        padding: 10px;
+        text-align: center;
+        justify-items: center;
+        backdrop-filter: blur(3px);
+    }
+
+          .text-intro .d4 {
+        width: 350px;
+        margin: 2%;
+        padding: 10px;
+        text-align: center;
+        justify-items: center;
+        backdrop-filter: blur(3px);
     }
 
 
