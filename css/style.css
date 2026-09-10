@@ -181,7 +181,6 @@ nav a:hover {
 ========================================== */
 
 .text-intro {
-    width: 100%;
     display: flex;
     justify-content: center;
     justify-content: space-around;
@@ -189,6 +188,8 @@ nav a:hover {
 }
 
 .text-intro .d1 {
+    width: 476px;
+    margin: 2%;
     text-align: center;
     justify-items: center;
 }
@@ -200,10 +201,13 @@ nav a:hover {
 
 .text-intro .d1 p {
     text-align: center;
+    text-align: justify;
     width: 100%;
 }
 
 .text-intro .d2 {
+    width: 476px;
+    margin: 2%;
    text-align: center;
     justify-items: center;
 }
@@ -216,9 +220,12 @@ nav a:hover {
 .text-intro .d2 p {
     text-align: center;
     width: 100%;
+    text-align: justify;
 }
 
 .text-intro .d3 {
+    width: 476px;
+    margin: 2%;
    text-align: center;
     justify-items: center;
 }
@@ -231,9 +238,12 @@ nav a:hover {
 .text-intro .d3 p {
     text-align: center;
     width: 100%;
+        text-align: justify;
 }
 
 .text-intro .d4 {
+    width: 476px;
+    margin: 2%;
    text-align: center;
     justify-items: center;
 }
@@ -246,6 +256,7 @@ nav a:hover {
 .text-intro .d4 p {
     text-align: center;
     width: 100%;
+    text-align: justify;
 }
 
 
