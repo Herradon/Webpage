@@ -141,7 +141,7 @@ nav a:hover {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: none;   
+    background: none; 
 }
 
 
@@ -173,6 +173,79 @@ nav a:hover {
     font-size: 20px;
     color: #ffffff;
     text-align: justify;
+}
+
+
+/* ==========================================
+    INTRO INFORMATIVO
+========================================== */
+
+.text-intro {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    justify-content: space-around;
+
+}
+
+.text-intro .d1 {
+    text-align: center;
+    justify-items: center;
+}
+
+.text-intro .d1 h1 {
+    text-align: center;
+    width: 100%;
+}
+
+.text-intro .d1 p {
+    text-align: center;
+    width: 100%;
+}
+
+.text-intro .d2 {
+   text-align: center;
+    justify-items: center;
+}
+
+.text-intro .d2 h1 {
+    text-align: center;
+    width: 100%;
+}
+
+.text-intro .d2 p {
+    text-align: center;
+    width: 100%;
+}
+
+.text-intro .d3 {
+   text-align: center;
+    justify-items: center;
+}
+
+.text-intro .d3 h1 {
+    text-align: center;
+    width: 100%;
+}
+
+.text-intro .d3 p {
+    text-align: center;
+    width: 100%;
+}
+
+.text-intro .d4 {
+   text-align: center;
+    justify-items: center;
+}
+
+.text-intro .d4 h1 {
+    text-align: center;
+    width: 100%;
+}
+
+.text-intro .d4 p {
+    text-align: center;
+    width: 100%;
 }
 
 

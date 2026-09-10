@@ -85,7 +85,7 @@ session_start();
             Bienvenido a VIZIUNE AI
                 
             <span>
-            la red neuronal de tu futuro agente de confianza
+            la red neuronal de tus futuros agentes de confianza
             </span>
 
         </h1>
@@ -113,6 +113,50 @@ session_start();
 
     </div>
 
+        <div class="text-intro">
+
+            <div class="d1">
+
+                <h1>Desarrollo</h1>
+
+                <p>Informamos y asesora sobre desarrollo web, programación, funcionalidades, tecnología y creación de páginas web.</p>
+
+                <img src="" alt="">
+
+            </div>
+
+            <div class="d2">
+
+                <h1>Ventas</h1>
+                
+                <p>Orientamos al cliente sobre servicios, necesidades, presupuestos, contratación y posibles soluciones.</p>
+    
+                <img src="" alt="">
+    
+            </div>
+
+            <div class="d3">
+
+                <h1>Analisis</h1>
+                
+                <p>Analizamos la situación del cliente, detecta problemas, necesidades y oportunidades de mejora.</p>
+    
+                <img src="" alt="">
+    
+            </div>
+
+             <div class="d4">
+
+                <h1>Asesoramiento</h1>
+                
+                <p>Ofrecemos orientación general y ayuda al cliente a determinar qué solución puede necesitar.</p>
+    
+                <img src="" alt="">
+    
+            </div>
+            
+
+        </div>
 
 </section>
 
