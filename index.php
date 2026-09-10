@@ -117,11 +117,10 @@ session_start();
 
             <div class="d1">
 
+
                 <h1>Desarrollo</h1>
 
                 <p>Informamos y asesora sobre desarrollo web, programación, funcionalidades, tecnología y creación de páginas web.</p>
-
-                <img src="" alt="">
 
             </div>
 
@@ -129,9 +128,7 @@ session_start();
 
                 <h1>Ventas</h1>
                 
-                <p>Orientamos al cliente sobre servicios, necesidades, presupuestos, contratación y posibles soluciones.</p>
-    
-                <img src="" alt="">
+                <p>Orientamos al cliente sobre servicios, estructura, necesidades, presupuestos, contratación y posibles soluciones.</p>
     
             </div>
 
@@ -141,8 +138,6 @@ session_start();
                 
                 <p>Analizamos la situación del cliente, detecta problemas, necesidades y oportunidades de mejora.</p>
     
-                <img src="" alt="">
-    
             </div>
 
              <div class="d4">
@@ -150,8 +145,6 @@ session_start();
                 <h1>Asesoramiento</h1>
                 
                 <p>Ofrecemos orientación general y ayuda al cliente a determinar qué solución puede necesitar.</p>
-    
-                <img src="" alt="">
     
             </div>
             

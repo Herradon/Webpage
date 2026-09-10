@@ -147,12 +147,11 @@ nav a:hover {
 
 .hero-content {
     max-width: 100%;
-    height: 100vh;
+    height: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(1.5px);
 }
 
 .hero h1 {
@@ -184,15 +183,20 @@ nav a:hover {
     display: flex;
     justify-content: center;
     justify-content: space-around;
-
 }
 
 .text-intro .d1 {
     width: 476px;
     margin: 2%;
+    padding: 20px;
+    border-radius: 20px;
+    border: solid;
+    border-color: #ffffff;
     text-align: center;
     justify-items: center;
+    backdrop-filter: blur(3px);
 }
+
 
 .text-intro .d1 h1 {
     text-align: center;
@@ -208,9 +212,15 @@ nav a:hover {
 .text-intro .d2 {
     width: 476px;
     margin: 2%;
+    padding: 20px;
+    border-radius: 20px;
+    border: solid;
+    border-color: #ffffff;
    text-align: center;
     justify-items: center;
+    backdrop-filter: blur(3px);
 }
+
 
 .text-intro .d2 h1 {
     text-align: center;
@@ -226,9 +236,15 @@ nav a:hover {
 .text-intro .d3 {
     width: 476px;
     margin: 2%;
+    padding: 20px;
+    border-radius: 20px;
+    border: solid;
+    border-color: #ffffff;
    text-align: center;
-    justify-items: center;
+   justify-items: center;
+   backdrop-filter: blur(3px);
 }
+
 
 .text-intro .d3 h1 {
     text-align: center;
@@ -244,8 +260,14 @@ nav a:hover {
 .text-intro .d4 {
     width: 476px;
     margin: 2%;
+    padding: 20px;
+    border-radius: 20px;
+    border: solid;
+    border-color: #ffffff;
    text-align: center;
     justify-items: center;
+    backdrop-filter: blur(3px);
+    
 }
 
 .text-intro .d4 h1 {
