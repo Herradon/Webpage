@@ -97,116 +97,289 @@ document.addEventListener("DOMContentLoaded", function () {
 
     };
 
+
     /* =====================================================
        NEURONAS
     ===================================================== */
 
 
     // Obtención del lienzo y contexto de dibujo
-const canvas = document.getElementById('neural-canvas');
-const ctx = canvas.getContext('2d');
+    const canvas =
+        document.getElementById('neural-canvas');
 
-// Variables y constantes ajustables
-const CONFIG = {
-  particleCount: 50,       // Número de neuronas flotando en pantalla
-  maxDistance: 130,        // Distancia máxima para trazar una conexión
-  nodeColor: '#00f3ff',    // Color celeste fluorescente de los puntos
-  lineColor: '0, 243, 255',// Color RGB base para la opacidad de los axones
-  speed: 0.5               // Velocidad de movimiento de flotación
-};
+    const ctx =
+        canvas.getContext('2d');
 
-let particles = [];
 
-// Redimensionar el lienzo adaptándose a cualquier pantalla (Monitor o Móvil)
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+    // Variables y constantes ajustables
+    const CONFIG = {
 
-// Clase constructora para cada Neurona (Nodo)
-class Neuron {
-  constructor() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
-    // Vectores de dirección aleatoria
-    this.vx = (Math.random() - 0.5) * CONFIG.speed;
-    this.vy = (Math.random() - 0.5) * CONFIG.speed;
-    this.radius = Math.random() * 2 + 2; // Diámetros variados entre 2px y 4px
-  }
+        particleCount: 50,
 
-  // Actualizar la posición y rebotar sutilmente al tocar el límite de la pantalla
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
+        maxDistance: 130,
 
-    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-  }
+        nodeColor: '#00f3ff',
 
-  // Dibujar el nodo con un sutil efecto de brillo incandescente
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = CONFIG.nodeColor;
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = CONFIG.nodeColor;
-    ctx.fill();
-    ctx.shadowBlur = 0; // Desactivar sombras tras pintar para optimizar rendimiento de las líneas
-  }
-}
+        lineColor: '0, 243, 255',
 
-// Inicializar la red
-function init() {
-  particles = [];
-  for (let i = 0; i < CONFIG.particleCount; i++) {
-    particles.push(new Neuron());
-  }
-}
+        speed: 0.5
 
-// Bucle de animación principal (Se ejecuta cuadro por cuadro)
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
 
-  // 1. Dibujar y mover cada neurona
-  particles.forEach(p => {
-    p.update();
-    p.draw();
-  });
 
-  // 2. Calcular distancias recíprocas (Mapeo de conexiones dinámicas)
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      
-      // Teorema de Pitágoras para medir distancias en tiempo real
-      const distance = Math.sqrt(dx * dx + dy * dy); 
+    let particles = [];
 
-      // Si se cruzan dentro del rango límite, el axón se conecta solo
-      if (distance < CONFIG.maxDistance) {
-        // La opacidad de la línea aumenta proporcionalmente si están más cerca
-        const opacity = (1 - (distance / CONFIG.maxDistance)) * 0.25;
-        
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
-        ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.strokeStyle = `rgba(${CONFIG.lineColor}, ${opacity})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
+
+    // Redimensionar el lienzo adaptándose a cualquier pantalla
+    function resizeCanvas() {
+
+        canvas.width =
+            window.innerWidth;
+
+        canvas.height =
+            window.innerHeight;
+
     }
-  }
 
-  requestAnimationFrame(animate);
-}
 
-// Arrancar el proceso de la red neuronal viva
-init();
-animate();
+    window.addEventListener(
+        'resize',
+        resizeCanvas
+    );
 
-    
+
+    resizeCanvas();
+
+
+    // Clase constructora para cada Neurona
+    class Neuron {
+
+        constructor() {
+
+            this.x =
+                Math.random() *
+                canvas.width;
+
+            this.y =
+                Math.random() *
+                canvas.height;
+
+
+            this.vx =
+                (Math.random() - 0.5) *
+                CONFIG.speed;
+
+            this.vy =
+                (Math.random() - 0.5) *
+                CONFIG.speed;
+
+
+            this.radius =
+                Math.random() * 2 + 2;
+
+        }
+
+
+        update() {
+
+            this.x +=
+                this.vx;
+
+            this.y +=
+                this.vy;
+
+
+            if (
+                this.x < 0 ||
+                this.x > canvas.width
+            ) {
+
+                this.vx *= -1;
+
+            }
+
+
+            if (
+                this.y < 0 ||
+                this.y > canvas.height
+            ) {
+
+                this.vy *= -1;
+
+            }
+
+        }
+
+
+        draw() {
+
+            ctx.beginPath();
+
+            ctx.arc(
+                this.x,
+                this.y,
+                this.radius,
+                0,
+                Math.PI * 2
+            );
+
+
+            ctx.fillStyle =
+                CONFIG.nodeColor;
+
+
+            ctx.shadowBlur =
+                8;
+
+
+            ctx.shadowColor =
+                CONFIG.nodeColor;
+
+
+            ctx.fill();
+
+
+            ctx.shadowBlur =
+                0;
+
+        }
+
+    }
+
+
+    // Inicializar la red
+    function init() {
+
+        particles = [];
+
+
+        for (
+            let i = 0;
+            i < CONFIG.particleCount;
+            i++
+        ) {
+
+            particles.push(
+                new Neuron()
+            );
+
+        }
+
+    }
+
+
+    // Bucle de animación principal
+    function animate() {
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        particles.forEach(
+            p => {
+
+                p.update();
+
+                p.draw();
+
+            }
+        );
+
+
+        for (
+            let i = 0;
+            i < particles.length;
+            i++
+        ) {
+
+            for (
+                let j = i + 1;
+                j < particles.length;
+                j++
+            ) {
+
+                const dx =
+                    particles[i].x -
+                    particles[j].x;
+
+
+                const dy =
+                    particles[i].y -
+                    particles[j].y;
+
+
+                const distance =
+                    Math.sqrt(
+                        dx * dx +
+                        dy * dy
+                    );
+
+
+                if (
+                    distance <
+                    CONFIG.maxDistance
+                ) {
+
+                    const opacity =
+                        (
+                            1 -
+                            (
+                                distance /
+                                CONFIG.maxDistance
+                            )
+                        ) *
+                        0.25;
+
+
+                    ctx.beginPath();
+
+
+                    ctx.moveTo(
+                        particles[i].x,
+                        particles[i].y
+                    );
+
+
+                    ctx.lineTo(
+                        particles[j].x,
+                        particles[j].y
+                    );
+
+
+                    ctx.strokeStyle =
+                        `rgba(${CONFIG.lineColor}, ${opacity})`;
+
+
+                    ctx.lineWidth =
+                        1;
+
+
+                    ctx.stroke();
+
+                }
+
+            }
+
+        }
+
+
+        requestAnimationFrame(
+            animate
+        );
+
+    }
+
+
+    // Arrancar el proceso
+    init();
+
+    animate();
+
+
 
     /* =====================================================
        NORMALIZAR AGENTE
@@ -215,23 +388,32 @@ animate();
     function obtenerAgenteValido(agent) {
 
         if (!agent) {
+
             return null;
+
         }
+
 
         const texto =
             agent
                 .toLowerCase()
                 .trim()
                 .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "");
+                .replace(
+                    /[\u0300-\u036f]/g,
+                    ""
+                );
 
 
         if (
-            texto === "diseno y desarrollo web" ||
-            texto === "diseno y desarrollo"
+            texto ===
+                "diseno y desarrollo web" ||
+            texto ===
+                "diseno y desarrollo"
         ) {
 
             return "diseño y desarrollo web";
+
         }
 
 
@@ -241,6 +423,7 @@ animate();
         ) {
 
             return "tiendas online";
+
         }
 
 
@@ -252,6 +435,7 @@ animate();
         ) {
 
             return "asesor seo y sem";
+
         }
 
 
@@ -261,11 +445,14 @@ animate();
         ) {
 
             return "asesoramiento web";
+
         }
 
 
         return null;
+
     }
+
 
 
     /* =====================================================
@@ -275,7 +462,9 @@ animate();
     function cambiarIdentidad(agent) {
 
         const agenteValido =
-            obtenerAgenteValido(agent);
+            obtenerAgenteValido(
+                agent
+            );
 
 
         if (!agenteValido) {
@@ -286,6 +475,7 @@ animate();
             );
 
             return;
+
         }
 
 
@@ -293,56 +483,67 @@ animate();
             agenteValido;
 
 
-        /* BOTÓN ACTIVO */
+        agentButtons.forEach(
+            function (button) {
 
-        agentButtons.forEach(function (button) {
-
-            button.classList.remove("active");
-
-            const botonAgent =
-                obtenerAgenteValido(
-                    button.dataset.agent
+                button.classList.remove(
+                    "active"
                 );
 
 
-            if (botonAgent === agenteValido) {
+                const botonAgent =
+                    obtenerAgenteValido(
+                        button.dataset.agent
+                    );
 
-                button.classList.add("active");
+
+                if (
+                    botonAgent ===
+                    agenteValido
+                ) {
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                }
 
             }
+        );
 
-        });
-
-
-        /* NOMBRE */
 
         if (assistantName) {
 
             assistantName.textContent =
-                agentInfo[agenteValido].name;
+                agentInfo[
+                    agenteValido
+                ].name;
 
         }
 
-
-        /* DESCRIPCIÓN */
 
         if (assistantDescription) {
 
             assistantDescription.textContent =
-                agentInfo[agenteValido].description;
+                agentInfo[
+                    agenteValido
+                ].description;
 
         }
 
 
-        /* AVATAR */
-
         if (assistantAvatar) {
 
             assistantAvatar.src =
-                agentInfo[agenteValido].avatar;
+                agentInfo[
+                    agenteValido
+                ].avatar;
+
 
             assistantAvatar.alt =
-                agentInfo[agenteValido].name;
+                agentInfo[
+                    agenteValido
+                ].name;
 
         }
 
@@ -355,27 +556,35 @@ animate();
     }
 
 
+
     /* =====================================================
        BOTONES DE AGENTE
     ===================================================== */
 
-    agentButtons.forEach(function (button) {
+    agentButtons.forEach(
+        function (button) {
 
-        button.addEventListener(
-            "click",
-            function (event) {
+            button.addEventListener(
+                "click",
+                function (event) {
 
-                event.preventDefault();
+                    event.preventDefault();
 
-                const agent =
-                    this.dataset.agent;
 
-                cambiarIdentidad(agent);
+                    const agent =
+                        this.dataset.agent;
 
-            }
-        );
 
-    });
+                    cambiarIdentidad(
+                        agent
+                    );
+
+                }
+            );
+
+        }
+    );
+
 
 
     /* =====================================================
@@ -383,7 +592,10 @@ animate();
     ===================================================== */
 
     const sendChatEmail =
-        document.getElementById("sendChatEmail");
+        document.getElementById(
+            "sendChatEmail"
+        );
+
 
 
     /* =====================================================
@@ -391,13 +603,32 @@ animate();
     ===================================================== */
 
     const chatEmailForm =
-        document.getElementById("chatEmailForm");
+        document.getElementById(
+            "chatEmailForm"
+        );
+
 
     const chatNombre =
-        document.getElementById("chatNombre");
+        document.getElementById(
+            "chatNombre"
+        );
+
 
     const chatEmail =
-        document.getElementById("chatEmail");
+        document.getElementById(
+            "chatEmail"
+        );
+
+
+    /* =====================================================
+       ARCHIVO ADJUNTO
+    ===================================================== */
+
+    const chatFile =
+        document.getElementById(
+            "chatFile"
+        );
+
 
     const confirmSendChatEmail =
         document.getElementById(
@@ -405,32 +636,135 @@ animate();
         );
 
 
+
     /* =====================================================
        BOTÓN REINICIAR
     ===================================================== */
 
-    const resetChat =
-        document.getElementById("resetChat");
+const resetChat =
+    document.getElementById(
+        "resetChat"
+    );
 
+
+if (resetChat) {
+
+    resetChat.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+
+            if (chatMessages) {
+
+                chatMessages.innerHTML =
+                    "";
+
+            }
+
+
+            if (messageInput) {
+
+                messageInput.value =
+                    "";
+
+            }
+
+
+            if (sendChatEmail) {
+
+                sendChatEmail.hidden =
+                    true;
+
+                sendChatEmail.disabled =
+                    false;
+
+                sendChatEmail.innerText =
+                    "📧 Enviar conversación por correo";
+
+            }
+
+
+            if (chatEmailForm) {
+
+                chatEmailForm.hidden =
+                    true;
+
+            }
+
+
+            if (chatNombre) {
+
+                chatNombre.value =
+                    "";
+
+            }
+
+
+            if (chatEmail) {
+
+                chatEmail.value =
+                    "";
+
+            }
+
+    /* =================================================
+       LIMPIAR ARCHIVO ADJUNTO
+    ================================================= */
+
+            if (chatFile) {
+
+                chatFile.value =
+                    "";
+
+            }
+
+
+            cambiarIdentidad(
+                "diseño y desarrollo web"
+            );
+
+
+            if (messageInput) {
+
+                messageInput.focus();
+
+            }
+
+        }
+    );
+
+}
 
     /* =====================================================
        AVATAR MENSAJES
     ===================================================== */
 
-    function ponerAvatar(avatar, type) {
+    function ponerAvatar(
+        avatar,
+        type
+    ) {
 
         if (type === "bot") {
 
             const img =
-                document.createElement("img");
+                document.createElement(
+                    "img"
+                );
+
 
             img.src =
                 "img/asset.png";
 
+
             img.alt =
                 "Asistente";
 
-            avatar.appendChild(img);
+
+            avatar.appendChild(
+                img
+            );
 
         } else {
 
@@ -440,6 +774,7 @@ animate();
         }
 
     }
+
 
 
     /* =====================================================
@@ -453,12 +788,16 @@ animate();
     ) {
 
         if (!chatMessages) {
+
             return null;
+
         }
 
 
         const messageElement =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         messageElement.classList.add(
@@ -477,7 +816,9 @@ animate();
 
 
         const avatar =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         avatar.classList.add(
@@ -492,7 +833,9 @@ animate();
 
 
         const bubble =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         bubble.classList.add(
@@ -524,7 +867,9 @@ animate();
 
 
         return messageElement;
+
     }
+
 
 
     /* =====================================================
@@ -549,11 +894,11 @@ animate();
 
 
                 if (!message) {
+
                     return;
+
                 }
 
-
-                /* MENSAJE USUARIO */
 
                 addMessage(
                     message,
@@ -565,14 +910,10 @@ animate();
                     "";
 
 
-                /* DETECTAR CONTACTO */
-
                 comprobarSolicitudContacto(
                     message
                 );
 
-
-                /* ESCRIBIENDO */
 
                 const typing =
                     addMessage(
@@ -606,33 +947,28 @@ animate();
                         "Enviando mensaje a chat.php..."
                     );
 
+
                     console.log(
                         "Agente:",
                         selectedAgent
                     );
 
 
-                    /* =================================================
-                       PETICIÓN A CHAT.PHP
-
-                       IMPORTANTE:
-                       El JavaScript NO llama directamente a Kimi.
-
-                       chat.php será quien se conecte con Kimi.
-                    ================================================= */
-
                     const response =
                         await fetch(
                             "chat.php",
                             {
-                                method: "POST",
+                                method:
+                                    "POST",
 
                                 headers: {
+
                                     "Content-Type":
                                         "application/json",
 
                                     "Accept":
                                         "application/json"
+
                                 },
 
                                 body:
@@ -645,15 +981,10 @@ animate();
                                             selectedAgent
 
                                     })
+
                             }
                         );
 
-
-                    /* =================================================
-                       LEER RESPUESTA COMO TEXTO PRIMERO
-
-                       Esto permite detectar errores PHP/HTML.
-                    ================================================= */
 
                     const responseText =
                         await response.text();
@@ -665,7 +996,9 @@ animate();
                     );
 
 
-                    if (!responseText.trim()) {
+                    if (
+                        !responseText.trim()
+                    ) {
 
                         throw new Error(
                             "chat.php no ha devuelto ninguna respuesta."
@@ -700,13 +1033,11 @@ animate();
 
 
                     if (typing) {
+
                         typing.remove();
+
                     }
 
-
-                    /* =================================================
-                       ERROR DEVUELTO POR PHP
-                    ================================================= */
 
                     if (
                         !response.ok ||
@@ -720,10 +1051,6 @@ animate();
 
                     }
 
-
-                    /* =================================================
-                       RESPUESTA DEL CHAT
-                    ================================================= */
 
                     if (!data.answer) {
 
@@ -743,7 +1070,9 @@ animate();
                 } catch (error) {
 
                     if (typing) {
+
                         typing.remove();
+
                     }
 
 
@@ -752,10 +1081,6 @@ animate();
                         error
                     );
 
-
-                    /* =================================================
-                       AHORA MOSTRAMOS EL ERROR REAL
-                    ================================================= */
 
                     addMessage(
 
@@ -792,6 +1117,7 @@ animate();
         );
 
     }
+
 
 
     /* =====================================================
@@ -861,6 +1187,16 @@ animate();
                 }
 
 
+                /* LIMPIAR ARCHIVO */
+
+                if (chatFile) {
+
+                    chatFile.value =
+                        "";
+
+                }
+
+
                 cambiarIdentidad(
                     "diseño y desarrollo web"
                 );
@@ -878,14 +1214,19 @@ animate();
     }
 
 
+
     /* =====================================================
        DETECTAR SOLICITUD DE CONTACTO
     ===================================================== */
 
-    function comprobarSolicitudContacto(message) {
+    function comprobarSolicitudContacto(
+        message
+    ) {
 
         if (!sendChatEmail) {
+
             return;
+
         }
 
 
@@ -953,6 +1294,7 @@ animate();
     }
 
 
+
     /* =====================================================
        OBTENER CONVERSACIÓN
     ===================================================== */
@@ -960,7 +1302,9 @@ animate();
     function obtenerConversacion() {
 
         if (!chatMessages) {
+
             return "";
+
         }
 
 
@@ -995,7 +1339,9 @@ animate();
 
 
                 if (!bubble) {
+
                     return;
+
                 }
 
 
@@ -1004,7 +1350,9 @@ animate();
 
 
                 if (!texto) {
+
                     return;
+
                 }
 
 
@@ -1035,6 +1383,7 @@ animate();
         return conversacion.trim();
 
     }
+
 
 
     /* =====================================================
@@ -1096,6 +1445,7 @@ animate();
     }
 
 
+
     /* =====================================================
        ENVIAR CONVERSACIÓN POR EMAIL
     ===================================================== */
@@ -1137,7 +1487,9 @@ animate();
 
 
             if (chatNombre) {
+
                 chatNombre.focus();
+
             }
 
 
@@ -1154,7 +1506,9 @@ animate();
 
 
             if (chatEmail) {
+
                 chatEmail.focus();
+
             }
 
 
@@ -1179,7 +1533,9 @@ animate();
 
 
             if (chatEmail) {
+
                 chatEmail.focus();
+
             }
 
 
@@ -1193,6 +1549,7 @@ animate();
             confirmSendChatEmail.disabled =
                 true;
 
+
             confirmSendChatEmail.innerText =
                 "📧 Enviando...";
 
@@ -1201,45 +1558,81 @@ animate();
 
         try {
 
-            const response =
-                await fetch(
-                    "chat.php",
-                    {
-                        method:
-                            "POST",
+            /* =================================================
+               CREAR FORMDATA
 
-                        headers: {
+               IMPORTANTE:
+               Aquí NO usamos JSON.
 
-                            "Content-Type":
-                                "application/json",
+               FormData permite enviar:
+               - nombre
+               - email
+               - conversación
+               - agente
+               - archivo
+            ================================================= */
 
-                            "Accept":
-                                "application/json"
+           const formData = new FormData();
 
-                        },
+formData.append(
+    "action",
+    "email"
+);
 
-                        body:
-                            JSON.stringify({
+formData.append(
+    "nombre",
+    nombre
+);
 
-                                action:
-                                    "email",
+formData.append(
+    "email",
+    email
+);
 
-                                nombre:
-                                    nombre,
+formData.append(
+    "conversacion",
+    conversacion
+);
 
-                                email:
-                                    email,
+formData.append(
+    "agent",
+    selectedAgent
+);
 
-                                conversacion:
-                                    conversacion,
 
-                                agent:
-                                    selectedAgent
+/* =================================================
+   ARCHIVO
+================================================= */
 
-                            })
+if (
+    chatFile &&
+    chatFile.files &&
+    chatFile.files.length > 0
+) {
 
-                    }
-                );
+    formData.append(
+        "chatFile",
+        chatFile.files[0]
+    );
+
+}
+
+
+/* =================================================
+   ENVIAR
+================================================= */
+
+const response =
+    await fetch(
+        "chat.php",
+        {
+            method:
+                "POST",
+
+            body:
+                formData
+        }
+    );
 
 
             const responseText =
@@ -1263,6 +1656,12 @@ animate();
                     );
 
             } catch (error) {
+
+                console.error(
+                    "Respuesta no JSON:",
+                    responseText
+                );
+
 
                 throw new Error(
                     "El servidor no ha devuelto una respuesta JSON válida."
@@ -1343,6 +1742,7 @@ animate();
     }
 
 
+
     /* =====================================================
        BOTÓN CONFIRMAR EMAIL
     ===================================================== */
@@ -1355,12 +1755,14 @@ animate();
 
                 event.preventDefault();
 
+
                 confirmarEnvioConversacion();
 
             }
         );
 
     }
+
 
 
     /* =====================================================
@@ -1558,6 +1960,7 @@ animate();
     }
 
 
+
     /* =====================================================
        ACTIVAR AGENTE INICIAL
     ===================================================== */
@@ -1565,6 +1968,7 @@ animate();
     cambiarIdentidad(
         "diseño y desarrollo web"
     );
+
 
 
     /* =====================================================
@@ -1575,9 +1979,11 @@ animate();
         "ViziuneAI JavaScript cargado correctamente."
     );
 
+
     console.log(
         "Sistema preparado para utilizar Kimi mediante chat.php."
     );
+
 
     console.log(
         "Agente inicial:",

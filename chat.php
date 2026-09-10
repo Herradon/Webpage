@@ -29,140 +29,24 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 
 /* ==========================================================
-   RECIBIR JSON
+   COMPROBAR SI ES ENVÍO DE CONVERSACIÓN POR EMAIL
 ========================================================== */
 
-$rawData = file_get_contents("php://input");
+/*
+   IMPORTANTE:
 
-$data = json_decode(
-    $rawData,
-    true
-);
+   El envío de la conversación utiliza FormData porque
+   también puede contener un archivo.
 
+   Por eso aquí NO usamos php://input para esta parte.
 
-if (!is_array($data)) {
-
-    echo json_encode([
-        "success" => false,
-        "error" => "Los datos recibidos no son válidos."
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
-
-/* ==========================================================
-   DATOS
-========================================================== */
+   Los datos llegan mediante $_POST
+   y el archivo mediante $_FILES.
+*/
 
 $action = trim(
-    $data["action"] ?? ""
+    $_POST["action"] ?? ""
 );
-
-$message = trim(
-    $data["message"] ?? ""
-);
-
-$nombre = trim(
-    $data["nombre"] ?? ""
-);
-
-$email = trim(
-    $data["email"] ?? ""
-);
-
-$agent = trim(
-    $data["agent"] ?? "diseño y desarrollo web"
-);
-
-
-/* ==========================================================
-   AGENTES
-========================================================== */
-
-$agentPrompts = [
-
-    "diseño y desarrollo web" =>
-
-        "Eres Alejandro Herradón, especialista en diseño y desarrollo web.
-
-        Tu función es asesorar al usuario sobre creación, diseño y desarrollo de páginas web profesionales.
-
-        Puedes ayudar sobre estructura web, diseño, experiencia de usuario, funcionalidades, tecnologías, programación, responsive design, mantenimiento y optimización.
-
-        Responde siempre en español.
-
-        Haz preguntas cuando necesites información adicional.
-
-        Explica las cosas de forma clara y sencilla.
-
-        No prometas resultados garantizados de ventas, clientes, conversiones o posicionamiento.",
-
-
-    "tiendas online" =>
-
-        "Eres Alejandro Herradón, especialista en tiendas online y comercio electrónico.
-
-        Tu función es asesorar al usuario sobre creación, diseño y desarrollo de tiendas online.
-
-        Puedes ayudar sobre productos, categorías, carrito, pagos, pedidos, clientes, plataformas de ecommerce, diseño, experiencia de compra, seguridad y optimización.
-
-        Responde siempre en español.
-
-        Haz preguntas cuando necesites información adicional.
-
-        Explica las alternativas de forma clara y objetiva.
-
-        No garantices ventas, facturación o conversiones.",
-
-
-    "asesor seo y sem" =>
-
-        "Eres Alejandro Herradón, especialista en SEO y SEM.
-
-        Tu función es ayudar al usuario a mejorar la visibilidad de su página web mediante posicionamiento orgánico y publicidad online.
-
-        Puedes explicar SEO técnico, palabras clave, contenidos, enlaces, experiencia de usuario, Google Ads, SEM, campañas, métricas, tráfico y conversiones.
-
-        Responde siempre en español.
-
-        Haz preguntas cuando necesites información adicional.
-
-        Diferencia claramente SEO de SEM.
-
-        No garantices posiciones concretas en Google, tráfico, clientes o ventas.",
-
-
-    "asesoramiento web" =>
-
-        "Eres Alejandro Herradón, especialista en asesoramiento web.
-
-        Tu función es analizar las necesidades generales del usuario relacionadas con su presencia online.
-
-        Puedes ayudar a detectar problemas y oportunidades en páginas web, diseño, estructura, contenidos, funcionalidades, experiencia de usuario, SEO, rendimiento y estrategia digital.
-
-        Responde siempre en español.
-
-        Haz preguntas cuando necesites información adicional.
-
-        Explica las diferentes alternativas de forma sencilla.
-
-        No garantices ventas, clientes, conversiones ni posicionamiento."
-
-];
-
-
-/* ==========================================================
-   COMPROBAR AGENTE
-========================================================== */
-
-if (!isset($agentPrompts[$agent])) {
-
-    $agent = "diseño y desarrollo web";
-
-}
-
-$systemPrompt = $agentPrompts[$agent];
 
 
 /* ==========================================================
@@ -171,32 +55,73 @@ $systemPrompt = $agentPrompts[$agent];
 
 if ($action === "email") {
 
+
+    /* ======================================================
+       RECIBIR DATOS
+    ====================================================== */
+
     $conversacion = trim(
-        $data["conversacion"] ?? ""
+        $_POST["conversacion"] ?? ""
     );
 
+
+    $nombre = trim(
+        $_POST["nombre"] ?? ""
+    );
+
+
+    $email = trim(
+        $_POST["email"] ?? ""
+    );
+
+
+    $agent = trim(
+        $_POST["agent"] ??
+        "diseño y desarrollo web"
+    );
+
+
+    /* ======================================================
+       COMPROBAR CONVERSACIÓN
+    ====================================================== */
 
     if ($conversacion === "") {
 
         echo json_encode([
+
             "success" => false,
-            "error" => "No hay ninguna conversación para enviar."
+
+            "error" =>
+                "No hay ninguna conversación para enviar."
+
         ], JSON_UNESCAPED_UNICODE);
 
         exit;
     }
 
+
+    /* ======================================================
+       COMPROBAR NOMBRE
+    ====================================================== */
 
     if ($nombre === "") {
 
         echo json_encode([
+
             "success" => false,
-            "error" => "El nombre es obligatorio."
+
+            "error" =>
+                "El nombre es obligatorio."
+
         ], JSON_UNESCAPED_UNICODE);
 
         exit;
     }
 
+
+    /* ======================================================
+       COMPROBAR EMAIL
+    ====================================================== */
 
     if (
         $email === "" ||
@@ -207,8 +132,12 @@ if ($action === "email") {
     ) {
 
         echo json_encode([
+
             "success" => false,
-            "error" => "El correo electrónico no es válido."
+
+            "error" =>
+                "El correo electrónico no es válido."
+
         ], JSON_UNESCAPED_UNICODE);
 
         exit;
@@ -216,7 +145,7 @@ if ($action === "email") {
 
 
     /* ======================================================
-       NOMBRE DEL AGENTE
+       AGENTES
     ====================================================== */
 
     $nombresAgentes = [
@@ -314,9 +243,14 @@ if ($action === "email") {
             $e->getMessage()
         );
 
+
         echo json_encode([
+
             "success" => false,
-            "error" => "No se pudo guardar la conversación."
+
+            "error" =>
+                "No se pudo guardar la conversación."
+
         ], JSON_UNESCAPED_UNICODE);
 
         exit;
@@ -324,7 +258,7 @@ if ($action === "email") {
 
 
     /* ======================================================
-       EMAIL
+       PREPARAR EMAIL
     ====================================================== */
 
     $asunto =
@@ -370,13 +304,17 @@ if ($action === "email") {
 
 
     /* ======================================================
-       PHPMailer
+       CREAR PHPMailer
     ====================================================== */
 
     $mail = new PHPMailer(true);
 
 
     try {
+
+        /* ==================================================
+           SMTP
+        ================================================== */
 
         $mail->isSMTP();
 
@@ -402,11 +340,19 @@ if ($action === "email") {
             "UTF-8";
 
 
+        /* ==================================================
+           REMITENTE
+        ================================================== */
+
         $mail->setFrom(
             $SMTP_FROM,
             "ViziuneAI"
         );
 
+
+        /* ==================================================
+           DESTINATARIO
+        ================================================== */
 
         $mail->addAddress(
             $SMTP_TO,
@@ -414,11 +360,19 @@ if ($action === "email") {
         );
 
 
+        /* ==================================================
+           RESPONDER AL CLIENTE
+        ================================================== */
+
         $mail->addReplyTo(
             $email,
             $nombre
         );
 
+
+        /* ==================================================
+           CONTENIDO
+        ================================================== */
 
         $mail->isHTML(false);
 
@@ -429,8 +383,174 @@ if ($action === "email") {
             $textoEmail;
 
 
+        /* ==================================================
+           ARCHIVO ADJUNTO
+        ================================================== */
+
+        if (
+            isset($_FILES["chatFile"]) &&
+            $_FILES["chatFile"]["error"] !== UPLOAD_ERR_NO_FILE
+        ) {
+
+
+            /* ==============================================
+               COMPROBAR ERROR DE SUBIDA
+            ============================================== */
+
+            if (
+                $_FILES["chatFile"]["error"] !== UPLOAD_ERR_OK
+            ) {
+
+                throw new Exception(
+                    "Se produjo un error al subir el archivo."
+                );
+
+            }
+
+
+            /* ==============================================
+               DATOS DEL ARCHIVO
+            ============================================== */
+
+            $archivoTmp =
+                $_FILES["chatFile"]["tmp_name"];
+
+
+            $nombreArchivo =
+                $_FILES["chatFile"]["name"];
+
+
+            $tamanoArchivo =
+                $_FILES["chatFile"]["size"];
+
+
+            /* ==============================================
+               COMPROBAR QUE EXISTE
+            ============================================== */
+
+            if (
+                !is_uploaded_file(
+                    $archivoTmp
+                )
+            ) {
+
+                throw new Exception(
+                    "El archivo recibido no es válido."
+                );
+
+            }
+
+
+            /* ==============================================
+               LÍMITE DE TAMAÑO
+               
+               10 MB
+            ============================================== */
+
+            if (
+                $tamanoArchivo >
+                10 * 1024 * 1024
+            ) {
+
+                throw new Exception(
+                    "El archivo no puede superar los 10 MB."
+                );
+
+            }
+
+
+            /* ==============================================
+               DETECTAR TIPO REAL DEL ARCHIVO
+            ============================================== */
+
+            $finfo =
+                finfo_open(
+                    FILEINFO_MIME_TYPE
+                );
+
+
+            if (!$finfo) {
+
+                throw new Exception(
+                    "No se pudo comprobar el tipo de archivo."
+                );
+
+            }
+
+
+            $mime =
+                finfo_file(
+                    $finfo,
+                    $archivoTmp
+                );
+
+
+            /* ==============================================
+               TIPOS PERMITIDOS
+            ============================================== */
+
+            $tiposPermitidos = [
+
+                "application/pdf",
+
+                "image/jpeg",
+
+                "image/png",
+
+                "image/gif",
+
+                "image/webp"
+
+            ];
+
+
+            if (
+                !in_array(
+                    $mime,
+                    $tiposPermitidos,
+                    true
+                )
+            ) {
+
+                throw new Exception(
+                    "El tipo de archivo no está permitido. Solo se permiten imágenes y PDF."
+                );
+
+            }
+
+
+            /* ==============================================
+               LIMPIAR NOMBRE DEL ARCHIVO
+            ============================================== */
+
+            $nombreArchivo =
+                basename(
+                    $nombreArchivo
+                );
+
+
+            /* ==============================================
+               AÑADIR ARCHIVO AL EMAIL
+            ============================================== */
+
+            $mail->addAttachment(
+                $archivoTmp,
+                $nombreArchivo
+            );
+
+        }
+
+
+        /* ==================================================
+           ENVIAR EMAIL
+        ================================================== */
+
         $mail->send();
 
+
+        /* ==================================================
+           RESPUESTA CORRECTA
+        ================================================== */
 
         echo json_encode([
 
@@ -465,7 +585,7 @@ if ($action === "email") {
                 false,
 
             "error" =>
-                "No se pudo enviar el correo."
+                $e->getMessage()
 
         ], JSON_UNESCAPED_UNICODE);
 
@@ -478,6 +598,177 @@ if ($action === "email") {
 /* ==========================================================
    CHAT NORMAL
    KIMI / MOONSHOT
+
+   DESDE AQUÍ SE MANTIENE EL SISTEMA ORIGINAL DE KIMI
+========================================================== */
+
+
+/* ==========================================================
+   RECIBIR JSON
+========================================================== */
+
+$rawData =
+    file_get_contents(
+        "php://input"
+    );
+
+
+$data =
+    json_decode(
+        $rawData,
+        true
+    );
+
+
+if (!is_array($data)) {
+
+    echo json_encode([
+
+        "success" =>
+            false,
+
+        "error" =>
+            "Los datos recibidos no son válidos."
+
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
+
+/* ==========================================================
+   DATOS
+========================================================== */
+
+$action =
+    trim(
+        $data["action"] ?? ""
+    );
+
+
+$message =
+    trim(
+        $data["message"] ?? ""
+    );
+
+
+$nombre =
+    trim(
+        $data["nombre"] ?? ""
+    );
+
+
+$email =
+    trim(
+        $data["email"] ?? ""
+    );
+
+
+$agent =
+    trim(
+        $data["agent"] ??
+        "diseño y desarrollo web"
+    );
+
+
+/* ==========================================================
+   AGENTES
+========================================================== */
+
+$agentPrompts = [
+
+    "diseño y desarrollo web" =>
+
+        "Eres Alejandro Herradón, especialista en diseño y desarrollo web.
+
+        Tu función es asesorar al usuario sobre creación, diseño y desarrollo de páginas web profesionales.
+
+        Puedes ayudar sobre estructura web, diseño, experiencia de usuario, funcionalidades, tecnologías, programación, responsive design, mantenimiento y optimización.
+
+        Responde siempre en español.
+
+        Haz preguntas cuando necesites información adicional.
+
+        Explica las cosas de forma clara y sencilla.
+
+        No prometas resultados garantizados de ventas, clientes, conversiones o posicionamiento.",
+
+
+    "tiendas online" =>
+
+        "Eres Alejandro Herradón, especialista en tiendas online y comercio electrónico.
+
+        Tu función es asesorar al usuario sobre creación, diseño y desarrollo de tiendas online.
+
+        Puedes ayudar sobre productos, categorías, carrito, pagos, pedidos, clientes, plataformas de ecommerce, diseño, experiencia de compra, seguridad y optimización.
+
+        Responde siempre en español.
+
+        Haz preguntas cuando necesites información adicional.
+
+        Explica las alternativas de forma clara y objetiva.
+
+        No garantices ventas, facturación o conversiones.",
+
+
+    "asesor seo y sem" =>
+
+        "Eres Alejandro Herradón, especialista en SEO y SEM.
+
+        Tu función es ayudar al usuario a mejorar la visibilidad de su página web mediante posicionamiento orgánico y publicidad online.
+
+        Puedes explicar SEO técnico, palabras clave, contenidos, enlaces, experiencia de usuario, Google Ads, SEM, campañas, métricas, tráfico y conversiones.
+
+        Responde siempre en español.
+
+        Haz preguntas cuando necesites información adicional.
+
+        Diferencia claramente SEO de SEM.
+
+        No garantices posiciones concretas en Google, tráfico, clientes o ventas.",
+
+
+    "asesoramiento web" =>
+
+        "Eres Alejandro Herradón, especialista en asesoramiento web.
+
+        Tu función es analizar las necesidades generales del usuario relacionadas con su presencia online.
+
+        Puedes ayudar a detectar problemas y oportunidades en páginas web, diseño, estructura, contenidos, funcionalidades, experiencia de usuario, SEO, rendimiento y estrategia digital.
+
+        Responde siempre en español.
+
+        Haz preguntas cuando necesites información adicional.
+
+        Explica las diferentes alternativas de forma sencilla.
+
+        No garantices ventas, clientes, conversiones ni posicionamiento."
+
+];
+
+
+/* ==========================================================
+   COMPROBAR AGENTE
+========================================================== */
+
+if (
+    !isset(
+        $agentPrompts[$agent]
+    )
+) {
+
+    $agent =
+        "diseño y desarrollo web";
+
+}
+
+
+$systemPrompt =
+    $agentPrompts[$agent];
+
+
+/* ==========================================================
+   CHAT NORMAL
 ========================================================== */
 
 if ($message === "") {
@@ -500,7 +791,11 @@ if ($message === "") {
    COMPROBAR API KEY DE KIMI
 ========================================================== */
 
-if (empty($KIMI_API_KEY)) {
+if (
+    empty(
+        $KIMI_API_KEY
+    )
+) {
 
     echo json_encode([
 
@@ -536,19 +831,23 @@ $payload = [
     "messages" => [
 
         [
+
             "role" =>
                 "system",
 
             "content" =>
                 $systemPrompt
+
         ],
 
         [
+
             "role" =>
                 "user",
 
             "content" =>
                 $message
+
         ]
 
     ],
@@ -625,16 +924,13 @@ $curlError =
     );
 
 
-curl_close(
-    $ch
-);
-
-
 /* ==========================================================
    ERROR CURL
 ========================================================== */
 
-if ($response === false) {
+if (
+    $response === false
+) {
 
     echo json_encode([
 
@@ -666,11 +962,15 @@ $result =
    ERROR KIMI
 ========================================================== */
 
-if ($httpCode >= 400) {
+if (
+    $httpCode >= 400
+) {
 
     $errorMessage =
         $result["error"]["message"]
-        ?? "Error desconocido de Kimi.";
+        ??
+        "Error desconocido de Kimi.";
+
 
     echo json_encode([
 
@@ -693,7 +993,8 @@ if ($httpCode >= 400) {
 
 $answer =
     $result["choices"][0]["message"]["content"]
-    ?? null;
+    ??
+    null;
 
 
 /* ==========================================================

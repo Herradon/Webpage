@@ -49,7 +49,7 @@ try {
 
 $KIMI_API_KEY = "sk-zKyp1zO2MwPbuWXEV25oF7TzT8uesbTyqVMfZLtDwWdtfYvA";
 
-$KIMI_MODEL = "kimi-k2.5";
+$KIMI_MODEL = "kimi-k3";
 
 $KIMI_API_URL = "https://api.moonshot.ai/v1/chat/completions";
 

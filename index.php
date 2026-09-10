@@ -82,10 +82,10 @@ session_start();
 
         <h1>
 
-            Habla con nuestro
-
+            Bienvenido a VIZIUNE AI
+                
             <span>
-                asistente inteligente
+            la red neuronal de tu futuro agente de confianza
             </span>
 
         </h1>
@@ -388,7 +388,7 @@ session_start();
                     id="sendChatEmail"
                     hidden>
 
-                    📧 Enviar conversación por correo
+                    Enviar conversación por correo
 
                 </button>
 
@@ -442,6 +442,16 @@ session_start();
                         name="chatEmail"
                         placeholder="Tu correo electrónico"
                         autocomplete="email">
+
+                </div>
+
+                 <div class="form-group">
+
+                    <input 
+                        type="file" 
+                        id="chatFile" 
+                        name="chatFile"
+                        accept="image/*,.pdf">
 
                 </div>
 
