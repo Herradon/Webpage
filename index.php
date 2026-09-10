@@ -269,8 +269,7 @@ session_start();
                     <div class="assistant-avatar">
 
                         <img
-                            id="assistantAvatar"
-                            src="img/asset.png"
+                            src="img/asesoramiento.png"
                             alt="Asistente de Diseño y Desarrollo Web">
 
                     </div>

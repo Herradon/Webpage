@@ -313,21 +313,17 @@ nav a:hover {
     width: 90px;
     height: 90px;
     min-width: 90px;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid #fcfcfc;
-    background: #92b4ff;
     overflow: hidden;
     flex-shrink: 0;
 }
 
 .assistant-avatar img {
-    width: 100%;
-    height: 100%;
+    width: 80%;
+    height: 80%;
     object-fit: cover;
-    border-radius: 50%;
     display: block;
 }
 
