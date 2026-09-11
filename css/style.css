@@ -140,7 +140,7 @@ nav a:hover {
 }
 
 .hero h1 {
-    color: #000000;
+    color:  #2563eb;
     width: 100%;
     font-size: 45px;
     line-height: 1.1;
@@ -149,11 +149,11 @@ nav a:hover {
 }
 
 .hero h1 span {
-    color: #2563eb;
+    color: #000000;
 }
 
 .hero p {
-    width: 80%;
+    width: 70%;
     font-size: 30px;
     color: #000000;
     text-align: justify;
@@ -190,7 +190,7 @@ nav a:hover {
 .text-intro .d4 h1 {
     text-align: center;
     width: 100%;
-    color: #000000;
+    color:  #000000;
 }
 
 .text-intro .d1 p,
@@ -309,7 +309,6 @@ nav a:hover {
 .chat-intro a {
    color: #ffffff;
    text-decoration: none;
-   padding: 3px;
 }
 
 .assistant-avatar {
