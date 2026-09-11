@@ -545,6 +545,14 @@ session_start();
 
     </div>
 
+    <p>
+
+           revisa nuestro calendario para revisar el dia en el que asignaste la cita.
+
+        </p>
+
+     <a href="calendario.php">Revisar calendario</a>
+
 
 </section>
 
@@ -648,10 +656,6 @@ session_start();
             <button
                 type="submit"
                 class="whatsapp-button">
-
-                <span>
-                    💬
-                </span>
 
                 Contactar por WhatsApp
 

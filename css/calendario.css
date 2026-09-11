@@ -1,0 +1,611 @@
+/* ==========================================================
+   RESET
+========================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ==========================================================
+   BODY
+========================================================== */
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        #f5f7fb;
+
+    color:
+        #171717;
+
+}
+
+
+/* ==========================================================
+   PÁGINA
+========================================================== */
+
+.calendario-page {
+
+    width: 100%;
+
+    max-width:
+        1200px;
+
+    margin:
+        0 auto;
+
+    padding:
+        40px 20px 60px;
+
+}
+
+
+/* ==========================================================
+   CABECERA
+========================================================== */
+
+.calendario-header {
+
+    margin-bottom:
+        30px;
+
+}
+
+
+.calendario-kicker {
+
+    display:
+        inline-block;
+
+    margin-bottom:
+        8px;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        2px;
+
+    color:
+        #777;
+
+}
+
+
+.calendario-header h1 {
+
+    font-size:
+        34px;
+
+    line-height:
+        1.2;
+
+    margin-bottom:
+        10px;
+
+}
+
+
+.calendario-header p {
+
+    color:
+        #707070;
+
+    font-size:
+        16px;
+
+}
+
+
+/* ==========================================================
+   CONTROLES
+========================================================== */
+
+.calendario-controles {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        25px;
+
+    margin-bottom:
+        20px;
+
+}
+
+
+.mes-actual {
+
+    min-width:
+        220px;
+
+    text-align:
+        center;
+
+}
+
+
+.mes-actual h2 {
+
+    font-size:
+        22px;
+
+    text-transform:
+        capitalize;
+
+}
+
+
+.btn-calendario {
+
+    width:
+        42px;
+
+    height:
+        42px;
+
+    border:
+        1px solid #ddd;
+
+    border-radius:
+        50%;
+
+    background:
+        #fff;
+
+    cursor:
+        pointer;
+
+    font-size:
+        28px;
+
+    line-height:
+        1;
+
+    transition:
+        0.2s;
+
+}
+
+
+.btn-calendario:hover {
+
+    background:
+        #eeeeee;
+
+}
+
+
+/* ==========================================================
+   CONTENEDOR CALENDARIO
+========================================================== */
+
+.calendario-container {
+
+    background:
+        #fff;
+
+    border:
+        1px solid #e4e6eb;
+
+    border-radius:
+        16px;
+
+    overflow:
+        hidden;
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.05);
+
+}
+
+
+/* ==========================================================
+   DÍAS SEMANA
+========================================================== */
+
+.dias-semana {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
+    background:
+        #fafafa;
+
+    border-bottom:
+        1px solid #e5e5e5;
+
+}
+
+
+.dias-semana div {
+
+    padding:
+        15px 5px;
+
+    text-align:
+        center;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+    color:
+        #777;
+
+}
+
+
+/* ==========================================================
+   GRID CALENDARIO
+========================================================== */
+
+.calendario-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
+}
+
+
+/* ==========================================================
+   DÍA
+========================================================== */
+
+.dia {
+
+    min-height:
+        120px;
+
+    padding:
+        10px;
+
+    border-right:
+        1px solid #eeeeee;
+
+    border-bottom:
+        1px solid #eeeeee;
+
+    cursor:
+        pointer;
+
+    transition:
+        background 0.2s;
+
+}
+
+
+.dia:hover {
+
+    background:
+        #fafafa;
+
+}
+
+
+.dia.vacio {
+
+    background:
+        #fafafa;
+
+    cursor:
+        default;
+
+}
+
+
+.numero-dia {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        30px;
+
+    height:
+        30px;
+
+    margin-bottom:
+        8px;
+
+    border-radius:
+        50%;
+
+    font-size:
+        13px;
+
+}
+
+
+/* ==========================================================
+   DÍA ACTUAL
+========================================================== */
+
+.dia.hoy .numero-dia {
+
+    background:
+        #111;
+
+    color:
+        #fff;
+
+}
+
+
+/* ==========================================================
+   DÍA SELECCIONADO
+========================================================== */
+
+.dia.seleccionado {
+
+    background:
+        #f0f3f8;
+
+}
+
+
+/* ==========================================================
+   INDICADOR REUNIÓN
+========================================================== */
+
+.reunion-indicador {
+
+    display:
+        block;
+
+    width:
+        8px;
+
+    height:
+        8px;
+
+    margin-top:
+        5px;
+
+    border-radius:
+        50%;
+
+    background:
+        #111;
+
+}
+
+
+/* ==========================================================
+   LISTA REUNIONES
+========================================================== */
+
+.lista-reuniones {
+
+    margin-top:
+        25px;
+
+}
+
+
+.sin-reuniones {
+
+    padding:
+        25px;
+
+    background:
+        #fff;
+
+    border:
+        1px solid #e5e5e5;
+
+    border-radius:
+        14px;
+
+    color:
+        #777;
+
+    text-align:
+        center;
+
+}
+
+
+/* ==========================================================
+   TARJETA REUNIÓN
+========================================================== */
+
+.reunion-card {
+
+    padding:
+        22px;
+
+    margin-bottom:
+        15px;
+
+    background:
+        #fff;
+
+    border:
+        1px solid #e5e5e5;
+
+    border-radius:
+        14px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.04);
+
+}
+
+
+.reunion-card h3 {
+
+    margin-bottom:
+        12px;
+
+    font-size:
+        18px;
+
+}
+
+
+.reunion-dato {
+
+    margin-top:
+        7px;
+
+    font-size:
+        14px;
+
+    color:
+        #555;
+
+}
+
+
+.reunion-dato strong {
+
+    color:
+        #171717;
+
+}
+
+
+/* ==========================================================
+   ESTADOS
+========================================================== */
+
+.cargando {
+
+    padding:
+        30px;
+
+    text-align:
+        center;
+
+    color:
+        #777;
+
+}
+
+
+.error-calendario {
+
+    padding:
+        20px;
+
+    background:
+        #fff;
+
+    border:
+        1px solid #e5e5e5;
+
+    border-radius:
+        14px;
+
+    color:
+        #b00020;
+
+    text-align:
+        center;
+
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 700px) {
+
+    .calendario-page {
+
+        padding:
+            25px 10px 40px;
+
+    }
+
+
+    .calendario-header h1 {
+
+        font-size:
+            26px;
+
+    }
+
+
+    .dia {
+
+        min-height:
+            80px;
+
+        padding:
+            6px;
+
+    }
+
+
+    .numero-dia {
+
+        width:
+            26px;
+
+        height:
+            26px;
+
+        font-size:
+            12px;
+
+    }
+
+
+    .dias-semana div {
+
+        font-size:
+            10px;
+
+        padding:
+            10px 2px;
+
+    }
+
+
+    .reunion-indicador {
+
+        width:
+            6px;
+
+        height:
+            6px;
+
+    }
+
+}
