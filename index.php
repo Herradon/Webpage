@@ -275,12 +275,11 @@ session_start();
 
                     <div class="chat-intro-info">
 
-                        <strong id="assistantName">
+                       <!--  <strong id="assistantName">
 
-                            Alejandro Herradón,
-                            tu Asesor en Diseño y Desarrollo Web
+                            Diseño y Desarrollo Web
 
-                        </strong>
+                        </strong> 
 
 
                         <small id="assistantDescription">
@@ -289,7 +288,7 @@ session_start();
                             profesionales, modernas y adaptadas
                             a las necesidades de tu negocio.
 
-                        </small>
+                        </small> -->
                         
                         <a href="calendario.php">Revisar calendario</a>
 

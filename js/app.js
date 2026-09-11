@@ -35,16 +35,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* =====================================================
        INFORMACIÓN DE LOS AGENTES
-    ===================================================== */
+    ===================================================== 
 
-    const agentInfo = {
+const agentInfo = {
 
         "diseño y desarrollo web": {
             name:
-                "Alejandro Herradón, tu Asesor en Diseño y Desarrollo Web",
+                "Diseño y Desarrollo Web",
 
             description:
-                "● Diseño y desarrollo de páginas web profesionales, modernas y adaptadas a las necesidades de tu negocio.",
+                "Diseño y desarrollo de páginas web profesionales, modernas y adaptadas a las necesidades de tu negocio.",
 
             avatar:
                 "img/asset.png"
@@ -52,10 +52,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         "tiendas online": {
             name:
-                "Alejandro Herradón, tu Asesor de Tiendas Online",
+                "Tiendas Online",
 
             description:
-                "● Creación y desarrollo de tiendas online para vender productos y servicios por Internet.",
+                "Creación y desarrollo de tiendas online para vender productos y servicios por Internet.",
 
             avatar:
                 "img/asset.png"
@@ -63,10 +63,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         "asesor seo y sem": {
             name:
-                "Alejandro Herradón, tu Asesor SEO y SEM",
+                "SEO y SEM",
 
             description:
-                "● Estrategias SEO y SEM para mejorar la visibilidad de tu negocio, atraer tráfico y conseguir clientes.",
+                "Estrategias SEO y SEM para mejorar la visibilidad de tu negocio, atraer tráfico y conseguir clientes.",
 
             avatar:
                 "img/asset.png"
@@ -74,16 +74,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         "asesoramiento web": {
             name:
-                "Alejandro Herradón, tu Asesor Web",
+                "Asesoramiento Web",
 
             description:
-                "● Asesoramiento para mejorar, optimizar y hacer crecer la presencia online de tu negocio.",
+                "Asesoramiento para mejorar, optimizar y hacer crecer la presencia online de tu negocio.",
 
             avatar:
                 "img/asset.png"
         }
 
-    };
+    }; */
 
     /* =====================================================
        NEURONAS
