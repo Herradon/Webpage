@@ -99,8 +99,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const CONFIG = {
             particleCount: 50,
             maxDistance: 130,
-            nodeColor: "#00f3ff",
-            lineColor: "0, 243, 255",
+            nodeColor: "#FF073A",
+            lineColor: "#428BCA",
             speed: 0.5
         };
 

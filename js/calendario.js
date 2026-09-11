@@ -1,694 +1,764 @@
-/* ==========================================================
-   VARIABLES
-========================================================== */
-
-let fechaActual = new Date();
-
-let reuniones = [];
-
-let fechaSeleccionada = null;
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
 
-/* ==========================================================
-   ELEMENTOS
-========================================================== */
+        /* ==================================================
+           ELEMENTOS
+        ================================================== */
 
-const calendario =
-    document.getElementById(
-        "calendario"
-    );
-
-
-const mesActual =
-    document.getElementById(
-        "mesActual"
-    );
+        const mesActual =
+            document.getElementById(
+                "mesActual"
+            );
 
 
-const listaReuniones =
-    document.getElementById(
-        "listaReuniones"
-    );
+        const diasCalendario =
+            document.getElementById(
+                "diasCalendario"
+            );
 
 
-const botonAnterior =
-    document.getElementById(
-        "mesAnterior"
-    );
+        const mesAnterior =
+            document.getElementById(
+                "mesAnterior"
+            );
 
 
-const botonSiguiente =
-    document.getElementById(
-        "mesSiguiente"
-    );
+        const mesSiguiente =
+            document.getElementById(
+                "mesSiguiente"
+            );
 
 
-/* ==========================================================
-   NOMBRES MESES
-========================================================== */
-
-const nombresMeses = [
-
-    "enero",
-    "febrero",
-    "marzo",
-    "abril",
-    "mayo",
-    "junio",
-    "julio",
-    "agosto",
-    "septiembre",
-    "octubre",
-    "noviembre",
-    "diciembre"
-
-];
+        const detalleReunion =
+            document.getElementById(
+                "detalleReunion"
+            );
 
 
-/* ==========================================================
-   CARGAR REUNIONES
-========================================================== */
+        const contenidoReunion =
+            document.getElementById(
+                "contenidoReunion"
+            );
 
-async function cargarReuniones() {
 
-    try {
+        const cerrarDetalle =
+            document.getElementById(
+                "cerrarDetalle"
+            );
 
-        const respuesta =
-            await fetch(
-                "calendario.php",
-                {
-                    method: "GET"
+
+        /* ==================================================
+           FECHA ACTUAL
+        ================================================== */
+
+        let fechaActual =
+            new Date();
+
+
+        /* ==================================================
+           REUNIONES
+        ================================================== */
+
+        let reuniones = [];
+
+
+        /* ==================================================
+           MESES
+        ================================================== */
+
+        const nombresMeses = [
+
+            "enero",
+            "febrero",
+            "marzo",
+            "abril",
+            "mayo",
+            "junio",
+            "julio",
+            "agosto",
+            "septiembre",
+            "octubre",
+            "noviembre",
+            "diciembre"
+
+        ];
+
+
+        /* ==================================================
+           CARGAR REUNIONES
+        ================================================== */
+
+        async function cargarReuniones() {
+
+            try {
+
+                const respuesta =
+                    await fetch(
+                        "calendario-datos.php"
+                    );
+
+
+                const datos =
+                    await respuesta.json();
+
+
+                if (
+                    !datos.success
+                ) {
+
+                    console.error(
+                        datos.error
+                    );
+
+                    return;
+
+                }
+
+
+                reuniones =
+                    datos.reuniones || [];
+
+
+                generarCalendario();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Error cargando reuniones:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        /* ==================================================
+           GENERAR CALENDARIO
+        ================================================== */
+
+        function generarCalendario() {
+
+
+            diasCalendario.innerHTML =
+                "";
+
+
+            const año =
+                fechaActual.getFullYear();
+
+
+            const mes =
+                fechaActual.getMonth();
+
+
+            /* ==============================================
+               TÍTULO
+            ============================================== */
+
+            mesActual.textContent =
+                nombresMeses[mes] +
+                " " +
+                año;
+
+
+            /* ==============================================
+               PRIMER DÍA
+            ============================================== */
+
+            const primerDia =
+                new Date(
+                    año,
+                    mes,
+                    1
+                );
+
+
+            let diaSemana =
+                primerDia.getDay();
+
+
+            /*
+             * JavaScript:
+             *
+             * Domingo = 0
+             * Lunes = 1
+             *
+             * Nuestro calendario empieza en lunes.
+             */
+
+            if (
+                diaSemana === 0
+            ) {
+
+                diaSemana = 7;
+
+            }
+
+
+            /* ==============================================
+               DÍAS DEL MES
+            ============================================== */
+
+            const ultimoDia =
+                new Date(
+                    año,
+                    mes + 1,
+                    0
+                );
+
+
+            const numeroDias =
+                ultimoDia.getDate();
+
+
+            /* ==============================================
+               DÍAS DEL MES ANTERIOR
+            ============================================== */
+
+            const ultimoDiaMesAnterior =
+                new Date(
+                    año,
+                    mes,
+                    0
+                ).getDate();
+
+
+            for (
+                let i = diaSemana - 1;
+                i > 0;
+                i--
+            ) {
+
+                const numero =
+                    ultimoDiaMesAnterior -
+                    i +
+                    1;
+
+
+                crearDia(
+                    numero,
+                    true,
+                    año,
+                    mes - 1
+                );
+
+            }
+
+
+            /* ==============================================
+               DÍAS ACTUALES
+            ============================================== */
+
+            for (
+                let dia = 1;
+                dia <= numeroDias;
+                dia++
+            ) {
+
+                crearDia(
+                    dia,
+                    false,
+                    año,
+                    mes
+                );
+
+            }
+
+
+            /* ==============================================
+               DÍAS SIGUIENTES
+            ============================================== */
+
+            const totalCeldas =
+                diasCalendario.children.length;
+
+
+            const diasRestantes =
+                42 -
+                totalCeldas;
+
+
+            for (
+                let dia = 1;
+                dia <= diasRestantes;
+                dia++
+            ) {
+
+                crearDia(
+                    dia,
+                    true,
+                    año,
+                    mes + 1
+                );
+
+            }
+
+        }
+
+
+        /* ==================================================
+           CREAR DÍA
+        ================================================== */
+
+        function crearDia(
+            numero,
+            otroMes,
+            año,
+            mes
+        ) {
+
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "dia";
+
+
+            if (
+                otroMes
+            ) {
+
+                div.classList.add(
+                    "otro-mes"
+                );
+
+            }
+
+
+            /* ==============================================
+               NÚMERO
+            ============================================== */
+
+            const numeroDia =
+                document.createElement(
+                    "span"
+                );
+
+
+            numeroDia.className =
+                "numero-dia";
+
+
+            numeroDia.textContent =
+                numero;
+
+
+            div.appendChild(
+                numeroDia
+            );
+
+
+            /* ==============================================
+               FECHA
+            ============================================== */
+
+            const fecha =
+                new Date(
+                    año,
+                    mes,
+                    numero
+                );
+
+
+            const añoFecha =
+                fecha.getFullYear();
+
+
+            const mesFecha =
+                String(
+                    fecha.getMonth() + 1
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+
+            const diaFecha =
+                String(
+                    fecha.getDate()
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+
+            const fechaTexto =
+                añoFecha +
+                "-" +
+                mesFecha +
+                "-" +
+                diaFecha;
+
+
+            /* ==============================================
+               HOY
+            ============================================== */
+
+            const hoy =
+                new Date();
+
+
+            const hoyTexto =
+                hoy.getFullYear() +
+                "-" +
+                String(
+                    hoy.getMonth() + 1
+                ).padStart(
+                    2,
+                    "0"
+                ) +
+                "-" +
+                String(
+                    hoy.getDate()
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+
+            if (
+                fechaTexto ===
+                hoyTexto
+            ) {
+
+                div.classList.add(
+                    "hoy"
+                );
+
+            }
+
+
+            /* ==============================================
+               REUNIONES DEL DÍA
+            ============================================== */
+
+            const reunionesDia =
+                reuniones.filter(
+                    function (reunion) {
+
+                        return (
+                            reunion.fecha ===
+                            fechaTexto
+                        );
+
+                    }
+                );
+
+
+            reunionesDia.forEach(
+                function (reunion) {
+
+                    crearReunion(
+                        div,
+                        reunion
+                    );
+
                 }
             );
 
 
-        if (!respuesta.ok) {
+            /* ==============================================
+               CLICK
+            ============================================== */
 
-            throw new Error(
-                "No se pudieron cargar las reuniones."
+            div.addEventListener(
+                "click",
+                function () {
+
+                    if (
+                        reunionesDia.length >
+                        0
+                    ) {
+
+                        mostrarDetalle(
+                            reunionesDia
+                        );
+
+                    }
+
+                }
+            );
+
+
+            diasCalendario.appendChild(
+                div
             );
 
         }
 
 
-        const datos =
-            await respuesta.json();
+        /* ==================================================
+           CREAR REUNIÓN
+        ================================================== */
 
-
-        if (
-            !datos.success
+        function crearReunion(
+            contenedor,
+            reunion
         ) {
 
-            throw new Error(
-                datos.error ||
-                "Error cargando el calendario."
-            );
 
-        }
-
-
-        reuniones =
-            datos.reuniones || [];
-
-
-        generarCalendario();
-
-
-    } catch (error) {
-
-        console.error(
-            error
-        );
-
-
-        listaReuniones.innerHTML =
-
-            `<div class="error-calendario">
-                ${escapeHtml(error.message)}
-            </div>`;
-
-    }
-
-}
-
-
-/* ==========================================================
-   GENERAR CALENDARIO
-========================================================== */
-
-function generarCalendario() {
-
-    const año =
-        fechaActual.getFullYear();
-
-
-    const mes =
-        fechaActual.getMonth();
-
-
-    mesActual.textContent =
-        `${nombresMeses[mes]} ${año}`;
-
-
-    calendario.innerHTML =
-        "";
-
-
-    const primerDia =
-        new Date(
-            año,
-            mes,
-            1
-        );
-
-
-    const ultimoDia =
-        new Date(
-            año,
-            mes + 1,
-            0
-        );
-
-
-    /*
-     * JavaScript:
-     * domingo = 0
-     *
-     * Nosotros queremos:
-     * lunes = 0
-     */
-
-    let primerDiaSemana =
-        primerDia.getDay();
-
-
-    if (
-        primerDiaSemana === 0
-    ) {
-
-        primerDiaSemana = 6;
-
-    } else {
-
-        primerDiaSemana--;
-
-    }
-
-
-    /* ======================================================
-       ESPACIOS ANTERIORES
-    ====================================================== */
-
-    for (
-        let i = 0;
-        i < primerDiaSemana;
-        i++
-    ) {
-
-        const celda =
-            document.createElement(
-                "div"
-            );
-
-
-        celda.className =
-            "dia vacio";
-
-
-        calendario.appendChild(
-            celda
-        );
-
-    }
-
-
-    /* ======================================================
-       DÍAS
-    ====================================================== */
-
-    for (
-        let dia = 1;
-        dia <= ultimoDia.getDate();
-        dia++
-    ) {
-
-        const celda =
-            document.createElement(
-                "div"
-            );
-
-
-        celda.className =
-            "dia";
-
-
-        const fecha =
-            crearFechaLocal(
-                año,
-                mes,
-                dia
-            );
-
-
-        const fechaTexto =
-            formatearFecha(
-                fecha
-            );
-
-
-        if (
-            esHoy(fecha)
-        ) {
-
-            celda.classList.add(
-                "hoy"
-            );
-
-        }
-
-
-        if (
-            fechaSeleccionada ===
-            fechaTexto
-        ) {
-
-            celda.classList.add(
-                "seleccionado"
-            );
-
-        }
-
-
-        celda.innerHTML =
-
-            `<div class="numero-dia">
-                ${dia}
-            </div>`;
-
-
-        const reunionesDia =
-            reuniones.filter(
-                reunion =>
-                    reunion.fecha ===
-                    fechaTexto
-            );
-
-
-        if (
-            reunionesDia.length > 0
-        ) {
-
-            for (
-                let i = 0;
-                i < Math.min(
-                    reunionesDia.length,
-                    3
+            const elemento =
+                document.createElement(
+                    "div"
                 );
-                i++
-            ) {
 
-                const indicador =
-                    document.createElement(
-                        "span"
+
+            elemento.className =
+                "reunion";
+
+
+            /* ==============================================
+               HORA
+            ============================================== */
+
+            const hora =
+                document.createElement(
+                    "div"
+                );
+
+
+            hora.className =
+                "reunion-hora";
+
+
+            hora.textContent =
+                reunion.hora;
+
+
+            /* ==============================================
+               NOMBRE
+            ============================================== */
+
+            const nombre =
+                document.createElement(
+                    "div"
+                );
+
+
+            nombre.className =
+                "reunion-nombre";
+
+
+            nombre.textContent =
+                reunion.nombre;
+
+
+            elemento.appendChild(
+                hora
+            );
+
+
+            elemento.appendChild(
+                nombre
+            );
+
+
+            contenedor.appendChild(
+                elemento
+            );
+
+        }
+
+
+        /* ==================================================
+           MOSTRAR DETALLE
+        ================================================== */
+
+        function mostrarDetalle(
+            reunionesDia
+        ) {
+
+
+            contenidoReunion.innerHTML =
+                "";
+
+
+            reunionesDia.forEach(
+                function (reunion) {
+
+
+                    const bloque =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    bloque.innerHTML =
+
+                        "<p><strong>Nombre:</strong> " +
+                        escaparHTML(
+                            reunion.nombre
+                        ) +
+                        "</p>" +
+
+                        "<p><strong>Email:</strong> " +
+                        escaparHTML(
+                            reunion.email
+                        ) +
+                        "</p>" +
+
+                        "<p><strong>Especialista:</strong> " +
+                        escaparHTML(
+                            reunion.especialista
+                        ) +
+                        "</p>" +
+
+                        "<p><strong>Fecha:</strong> " +
+                        formatearFecha(
+                            reunion.fecha
+                        ) +
+                        "</p>" +
+
+                        "<p><strong>Hora:</strong> " +
+                        escaparHTML(
+                            reunion.hora
+                        ) +
+                        "</p>" +
+
+                        "<p><strong>Duración:</strong> " +
+                        escaparHTML(
+                            String(
+                                reunion.duracion
+                            )
+                        ) +
+                        " minutos</p>";
+
+
+                    contenidoReunion.appendChild(
+                        bloque
                     );
 
+                }
+            );
 
-                indicador.className =
-                    "reunion-indicador";
 
-
-                celda.appendChild(
-                    indicador
-                );
-
-            }
+            detalleReunion.hidden =
+                false;
 
         }
 
 
-        celda.addEventListener(
+        /* ==================================================
+           CERRAR DETALLE
+        ================================================== */
+
+        cerrarDetalle.addEventListener(
             "click",
-            () => {
+            function () {
 
-                seleccionarDia(
-                    fechaTexto
-                );
+                detalleReunion.hidden =
+                    true;
 
             }
         );
 
 
-        calendario.appendChild(
-            celda
-        );
+        /* ==================================================
+           MES ANTERIOR
+        ================================================== */
 
-    }
+        mesAnterior.addEventListener(
+            "click",
+            function () {
 
-}
-
-
-/* ==========================================================
-   SELECCIONAR DÍA
-========================================================== */
-
-function seleccionarDia(
-    fecha
-) {
-
-    fechaSeleccionada =
-        fecha;
+                fechaActual.setMonth(
+                    fechaActual.getMonth() - 1
+                );
 
 
-    generarCalendario();
+                generarCalendario();
 
-
-    mostrarReuniones(
-        fecha
-    );
-
-}
-
-
-/* ==========================================================
-   MOSTRAR REUNIONES
-========================================================== */
-
-function mostrarReuniones(
-    fecha
-) {
-
-    const reunionesDia =
-        reuniones.filter(
-            reunion =>
-                reunion.fecha ===
-                fecha
+            }
         );
 
 
-    if (
-        reunionesDia.length === 0
-    ) {
+        /* ==================================================
+           MES SIGUIENTE
+        ================================================== */
 
-        listaReuniones.innerHTML =
+        mesSiguiente.addEventListener(
+            "click",
+            function () {
 
-            `<div class="sin-reuniones">
-
-                <p>
-                    No hay reuniones programadas
-                    para el ${formatearFechaBonita(fecha)}.
-                </p>
-
-            </div>`;
-
-        return;
-
-    }
+                fechaActual.setMonth(
+                    fechaActual.getMonth() + 1
+                );
 
 
-    let html = "";
+                generarCalendario();
+
+            }
+        );
 
 
-    html +=
+        /* ==================================================
+           FORMATEAR FECHA
+        ================================================== */
 
-        `<div class="reuniones-titulo">
+        function formatearFecha(
+            fecha
+        ) {
 
-            <h2>
-                Reuniones del
-                ${formatearFechaBonita(fecha)}
-            </h2>
-
-        </div>`;
+            const partes =
+                fecha.split("-");
 
 
-    reunionesDia.forEach(
-        reunion => {
+            if (
+                partes.length !== 3
+            ) {
 
-            html +=
+                return fecha;
 
-                `<article class="reunion-card">
+            }
 
-                    <h3>
-                        ${escapeHtml(
-                            reunion.nombre ||
-                            "Cliente"
-                        )}
-                    </h3>
 
-                    <div class="reunion-dato">
-                        <strong>Hora:</strong>
-                        ${escapeHtml(
-                            reunion.hora ||
-                            ""
-                        )}
-                    </div>
-
-                    <div class="reunion-dato">
-                        <strong>Email:</strong>
-                        ${escapeHtml(
-                            reunion.email ||
-                            ""
-                        )}
-                    </div>
-
-                    <div class="reunion-dato">
-                        <strong>Especialista:</strong>
-                        ${escapeHtml(
-                            reunion.especialista ||
-                            ""
-                        )}
-                    </div>
-
-                    <div class="reunion-dato">
-                        <strong>Duración:</strong>
-                        ${escapeHtml(
-                            String(
-                                reunion.duracion ||
-                                60
-                            )
-                        )}
-                        minutos
-                    </div>
-
-                </article>`;
+            return (
+                partes[2] +
+                "/" +
+                partes[1] +
+                "/" +
+                partes[0]
+            );
 
         }
-    );
 
 
-    listaReuniones.innerHTML =
-        html;
+        /* ==================================================
+           ESCAPAR HTML
+        ================================================== */
 
-}
+        function escaparHTML(
+            texto
+        ) {
 
-
-/* ==========================================================
-   CAMBIAR MES - ANTERIOR
-========================================================== */
-
-botonAnterior.addEventListener(
-    "click",
-    () => {
-
-        fechaActual.setMonth(
-            fechaActual.getMonth() - 1
-        );
+            const elemento =
+                document.createElement(
+                    "div"
+                );
 
 
-        generarCalendario();
+            elemento.textContent =
+                texto ?? "";
+
+
+            return elemento.innerHTML;
+
+        }
+
+
+        /* ==================================================
+           INICIAR
+        ================================================== */
+
+        cargarReuniones();
 
     }
 );
-
-
-/* ==========================================================
-   CAMBIAR MES - SIGUIENTE
-========================================================== */
-
-botonSiguiente.addEventListener(
-    "click",
-    () => {
-
-        fechaActual.setMonth(
-            fechaActual.getMonth() + 1
-        );
-
-
-        generarCalendario();
-
-    }
-);
-
-
-/* ==========================================================
-   CREAR FECHA LOCAL
-========================================================== */
-
-function crearFechaLocal(
-    año,
-    mes,
-    dia
-) {
-
-    return new Date(
-        año,
-        mes,
-        dia
-    );
-
-}
-
-
-/* ==========================================================
-   FORMATEAR FECHA
-========================================================== */
-
-function formatearFecha(
-    fecha
-) {
-
-    const año =
-        fecha.getFullYear();
-
-
-    const mes =
-        String(
-            fecha.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const dia =
-        String(
-            fecha.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    return `${año}-${mes}-${dia}`;
-
-}
-
-
-/* ==========================================================
-   FORMATEAR FECHA BONITA
-========================================================== */
-
-function formatearFechaBonita(
-    fechaTexto
-) {
-
-    const partes =
-        fechaTexto.split("-");
-
-
-    if (
-        partes.length !== 3
-    ) {
-
-        return fechaTexto;
-
-    }
-
-
-    const año =
-        Number(
-            partes[0]
-        );
-
-
-    const mes =
-        Number(
-            partes[1]
-        ) - 1;
-
-
-    const dia =
-        Number(
-            partes[2]
-        );
-
-
-    const fecha =
-        new Date(
-            año,
-            mes,
-            dia
-        );
-
-
-    return fecha.toLocaleDateString(
-        "es-ES",
-        {
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-        }
-    );
-
-}
-
-
-/* ==========================================================
-   COMPROBAR SI ES HOY
-========================================================== */
-
-function esHoy(
-    fecha
-) {
-
-    const hoy =
-        new Date();
-
-
-    return (
-
-        fecha.getFullYear() ===
-        hoy.getFullYear()
-
-        &&
-
-        fecha.getMonth() ===
-        hoy.getMonth()
-
-        &&
-
-        fecha.getDate() ===
-        hoy.getDate()
-
-    );
-
-}
-
-
-/* ==========================================================
-   ESCAPAR HTML
-========================================================== */
-
-function escapeHtml(
-    texto
-) {
-
-    const div =
-        document.createElement(
-            "div"
-        );
-
-
-    div.textContent =
-        texto;
-
-
-    return div.innerHTML;
-
-}
-
-
-/* ==========================================================
-   INICIAR
-========================================================== */
-
-cargarReuniones();

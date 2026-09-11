@@ -15,7 +15,7 @@ body {
     min-width: 320px;
     font-family: Arial, Helvetica, sans-serif;
     background: none;
-    background: radial-gradient(circle at center, #383a49 0%, #080f1a 100%);
+    background: #f6f7fb;
     line-height: 1.6;
     overflow-x: hidden;
     z-index: -1;
@@ -109,7 +109,7 @@ nav a:hover {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     z-index: -1;
     pointer-events: none;
 }
@@ -130,8 +130,9 @@ nav a:hover {
 }
 
 .hero-content {
-    width: 100%;
-    height: 50%;
+    max-width: 100%;
+    height: 100%;
+    backdrop-filter: blur(5px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -139,7 +140,7 @@ nav a:hover {
 }
 
 .hero h1 {
-    color: #ffffff;
+    color: #000000;
     width: 100%;
     font-size: 45px;
     line-height: 1.1;
@@ -154,7 +155,7 @@ nav a:hover {
 .hero p {
     width: 80%;
     font-size: 30px;
-    color: #ffffff;
+    color: #000000;
     text-align: justify;
 }
 
@@ -167,6 +168,7 @@ nav a:hover {
     display: flex;
     justify-content: space-around;
     align-items: center;
+    background: #ffffff;
     margin-top: 20px;
 }
 
@@ -188,7 +190,7 @@ nav a:hover {
 .text-intro .d4 h1 {
     text-align: center;
     width: 100%;
-    color: #ffffff;
+    color: #000000;
 }
 
 .text-intro .d1 p,
@@ -197,7 +199,7 @@ nav a:hover {
 .text-intro .d4 p {
     text-align: justify;
     width: 100%;
-    color: #ffffff;
+    color: #000000;
 }
 
 
@@ -302,6 +304,12 @@ nav a:hover {
     gap: 12px;
     color: white;
     border-bottom: 1px solid white;
+}
+
+.chat-intro a {
+   color: #ffffff;
+   text-decoration: none;
+   padding: 3px;
 }
 
 .assistant-avatar {
@@ -1319,6 +1327,16 @@ footer {
 
 @media (max-width: 956px) {
 
+    .hero-content {
+    max-width: 100%;
+    height: 60%;
+    backdrop-filter: blur(3px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
     .hero {
         min-height: auto;
         padding: 80px 20px;
@@ -1373,6 +1391,16 @@ footer {
 ========================================== */
 
 @media (max-width: 768px) {
+
+      .hero-content {
+    max-width: 100%;
+    height: 60%;
+    backdrop-filter: blur(3px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
     .nav {
         min-height: 65px;
@@ -1534,6 +1562,16 @@ footer {
 
 
     /* HERO */
+
+    .hero-content {
+    max-width: 100%;
+    height: 60%;
+    backdrop-filter: blur(3px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
     .hero {
         padding: 60px 15px;

@@ -82,8 +82,8 @@ session_start();
 <div class="container hero-content">
 
     <h1>
-
-        Bienvenido a VIZIUNE AI
+            
+            VIZIUNE AI
 
         <span>
             la red neuronal de tus futuros agentes de confianza
