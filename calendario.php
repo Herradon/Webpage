@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 
@@ -5,102 +6,46 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Calendario - ViziuneAI</title>
+    <title>Calendario | ViziuneAI</title>
 
     <link rel="stylesheet" href="css/calendario.css">
 
 </head>
 
-
 <body>
 
+    <main class="calendario-contenedor">
 
-    <main class="calendar-page">
+        <header class="calendario-header">
 
+            <button
+                type="button"
+                id="mesAnterior"
+                class="boton-mes"
+            >
+                ‹
+            </button>
 
-        <!-- ==================================================
-             CABECERA
-        ================================================== -->
+            <h1 id="mesActual">
+                Cargando...
+            </h1>
 
-        <header class="calendar-header">
-
-            <div>
-
-                <span class="calendar-eyebrow">
-                    VIZIUNEAI
-                </span>
-
-                <h1>
-                    Calendario de reuniones
-                </h1>
-
-                <p>
-                    Consulta y gestiona las reuniones programadas.
-                </p>
-
-                <a href="index.php">Volver</a>
-
-
-            </div>
-
-
-            <div class="calendar-actions">
-
-                <button
-                    type="button"
-                    id="btnHoy"
-                    class="calendar-button"
-                >
-                    Hoy
-                </button>
-
-                <button
-                    type="button"
-                    id="btnAnterior"
-                    class="calendar-button calendar-button-icon"
-                    aria-label="Mes anterior"
-                >
-                    ‹
-                </button>
-
-                <button
-                    type="button"
-                    id="btnSiguiente"
-                    class="calendar-button calendar-button-icon"
-                    aria-label="Mes siguiente"
-                >
-                    ›
-                </button>
-
-            </div>
+            <button
+                type="button"
+                id="mesSiguiente"
+                class="boton-mes"
+            >
+                ›
+            </button>
 
         </header>
 
 
-        <!-- ==================================================
-             CALENDARIO
-        ================================================== -->
+        <section class="calendario">
 
-        <section class="calendar-container">
-
-
-            <div class="calendar-title">
-
-                <h2 id="mesActual">
-                    Cargando...
-                </h2>
-
-            </div>
-
-
-            <!-- DÍAS DE LA SEMANA -->
-
-            <div class="calendar-weekdays">
+            <div class="dias-semana">
 
                 <div>Lun</div>
                 <div>Mar</div>
@@ -113,173 +58,41 @@
             </div>
 
 
-            <!-- DÍAS -->
-
             <div
-                id="calendarGrid"
-                class="calendar-grid"
+                id="diasCalendario"
+                class="dias-calendario"
             >
-
-                <!-- JavaScript generará los días -->
-
             </div>
 
         </section>
 
 
-        <!-- ==================================================
-             INFORMACIÓN DE LA REUNIÓN
-        ================================================== -->
-
-        <aside
-            id="reunionPanel"
-            class="meeting-panel"
+        <section
+            id="detalleReunion"
+            class="detalle-reunion"
+            hidden
         >
 
             <button
                 type="button"
-                id="cerrarPanel"
-                class="meeting-close"
-                aria-label="Cerrar"
+                id="cerrarDetalle"
+                class="cerrar-detalle"
             >
                 ×
             </button>
 
+            <h2>Reunión</h2>
 
-            <div class="meeting-panel-content">
+            <div id="contenidoReunion"></div>
 
-                <span class="meeting-label">
-                    REUNIÓN
-                </span>
-
-                <h2 id="reunionNombre">
-                    —
-                </h2>
-
-
-                <div class="meeting-info">
-
-                    <div class="meeting-info-item">
-
-                        <span>
-                            📅
-                        </span>
-
-                        <div>
-
-                            <small>
-                                Fecha
-                            </small>
-
-                            <strong id="reunionFecha">
-                                —
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="meeting-info-item">
-
-                        <span>
-                            🕐
-                        </span>
-
-                        <div>
-
-                            <small>
-                                Hora
-                            </small>
-
-                            <strong id="reunionHora">
-                                —
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="meeting-info-item">
-
-                        <span>
-                            👤
-                        </span>
-
-                        <div>
-
-                            <small>
-                                Especialista
-                            </small>
-
-                            <strong id="reunionEspecialista">
-                                —
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="meeting-info-item">
-
-                        <span>
-                            ✉
-                        </span>
-
-                        <div>
-
-                            <small>
-                                Email
-                            </small>
-
-                            <strong id="reunionEmail">
-                                —
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="meeting-info-item">
-
-                        <span>
-                            ⏱
-                        </span>
-
-                        <div>
-
-                            <small>
-                                Duración
-                            </small>
-
-                            <strong id="reunionDuracion">
-                                60 minutos
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </aside>
-
+        </section>
 
     </main>
 
 
-    <!-- ======================================================
-         JAVASCRIPT
-    ====================================================== -->
-
-    <script src="calendario.js"></script>
-
+    <script src="js/calendario.js"></script>
 
 </body>
 
 </html>
+```

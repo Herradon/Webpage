@@ -113,6 +113,7 @@ session_start();
 
 </div>
 
+
 </section>
 
 <!-- ==========================================
@@ -289,6 +290,8 @@ session_start();
                             a las necesidades de tu negocio.
 
                         </small>
+                        
+                        <a href="calendario.php">Revisar calendario</a>
 
                     </div>
 
@@ -393,6 +396,7 @@ session_start();
                 <!-- ==================================
                      SOLICITAR REUNIÓN
                 ================================== -->
+
 
                 <label class="reunion-check">
 
@@ -545,13 +549,6 @@ session_start();
 
     </div>
 
-    <p>
-
-           revisa nuestro calendario para revisar el dia en el que asignaste la cita.
-
-        </p>
-
-     <a href="calendario.php">Revisar calendario</a>
 
 
 </section>
