@@ -52,6 +52,18 @@ body {
 
 }
 
+.calendario-header a {
+
+    margin: 0;
+    
+    text-decoration: none;
+
+    text-transform: capitalize;
+
+    color: #000;
+
+}
+
 
 .boton-mes {
 

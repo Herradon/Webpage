@@ -342,7 +342,7 @@ if ($action === "email") {
             $horaReunion .
             "\n\n" .
 
-            "Duración: 60 minutos\n\n";
+            "Duración máxima: 120 minutos\n\n";
 
     }
 

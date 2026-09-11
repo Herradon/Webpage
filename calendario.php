@@ -16,7 +16,6 @@
 
 <body>
 
- <a href="index.php">Volver a inicio</a>
 
     <main class="calendario-contenedor">
 
@@ -35,6 +34,8 @@
             <h1 id="mesActual">
                 Cargando...
             </h1>
+
+             <a href="index.php"><h3>Volver a inicio</h3></a>
 
             <button
                 type="button"
