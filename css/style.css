@@ -140,8 +140,8 @@ nav a:hover {
 }
 
 .hero h1 {
-    color:  #2563eb;
-    width: 100%;
+    color:  #000000;
+    width: 50%;
     font-size: 45px;
     line-height: 1.1;
     margin-bottom: 25px;
@@ -149,11 +149,11 @@ nav a:hover {
 }
 
 .hero h1 span {
-    color: #000000;
+    color: #2563eb;
 }
 
 .hero p {
-    width: 70%;
+    width: 50%;
     font-size: 30px;
     color: #000000;
     text-align: justify;

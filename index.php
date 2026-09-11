@@ -82,13 +82,13 @@ session_start();
 <div class="container hero-content">
 
     <h1>
-            
-            VIZIUNE AI
 
-        <span>
-            la red neuronal de tus futuros agentes de confianza
-        </span>
+            la red neuronal de tus futuros
 
+            <br>
+
+            <span>agentes de confianza</span>
+        
     </h1>
 
     <p>
