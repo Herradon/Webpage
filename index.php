@@ -126,12 +126,14 @@ session_start();
 
     <div class="d1">
 
+        <img src="img/desarrollo.png" alt="">
+
         <h1>
             Desarrollo
         </h1>
 
         <p>
-            Informamos y asesoramos sobre desarrollo web,
+            Creamos, Informamos y asesoramos sobre desarrollo web,
             programación, funcionalidades, tecnología y
             creación de páginas web.
         </p>
@@ -140,6 +142,8 @@ session_start();
 
 
     <div class="d2">
+
+        <img src="img/ecomerce.png" alt="">
 
         <h1>
             Ventas
@@ -156,6 +160,8 @@ session_start();
 
     <div class="d3">
 
+        <img src="img/seosem.png" alt="">
+
         <h1>
             Análisis
         </h1>
@@ -169,6 +175,8 @@ session_start();
 
 
     <div class="d4">
+
+        <img src="img/asesor.png" alt="">
 
         <h1>
             Asesoramiento
@@ -399,11 +407,9 @@ session_start();
 
                 <label class="reunion-check">
 
-                    <input
-                        type="checkbox"
-                        id="chatReunion">
+                    <input type="checkbox" id="chatReunion">
 
-                    Solicitar reunión
+                    <h3>Solicitar reunión</h3>
 
                 </label>
 
@@ -566,9 +572,9 @@ session_start();
 
     <div class="section-title">
 
-        <span>
+        <h1>
             CONTACTO
-        </span>
+        </h1>
 
         <h2>
             ¿Quieres hablar con nosotros?
