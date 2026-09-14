@@ -58,7 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 nombre,
                 email,
                 password,
-                activo
+                activo,
+                suscripcion_activa,
+                suscripcion_inicio,
+                suscripcion_fin
             FROM usuarios
             WHERE email = ?
             LIMIT 1
@@ -142,12 +145,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             /*
             |--------------------------------------------------------------------------
-            | Entrar en el área privada
+            | COMPROBAR SUSCRIPCIÓN
             |--------------------------------------------------------------------------
             */
 
-            header('Location: mi_cuenta.php');
-            exit;
+            $suscripcionActiva =
+                (int) $usuario['suscripcion_activa'] === 1;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Comprobar fecha de finalización
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $suscripcionActiva &&
+                !empty($usuario['suscripcion_fin'])
+            ) {
+
+                $fechaFin =
+                    new DateTime(
+                        $usuario['suscripcion_fin']
+                    );
+
+                $ahora =
+                    new DateTime();
+
+
+                /*
+                | Si la suscripción ha caducado,
+                | la desactivamos.
+                */
+
+                if ($fechaFin < $ahora) {
+
+                    $suscripcionActiva = false;
+
+
+                    $stmtActualizar =
+                        $pdo->prepare("
+                            UPDATE usuarios
+                            SET suscripcion_activa = 0
+                            WHERE id = ?
+                        ");
+
+                    $stmtActualizar->execute([
+                        $usuario['id']
+                    ]);
+
+                }
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Guardar estado de suscripción en sesión
+            |--------------------------------------------------------------------------
+            */
+
+            $_SESSION['suscripcion_activa'] =
+                $suscripcionActiva ? 1 : 0;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ENTRADA AL ÁREA PRIVADA
+            |--------------------------------------------------------------------------
+            */
+
+            if ($suscripcionActiva) {
+
+                /*
+                | Usuario con suscripción:
+                | entra normalmente a la web.
+                */
+
+                header('Location: index.php');
+                exit;
+
+            } else {
+
+                /*
+                | Usuario sin suscripción:
+                | va a la página de suscripción.
+                */
+
+                header('Location: suscripcion.php');
+                exit;
+
+            }
+
         }
     }
 }

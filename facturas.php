@@ -1,14 +1,117 @@
+
 <?php
+
+session_start();
 
 require_once 'config.php';
 
+
 /* ==========================================
-   OBTENER FACTURAS
+   COMPROBAR SESIÓN PRINCIPAL
+========================================== */
+
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
+$usuarioId = (int) $_SESSION['usuario_id'];
+
+
+/* ==========================================
+   COMPROBAR SUSCRIPCIÓN
+========================================== */
+
+$stmtSuscripcion = $pdo->prepare("
+    SELECT
+        suscripcion_activa,
+        suscripcion_fin
+    FROM usuarios
+    WHERE id = ?
+    LIMIT 1
+");
+
+$stmtSuscripcion->execute([
+    $usuarioId
+]);
+
+$datosSuscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
+
+$suscripcionActiva = false;
+
+
+if (
+    $datosSuscripcion &&
+    (int) $datosSuscripcion['suscripcion_activa'] === 1
+) {
+
+    $suscripcionActiva = true;
+
+
+    /* ==========================================
+       COMPROBAR FECHA DE FINALIZACIÓN
+    ========================================== */
+
+    if (!empty($datosSuscripcion['suscripcion_fin'])) {
+
+        try {
+
+            $fechaFin = new DateTime(
+                $datosSuscripcion['suscripcion_fin']
+            );
+
+            $ahora = new DateTime();
+
+
+            if ($fechaFin < $ahora) {
+
+                $pdo->prepare("
+                    UPDATE usuarios
+                    SET suscripcion_activa = 0
+                    WHERE id = ?
+                ")->execute([
+                    $usuarioId
+                ]);
+
+
+                $suscripcionActiva = false;
+
+                $_SESSION['suscripcion_activa'] = 0;
+
+            }
+
+        } catch (Exception $e) {
+
+            $suscripcionActiva = false;
+
+        }
+
+    }
+
+}
+
+
+/* ==========================================
+   BLOQUEAR FACTURACIÓN SI NO HAY SUSCRIPCIÓN
+========================================== */
+
+if (!$suscripcionActiva) {
+
+    $_SESSION['suscripcion_activa'] = 0;
+
+    header('Location: suscripcion.php');
+    exit;
+
+}
+
+
+/* ==========================================
+   OBTENER FACTURAS DEL USUARIO CONECTADO
 ========================================== */
 
 try {
 
-    $stmt = $pdo->query("
+    $stmt = $pdo->prepare("
         SELECT
             f.id,
             f.serie,
@@ -22,16 +125,28 @@ try {
             c.nombre_razon_social,
             c.nif
         FROM facturas f
+
         INNER JOIN clientes c
             ON f.cliente_id = c.id
+
+        WHERE c.usuario_id = ?
+          AND c.activo = 1
+
         ORDER BY f.fecha_emision DESC, f.id DESC
     ");
 
-    $facturas = $stmt->fetchAll();
+    $stmt->execute([
+        $usuarioId
+    ]);
+
+    $facturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
 
-    error_log("Error obteniendo facturas: " . $e->getMessage());
+    error_log(
+        "Error obteniendo facturas del usuario: "
+        . $e->getMessage()
+    );
 
     $facturas = [];
 
@@ -45,11 +160,17 @@ try {
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Facturación | ViziuneAI</title>
 
-    <link rel="stylesheet" href="css/facturas.css">
+    <link
+        rel="stylesheet"
+        href="css/facturas.css"
+    >
 
 </head>
 
@@ -57,7 +178,7 @@ try {
 
     <!-- ==========================================
          CABECERA
-    =========================================== -->
+    ========================================== -->
 
     <header class="facturacion-header">
 
@@ -65,21 +186,30 @@ try {
 
             <div>
 
-                <h1>Facturación</h1>
+                <h1>
+                    Facturación
+                </h1>
 
                 <p>
-                    Gestión de facturas de ViziuneAI
+                    Gestión de tus facturas
                 </p>
 
             </div>
 
+
             <div class="cabecera-acciones">
 
-                <a href="index.php" class="boton-secundario">
+                <a
+                    href="index.php"
+                    class="boton-secundario"
+                >
                     ← Volver
                 </a>
 
-                <a href="crear_factura.php" class="boton-principal">
+                <a
+                    href="crear_factura.php"
+                    class="boton-principal"
+                >
                     + Nueva factura
                 </a>
 
@@ -92,14 +222,14 @@ try {
 
     <!-- ==========================================
          CONTENIDO PRINCIPAL
-    =========================================== -->
+    ========================================== -->
 
     <main class="facturacion-contenedor">
 
 
         <!-- ==========================================
              ESTADÍSTICAS
-        =========================================== -->
+        ========================================== -->
 
         <section class="estadisticas">
 
@@ -108,9 +238,13 @@ try {
             $totalFacturas = count($facturas);
 
             $totalEmitidas = 0;
+
             $totalBorradores = 0;
+
             $totalAnuladas = 0;
+
             $importeTotal = 0;
+
 
             foreach ($facturas as $factura) {
 
@@ -127,12 +261,15 @@ try {
                 }
 
                 if ($factura['estado'] !== 'anulada') {
+
                     $importeTotal += (float) $factura['total'];
+
                 }
 
             }
 
             ?>
+
 
             <div class="estadistica">
 
@@ -180,7 +317,12 @@ try {
                 </span>
 
                 <strong>
-                    <?= number_format($importeTotal, 2, ',', '.') ?> €
+                    <?= number_format(
+                        $importeTotal,
+                        2,
+                        ',',
+                        '.'
+                    ) ?> €
                 </strong>
 
             </div>
@@ -190,7 +332,7 @@ try {
 
         <!-- ==========================================
              FILTROS
-        =========================================== -->
+        ========================================== -->
 
         <section class="filtros">
 
@@ -243,14 +385,14 @@ try {
 
         <!-- ==========================================
              LISTADO DE FACTURAS
-        =========================================== -->
+        ========================================== -->
 
         <section class="tabla-contenedor">
 
             <div class="tabla-cabecera">
 
                 <h2>
-                    Facturas
+                    Mis facturas
                 </h2>
 
                 <span>
@@ -329,9 +471,14 @@ try {
 
                                 ?>
 
+
                                 <tr
                                     class="fila-factura"
-                                    data-estado="<?= htmlspecialchars($factura['estado'], ENT_QUOTES, 'UTF-8') ?>"
+                                    data-estado="<?= htmlspecialchars(
+                                        $factura['estado'],
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>"
                                     data-busqueda="<?= htmlspecialchars(
                                         strtolower(
                                             $numeroFactura
@@ -344,6 +491,7 @@ try {
                                         'UTF-8'
                                     ) ?>"
                                 >
+
 
                                     <td>
 
@@ -386,7 +534,9 @@ try {
 
                                         $fecha = date(
                                             'd/m/Y',
-                                            strtotime($factura['fecha_emision'])
+                                            strtotime(
+                                                $factura['fecha_emision']
+                                            )
                                         );
 
                                         ?>
@@ -470,6 +620,7 @@ try {
 
                                         ?>
 
+
                                         <span
                                             class="estado estado-<?= htmlspecialchars(
                                                 $factura['estado'],
@@ -493,6 +644,7 @@ try {
 
                                         <div class="acciones-factura">
 
+
                                             <a
                                                 href="ver_factura.php?id=<?= (int) $factura['id'] ?>"
                                                 class="boton-accion"
@@ -500,6 +652,7 @@ try {
                                             >
                                                 Ver
                                             </a>
+
 
                                             <?php if ($factura['estado'] === 'borrador'): ?>
 
@@ -513,6 +666,7 @@ try {
 
                                             <?php endif; ?>
 
+
                                             <?php if ($factura['estado'] === 'emitida'): ?>
 
                                                 <a
@@ -525,6 +679,7 @@ try {
                                                 </a>
 
                                             <?php endif; ?>
+
 
                                         </div>
 
@@ -540,7 +695,9 @@ try {
 
                 </div>
 
+
             <?php else: ?>
+
 
                 <div class="sin-facturas">
 
@@ -566,7 +723,9 @@ try {
 
                 </div>
 
+
             <?php endif; ?>
+
 
         </section>
 
@@ -575,7 +734,7 @@ try {
 
     <!-- ==========================================
          JAVASCRIPT
-    =========================================== -->
+    ========================================== -->
 
     <script src="js/facturas.js"></script>
 

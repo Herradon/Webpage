@@ -20,6 +20,86 @@ if (!isset($_SESSION['usuario_id'])) {
 
 $usuarioId = (int) $_SESSION['usuario_id'];
 
+
+/*
+|--------------------------------------------------------------------------
+| Comprobar suscripción activa
+|--------------------------------------------------------------------------
+*/
+
+$stmtSuscripcion = $pdo->prepare("
+    SELECT
+        suscripcion_activa,
+        suscripcion_fin
+    FROM usuarios
+    WHERE id = ?
+    LIMIT 1
+");
+
+$stmtSuscripcion->execute([$usuarioId]);
+
+$datosSuscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
+
+$suscripcionActiva = false;
+
+if (
+    $datosSuscripcion &&
+    (int) $datosSuscripcion['suscripcion_activa'] === 1
+) {
+
+    $suscripcionActiva = true;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Comprobar fecha de finalización
+    |--------------------------------------------------------------------------
+    */
+
+    if (!empty($datosSuscripcion['suscripcion_fin'])) {
+
+        try {
+
+            $fechaFin = new DateTime(
+                $datosSuscripcion['suscripcion_fin']
+            );
+
+            $ahora = new DateTime();
+
+            if ($fechaFin < $ahora) {
+
+                $pdo->prepare("
+                    UPDATE usuarios
+                    SET suscripcion_activa = 0
+                    WHERE id = ?
+                ")->execute([$usuarioId]);
+
+                $suscripcionActiva = false;
+
+                $_SESSION['suscripcion_activa'] = 0;
+            }
+
+        } catch (Exception $e) {
+
+            $suscripcionActiva = false;
+        }
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Si no tiene suscripción, bloquear acceso
+|--------------------------------------------------------------------------
+*/
+
+if (!$suscripcionActiva) {
+
+    header('Location: suscripcion.php');
+    exit;
+}
+
+
 $usuarioNombre = $_SESSION['usuario_nombre'] ?? '';
 $usuarioEmail = $_SESSION['usuario_email'] ?? '';
 
@@ -60,8 +140,10 @@ $cliente = $stmtCliente->fetch(PDO::FETCH_ASSOC);
 */
 
 if (!$cliente) {
+
     $error = 'No se ha encontrado tu perfil de cliente.';
     $facturas = [];
+
 } else {
 
     /*
@@ -289,98 +371,112 @@ foreach ($facturas as $factura) {
         </div>
 
 
-        <div class="client-data">
+        <?php if ($cliente): ?>
 
-            <div class="data-item">
+            <div class="client-data">
 
-                <span>Nombre / Razón social</span>
+                <div class="data-item">
 
-                <strong>
-                    <?= htmlspecialchars($cliente['nombre_razon_social'] ?? '') ?>
-                </strong>
+                    <span>Nombre / Razón social</span>
+
+                    <strong>
+                        <?= htmlspecialchars(
+                            $cliente['nombre_razon_social'] ?? ''
+                        ) ?>
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>NIF / DNI</span>
+
+                    <strong>
+                        <?= htmlspecialchars(
+                            $cliente['nif'] ?: 'No indicado'
+                        ) ?>
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>Email</span>
+
+                    <strong>
+                        <?= htmlspecialchars(
+                            $cliente['email'] ?: $usuarioEmail
+                        ) ?>
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>Teléfono</span>
+
+                    <strong>
+                        <?= htmlspecialchars(
+                            $cliente['telefono'] ?: 'No indicado'
+                        ) ?>
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>Dirección</span>
+
+                    <strong>
+                        <?= htmlspecialchars(
+                            $cliente['direccion'] ?: 'No indicada'
+                        ) ?>
+                    </strong>
+
+                </div>
+
+
+                <div class="data-item">
+
+                    <span>Localidad</span>
+
+                    <strong>
+
+                        <?php
+
+                        $localidad = [];
+
+                        if (!empty($cliente['codigo_postal'])) {
+                            $localidad[] = $cliente['codigo_postal'];
+                        }
+
+                        if (!empty($cliente['ciudad'])) {
+                            $localidad[] = $cliente['ciudad'];
+                        }
+
+                        if (!empty($cliente['provincia'])) {
+                            $localidad[] = $cliente['provincia'];
+                        }
+
+                        echo htmlspecialchars(
+                            !empty($localidad)
+                                ? implode(', ', $localidad)
+                                : 'No indicada'
+                        );
+
+                        ?>
+
+                    </strong>
+
+                </div>
 
             </div>
 
-
-            <div class="data-item">
-
-                <span>NIF / DNI</span>
-
-                <strong>
-                    <?= htmlspecialchars($cliente['nif'] ?: 'No indicado') ?>
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>Email</span>
-
-                <strong>
-                    <?= htmlspecialchars($cliente['email'] ?: $usuarioEmail) ?>
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>Teléfono</span>
-
-                <strong>
-                    <?= htmlspecialchars($cliente['telefono'] ?: 'No indicado') ?>
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>Dirección</span>
-
-                <strong>
-                    <?= htmlspecialchars($cliente['direccion'] ?: 'No indicada') ?>
-                </strong>
-
-            </div>
-
-
-            <div class="data-item">
-
-                <span>Localidad</span>
-
-                <strong>
-
-                    <?php
-
-                    $localidad = [];
-
-                    if (!empty($cliente['codigo_postal'])) {
-                        $localidad[] = $cliente['codigo_postal'];
-                    }
-
-                    if (!empty($cliente['ciudad'])) {
-                        $localidad[] = $cliente['ciudad'];
-                    }
-
-                    if (!empty($cliente['provincia'])) {
-                        $localidad[] = $cliente['provincia'];
-                    }
-
-                    echo htmlspecialchars(
-                        !empty($localidad)
-                            ? implode(', ', $localidad)
-                            : 'No indicada'
-                    );
-
-                    ?>
-
-                </strong>
-
-            </div>
-
-        </div>
+        <?php endif; ?>
 
     </section>
 
@@ -497,7 +593,9 @@ foreach ($facturas as $factura) {
                                 <td data-label="Factura">
 
                                     <strong>
-                                        <?= htmlspecialchars($numeroFactura) ?>
+                                        <?= htmlspecialchars(
+                                            $numeroFactura
+                                        ) ?>
                                     </strong>
 
                                 </td>
@@ -507,7 +605,9 @@ foreach ($facturas as $factura) {
 
                                     <?= date(
                                         'd/m/Y',
-                                        strtotime($factura['fecha_emision'])
+                                        strtotime(
+                                            $factura['fecha_emision']
+                                        )
                                     ) ?>
 
                                 </td>
@@ -568,7 +668,9 @@ foreach ($facturas as $factura) {
                                     <?php else: ?>
 
                                         <span class="status">
-                                            <?= htmlspecialchars($estado) ?>
+                                            <?= htmlspecialchars(
+                                                $estado
+                                            ) ?>
                                         </span>
 
                                     <?php endif; ?>

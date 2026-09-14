@@ -1,3 +1,4 @@
+
 <?php
 
 session_start();
@@ -11,6 +12,124 @@ require_once __DIR__ . "/vendor/autoload.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
+
+/* ==========================================================
+   COMPROBAR SESIÓN
+========================================================== */
+
+if (!isset($_SESSION["usuario_id"])) {
+
+    http_response_code(401);
+
+    echo json_encode(
+        [
+            "success" => false,
+            "error" => "Debes iniciar sesión para utilizar el asistente."
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
+
+    exit;
+}
+
+
+$usuarioId = (int) $_SESSION["usuario_id"];
+
+
+/* ==========================================================
+   COMPROBAR SUSCRIPCIÓN
+========================================================== */
+
+$stmtSuscripcion = $pdo->prepare("
+    SELECT
+        suscripcion_activa,
+        suscripcion_fin
+    FROM usuarios
+    WHERE id = ?
+    LIMIT 1
+");
+
+$stmtSuscripcion->execute([$usuarioId]);
+
+$suscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
+
+$suscripcionActiva = false;
+
+
+if ($suscripcion) {
+
+    $suscripcionActiva =
+        (int) $suscripcion["suscripcion_activa"] === 1;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Comprobar fecha de finalización
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        $suscripcionActiva &&
+        !empty($suscripcion["suscripcion_fin"])
+    ) {
+
+        try {
+
+            $fechaFin = new DateTime(
+                $suscripcion["suscripcion_fin"]
+            );
+
+            $ahora = new DateTime();
+
+
+            if ($fechaFin < $ahora) {
+
+                $suscripcionActiva = false;
+
+
+                $stmtActualizar = $pdo->prepare("
+                    UPDATE usuarios
+                    SET suscripcion_activa = 0
+                    WHERE id = ?
+                ");
+
+                $stmtActualizar->execute([$usuarioId]);
+
+            }
+
+        } catch (Exception $e) {
+
+            $suscripcionActiva = false;
+
+        }
+
+    }
+
+}
+
+
+/* ==========================================================
+   USUARIO SIN SUSCRIPCIÓN
+========================================================== */
+
+if (!$suscripcionActiva) {
+
+    http_response_code(403);
+
+    echo json_encode(
+        [
+            "success" => false,
+            "error" => "Necesitas una suscripción activa para utilizar el asistente."
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
+
+    exit;
+}
+
+
+$_SESSION["suscripcion_activa"] = 1;
 
 
 /* ==========================================================
@@ -769,6 +888,9 @@ if ($action === "email") {
                 );
 
 
+            finfo_close($finfo);
+
+
             /* ==============================================
                TIPOS PERMITIDOS
             ============================================== */
@@ -1256,6 +1378,14 @@ $curlError =
     curl_error(
         $ch
     );
+
+
+/* ==========================================================
+   CERRAR CURL
+========================================================== */
+
+curl_close($ch);
+
 
 /* ==========================================================
    ERROR CURL

@@ -1,3 +1,4 @@
+
 <?php
 
 session_start();
@@ -7,6 +8,53 @@ header(
 );
 
 require_once __DIR__ . "/config.php";
+
+
+/* ==========================================================
+   COMPROBAR SESIÓN
+========================================================== */
+
+if (!isset($_SESSION["usuario_id"])) {
+
+    http_response_code(401);
+
+    echo json_encode(
+        [
+            "success" => false,
+            "error" => "Debes iniciar sesión."
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
+
+    exit;
+}
+
+
+/* ==========================================================
+   OBTENER DATOS DEL USUARIO
+========================================================== */
+
+$usuarioId =
+    (int) $_SESSION["usuario_id"];
+
+$usuarioEmail =
+    $_SESSION["usuario_email"] ?? "";
+
+
+if ($usuarioEmail === "") {
+
+    http_response_code(401);
+
+    echo json_encode(
+        [
+            "success" => false,
+            "error" => "No se ha podido identificar al usuario."
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
+
+    exit;
+}
 
 
 /* ==========================================================
@@ -30,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
 
 
 /* ==========================================================
-   OBTENER REUNIONES
+   OBTENER REUNIONES DEL USUARIO
 ========================================================== */
 
 try {
@@ -50,6 +98,8 @@ try {
 
             FROM reuniones
 
+            WHERE email = ?
+
             ORDER BY
                 fecha ASC,
                 hora ASC
@@ -57,7 +107,11 @@ try {
         );
 
 
-    $stmt->execute();
+    $stmt->execute(
+        [
+            $usuarioEmail
+        ]
+    );
 
 
     $reuniones =

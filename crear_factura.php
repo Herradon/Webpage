@@ -7,11 +7,16 @@ require_once 'config.php';
 
 
 /* ==========================================
-   COMPROBAR SI HAY CLIENTE CONECTADO
+   COMPROBAR SESIÓN
 ========================================== */
 
-$usuarioConectado = isset($_SESSION['usuario_id']);
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: login.php');
+    exit;
+}
 
+$usuarioConectado = true;
+$usuarioId = (int) $_SESSION['usuario_id'];
 $clienteUsuario = null;
 
 
@@ -36,36 +41,91 @@ $lineasEditar = [];
    CLIENTE CONECTADO
 ========================================== */
 
-if ($usuarioConectado) {
+$stmtClienteUsuario = $pdo->prepare("
+    SELECT
+        id,
+        nombre_razon_social,
+        nif,
+        email
+    FROM clientes
+    WHERE usuario_id = ?
+      AND activo = 1
+    LIMIT 1
+");
 
-    $usuarioId = (int) $_SESSION['usuario_id'];
+$stmtClienteUsuario->execute([
+    $usuarioId
+]);
 
-    $stmtClienteUsuario = $pdo->prepare("
-        SELECT
-            id,
-            nombre_razon_social,
-            nif,
-            email
-        FROM clientes
-        WHERE usuario_id = ?
-          AND activo = 1
+$clienteUsuario = $stmtClienteUsuario->fetch(PDO::FETCH_ASSOC);
+
+
+/*
+|--------------------------------------------------------------------------
+| Si hay usuario conectado pero no tiene cliente asociado
+|--------------------------------------------------------------------------
+*/
+
+if (!$clienteUsuario) {
+
+    die('
+        <div style="
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+        ">
+            <h2>No se ha encontrado tu perfil de cliente</h2>
+
+            <p>
+                Tu usuario todavía no tiene un perfil de cliente asociado.
+            </p>
+
+            <a href="mi_cuenta.php">
+                Volver a mi cuenta
+            </a>
+        </div>
+    ');
+}
+
+
+/* ==========================================
+   EDITAR FACTURA
+========================================== */
+
+if ($facturaId) {
+
+    $stmtFactura = $pdo->prepare("
+        SELECT f.*
+        FROM facturas f
+        INNER JOIN clientes c
+            ON c.id = f.cliente_id
+        WHERE f.id = ?
+          AND c.usuario_id = ?
+          AND c.activo = 1
         LIMIT 1
     ");
 
-    $stmtClienteUsuario->execute([
+    $stmtFactura->execute([
+        $facturaId,
         $usuarioId
     ]);
 
-    $clienteUsuario = $stmtClienteUsuario->fetch(PDO::FETCH_ASSOC);
+    $facturaEditar = $stmtFactura->fetch(PDO::FETCH_ASSOC);
 
 
     /*
     |--------------------------------------------------------------------------
-    | Si hay usuario conectado pero no tiene cliente asociado
+    | La factura no pertenece al usuario
     |--------------------------------------------------------------------------
     */
 
-    if (!$clienteUsuario) {
+    if (!$facturaEditar) {
+
+        http_response_code(403);
 
         die('
             <div style="
@@ -77,10 +137,10 @@ if ($usuarioConectado) {
                 border: 1px solid #ddd;
                 border-radius: 12px;
             ">
-                <h2>No se ha encontrado tu perfil de cliente</h2>
+                <h2>Acceso no permitido</h2>
 
                 <p>
-                    Tu usuario todavía no tiene un perfil de cliente asociado.
+                    No tienes permiso para acceder a esta factura.
                 </p>
 
                 <a href="mi_cuenta.php">
@@ -91,118 +151,58 @@ if ($usuarioConectado) {
     }
 
 
-    /* ==========================================
-       EDITAR FACTURA
-    ========================================== */
+    /*
+    |--------------------------------------------------------------------------
+    | Solo se pueden editar borradores
+    |--------------------------------------------------------------------------
+    */
 
-    if ($facturaId) {
+    if ($facturaEditar['estado'] !== 'borrador') {
 
-        $stmtFactura = $pdo->prepare("
-            SELECT f.*
-            FROM facturas f
-            INNER JOIN clientes c
-                ON c.id = f.cliente_id
-            WHERE f.id = ?
-              AND c.usuario_id = ?
-              AND c.activo = 1
-            LIMIT 1
-        ");
+        die('
+            <div style="
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 80px auto;
+                padding: 30px;
+                text-align: center;
+                border: 1px solid #ddd;
+                border-radius: 12px;
+            ">
+                <h2>Factura no editable</h2>
 
-        $stmtFactura->execute([
-            $facturaId,
-            $usuarioId
-        ]);
+                <p>
+                    Esta factura ya ha sido emitida y no puede modificarse.
+                </p>
 
-        $facturaEditar = $stmtFactura->fetch(PDO::FETCH_ASSOC);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | La factura no pertenece al usuario
-        |--------------------------------------------------------------------------
-        */
-
-        if (!$facturaEditar) {
-
-            http_response_code(403);
-
-            die('
-                <div style="
-                    font-family: Arial, sans-serif;
-                    max-width: 600px;
-                    margin: 80px auto;
-                    padding: 30px;
-                    text-align: center;
-                    border: 1px solid #ddd;
-                    border-radius: 12px;
-                ">
-                    <h2>Acceso no permitido</h2>
-
-                    <p>
-                        No tienes permiso para acceder a esta factura.
-                    </p>
-
-                    <a href="mi_cuenta.php">
-                        Volver a mi cuenta
-                    </a>
-                </div>
-            ');
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Solo se pueden editar borradores
-        |--------------------------------------------------------------------------
-        */
-
-        if ($facturaEditar['estado'] !== 'borrador') {
-
-            die('
-                <div style="
-                    font-family: Arial, sans-serif;
-                    max-width: 600px;
-                    margin: 80px auto;
-                    padding: 30px;
-                    text-align: center;
-                    border: 1px solid #ddd;
-                    border-radius: 12px;
-                ">
-                    <h2>Factura no editable</h2>
-
-                    <p>
-                        Esta factura ya ha sido emitida y no puede modificarse.
-                    </p>
-
-                    <a href="ver_factura.php?id=' . (int) $facturaId . '">
-                        Ver factura
-                    </a>
-                </div>
-            ');
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Obtener líneas
-        |--------------------------------------------------------------------------
-        */
-
-        $stmtLineasEditar = $pdo->prepare("
-            SELECT *
-            FROM factura_lineas
-            WHERE factura_id = ?
-            ORDER BY orden ASC, id ASC
-        ");
-
-        $stmtLineasEditar->execute([
-            $facturaId
-        ]);
-
-        $lineasEditar = $stmtLineasEditar->fetchAll(PDO::FETCH_ASSOC);
-
-        $modoEdicion = true;
+                <a href="ver_factura.php?id=' . (int) $facturaId . '">
+                    Ver factura
+                </a>
+            </div>
+        ');
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener líneas
+    |--------------------------------------------------------------------------
+    */
+
+    $stmtLineasEditar = $pdo->prepare("
+        SELECT *
+        FROM factura_lineas
+        WHERE factura_id = ?
+        ORDER BY orden ASC, id ASC
+    ");
+
+    $stmtLineasEditar->execute([
+        $facturaId
+    ]);
+
+    $lineasEditar = $stmtLineasEditar->fetchAll(PDO::FETCH_ASSOC);
+
+    $modoEdicion = true;
 }
 
 
@@ -210,25 +210,14 @@ if ($usuarioConectado) {
    CLIENTES
 ========================================== */
 
-if (!$usuarioConectado) {
+/*
+|--------------------------------------------------------------------------
+| El usuario ya está identificado mediante la sesión.
+| No cargamos otros clientes.
+|--------------------------------------------------------------------------
+*/
 
-    $stmtClientes = $pdo->query("
-        SELECT
-            id,
-            nombre_razon_social,
-            nif,
-            email
-        FROM clientes
-        WHERE activo = 1
-        ORDER BY nombre_razon_social ASC
-    ");
-
-    $clientes = $stmtClientes->fetchAll();
-
-} else {
-
-    $clientes = [];
-}
+$clientes = [];
 
 
 /* ==========================================
@@ -260,20 +249,39 @@ $fechaVencimiento = $facturaEditar['fecha_vencimiento']
 
 $tipoIrpf = 0;
 
+
+/* ==========================================
+   RECUPERAR IRPF AL EDITAR
+========================================== */
+
 if ($modoEdicion && $facturaEditar) {
-    $baseFactura = (float) ($facturaEditar['base_imponible'] ?? 0);
-    $totalIrpfFactura = (float) ($facturaEditar['total_irpf'] ?? 0);
+
+    $baseFactura = (float) (
+        $facturaEditar['base_imponible']
+        ?? 0
+    );
+
+    $totalIrpfFactura = (float) (
+        $facturaEditar['total_irpf']
+        ?? 0
+    );
 
     if ($baseFactura > 0 && $totalIrpfFactura > 0) {
-        $porcentajeIrpf = ($totalIrpfFactura / $baseFactura) * 100;
+
+        $porcentajeIrpf =
+            ($totalIrpfFactura / $baseFactura) * 100;
 
         if (abs($porcentajeIrpf - 7) < 0.01) {
+
             $tipoIrpf = 7;
+
         } elseif (abs($porcentajeIrpf - 15) < 0.01) {
+
             $tipoIrpf = 15;
         }
     }
 }
+
 
 $metodoPago = $facturaEditar['metodo_pago']
     ?? '';
@@ -286,9 +294,7 @@ $observaciones = $facturaEditar['observaciones']
    DESTINO AL VOLVER
 ========================================== */
 
-$urlVolver = $usuarioConectado
-    ? 'mi_cuenta.php'
-    : 'facturas.php';
+$urlVolver = 'mi_cuenta.php';
 
 ?>
 
@@ -478,129 +484,72 @@ $urlVolver = $usuarioConectado
 
                     <div class="campo-factura completo">
 
-                        <?php if ($usuarioConectado): ?>
+                        <label>
+                            Cliente
+                        </label>
 
-                            <label>
-                                Cliente
-                            </label>
+                        <div
+                            class="cliente-info"
+                            style="
+                                margin-top: 0;
+                                padding: 15px;
+                                border: 1px solid rgba(0, 243, 255, 0.25);
+                                border-radius: 8px;
+                            "
+                        >
 
-                            <div
-                                class="cliente-info"
-                                style="
-                                    margin-top: 0;
-                                    padding: 15px;
-                                    border: 1px solid rgba(0, 243, 255, 0.25);
-                                    border-radius: 8px;
-                                "
-                            >
+                            <strong>
+                                <?= htmlspecialchars(
+                                    $clienteUsuario['nombre_razon_social']
+                                ) ?>
+                            </strong>
 
-                                <strong>
-                                    <?= htmlspecialchars(
-                                        $clienteUsuario['nombre_razon_social']
-                                    ) ?>
-                                </strong>
+                            <br>
+
+                            <span>
+                                NIF:
+                                <?= htmlspecialchars(
+                                    $clienteUsuario['nif'] ?: 'No indicado'
+                                ) ?>
+                            </span>
+
+                            <?php if (!empty($clienteUsuario['email'])): ?>
 
                                 <br>
 
                                 <span>
-                                    NIF:
                                     <?= htmlspecialchars(
-                                        $clienteUsuario['nif'] ?: 'No indicado'
+                                        $clienteUsuario['email']
                                     ) ?>
                                 </span>
 
-                                <?php if (!empty($clienteUsuario['email'])): ?>
+                            <?php endif; ?>
 
-                                    <br>
-
-                                    <span>
-                                        <?= htmlspecialchars(
-                                            $clienteUsuario['email']
-                                        ) ?>
-                                    </span>
-
-                                <?php endif; ?>
-
-                            </div>
+                        </div>
 
 
-                            <input
-                                type="hidden"
-                                id="cliente_id"
-                                name="cliente_id"
-                                value="<?= (int) $clienteUsuario['id'] ?>"
-                            >
-
-                        <?php else: ?>
-
-                            <label for="cliente_id">
-                                Cliente
-                            </label>
-
-                            <select
-                                id="cliente_id"
-                                name="cliente_id"
-                                required
-                            >
-
-                                <option value="">
-                                    Selecciona un cliente
-                                </option>
-
-                                <?php foreach ($clientes as $cliente): ?>
-
-                                    <option
-                                        value="<?= (int) $cliente['id'] ?>"
-                                        data-nif="<?= htmlspecialchars($cliente['nif']) ?>"
-                                        data-email="<?= htmlspecialchars($cliente['email'] ?? '') ?>"
-                                    >
-
-                                        <?= htmlspecialchars(
-                                            $cliente['nombre_razon_social']
-                                        ) ?>
-
-                                        —
-
-                                        <?= htmlspecialchars(
-                                            $cliente['nif']
-                                        ) ?>
-
-                                    </option>
-
-                                <?php endforeach; ?>
-
-                            </select>
-
-                        <?php endif; ?>
+                        <input
+                            type="hidden"
+                            id="cliente_id"
+                            name="cliente_id"
+                            value="<?= (int) $clienteUsuario['id'] ?>"
+                        >
 
                     </div>
 
                 </div>
 
 
-                <?php if (!$usuarioConectado): ?>
+                <div
+                    id="clienteInfo"
+                    class="cliente-info"
+                >
 
-                    <div
-                        id="clienteInfo"
-                        class="cliente-info"
-                    >
-                        Selecciona un cliente para ver sus datos.
-                    </div>
+                    <?= htmlspecialchars(
+                        $clienteUsuario['nombre_razon_social']
+                    ) ?>
 
-                <?php else: ?>
-
-                    <div
-                        id="clienteInfo"
-                        class="cliente-info"
-                    >
-
-                        <?= htmlspecialchars(
-                            $clienteUsuario['nombre_razon_social']
-                        ) ?>
-
-                    </div>
-
-                <?php endif; ?>
+                </div>
 
             </section>
 
@@ -1119,4 +1068,3 @@ $urlVolver = $usuarioConectado
 </body>
 
 </html>
-

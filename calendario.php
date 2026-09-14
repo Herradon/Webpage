@@ -1,4 +1,113 @@
 
+<?php
+
+session_start();
+
+require_once 'config.php';
+
+
+/* ==========================================
+   COMPROBAR SESIÓN PRINCIPAL
+========================================== */
+
+if (!isset($_SESSION['usuario_id'])) {
+
+    header('Location: login.php');
+
+    exit;
+}
+
+$usuarioId = (int) $_SESSION['usuario_id'];
+
+
+/* ==========================================
+   COMPROBAR SUSCRIPCIÓN
+========================================== */
+
+$stmtSuscripcion = $pdo->prepare("
+    SELECT
+        suscripcion_activa,
+        suscripcion_fin
+    FROM usuarios
+    WHERE id = ?
+    LIMIT 1
+");
+
+$stmtSuscripcion->execute([
+    $usuarioId
+]);
+
+$datosSuscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
+
+$suscripcionActiva = false;
+
+
+if (
+    $datosSuscripcion &&
+    (int) $datosSuscripcion['suscripcion_activa'] === 1
+) {
+
+    $suscripcionActiva = true;
+
+
+    /* ==========================================
+       COMPROBAR FECHA DE FINALIZACIÓN
+    ========================================== */
+
+    if (!empty($datosSuscripcion['suscripcion_fin'])) {
+
+        try {
+
+            $fechaFin = new DateTime(
+                $datosSuscripcion['suscripcion_fin']
+            );
+
+            $ahora = new DateTime();
+
+
+            if ($fechaFin < $ahora) {
+
+                $pdo->prepare("
+                    UPDATE usuarios
+                    SET suscripcion_activa = 0
+                    WHERE id = ?
+                ")->execute([
+                    $usuarioId
+                ]);
+
+
+                $suscripcionActiva = false;
+
+                $_SESSION['suscripcion_activa'] = 0;
+
+            }
+
+        } catch (Exception $e) {
+
+            $suscripcionActiva = false;
+
+        }
+
+    }
+
+}
+
+
+/* ==========================================
+   BLOQUEAR CALENDARIO SIN SUSCRIPCIÓN
+========================================== */
+
+if (!$suscripcionActiva) {
+
+    $_SESSION['suscripcion_activa'] = 0;
+
+    header('Location: suscripcion.php');
+
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -13,6 +122,12 @@
     <link rel="stylesheet" href="css/calendario.css">
 
 </head>
+
+<header>
+
+<?php include 'menu.php'; ?>
+
+</header>
 
 <body>
 
@@ -35,7 +150,7 @@
                 Cargando...
             </h1>
 
-             <a href="index.php"><h3>Volver a inicio</h3></a>
+            
 
             <button
                 type="button"
@@ -100,4 +215,3 @@
 </body>
 
 </html>
-
