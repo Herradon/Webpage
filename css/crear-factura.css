@@ -1,0 +1,738 @@
+/* ==========================================
+   VIZIUNEAI - CREAR FACTURA
+========================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #07111f;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* ==========================================
+   CONTENEDOR PRINCIPAL
+========================================== */
+
+.crear-factura-contenedor {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+}
+
+
+/* ==========================================
+   CABECERA
+========================================== */
+
+.crear-factura-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.crear-factura-header h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 30px;
+    line-height: 1.2;
+}
+
+.crear-factura-header p {
+    margin: 8px 0 0;
+    color: #8fa3b8;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   BOTÓN VOLVER
+========================================== */
+
+.boton-volver {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 18px;
+    border: 1px solid #26384d;
+    border-radius: 8px;
+    background: #101d2d;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: 0.2s ease;
+}
+
+.boton-volver:hover {
+    background: #17283b;
+    border-color: #35506c;
+}
+
+
+/* ==========================================
+   FORMULARIO
+========================================== */
+
+.formulario-factura {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+/* ==========================================
+   BLOQUES
+========================================== */
+
+.bloque-factura {
+    width: 100%;
+    padding: 24px;
+    background: #0d1a29;
+    border: 1px solid #203247;
+    border-radius: 12px;
+}
+
+.bloque-factura h2 {
+    margin: 0 0 20px;
+    color: #ffffff;
+    font-size: 20px;
+    line-height: 1.3;
+}
+
+
+/* ==========================================
+   GRID DE CAMPOS
+========================================== */
+
+.grid-factura {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.campo-factura {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.campo-factura.completo {
+    grid-column: 1 / -1;
+}
+
+
+/* ==========================================
+   ETIQUETAS
+========================================== */
+
+.campo-factura label {
+    color: #c8d4e1;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   INPUTS / SELECT / TEXTAREA
+========================================== */
+
+.campo-factura input,
+.campo-factura select,
+.campo-factura textarea {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid #2a4058;
+    border-radius: 8px;
+    outline: none;
+    background: #07111f;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+.campo-factura input::placeholder,
+.campo-factura textarea::placeholder {
+    color: #62778d;
+}
+
+.campo-factura input:focus,
+.campo-factura select:focus,
+.campo-factura textarea:focus {
+    border-color: #00f3ff;
+    box-shadow: 0 0 0 2px rgba(0, 243, 255, 0.08);
+}
+
+.campo-factura input:disabled,
+.campo-factura select:disabled,
+.campo-factura textarea:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+
+/* ==========================================
+   SELECT
+========================================== */
+
+.campo-factura select {
+    cursor: pointer;
+}
+
+.campo-factura select option {
+    background: #0d1a29;
+    color: #ffffff;
+}
+
+
+/* ==========================================
+   TEXTAREA
+========================================== */
+
+.campo-factura textarea {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   TEXTO PEQUEÑO
+========================================== */
+
+.campo-factura small {
+    color: #71859b;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+
+/* ==========================================
+   INFORMACIÓN DEL CLIENTE
+========================================== */
+
+.cliente-info {
+    margin-top: 15px;
+    padding: 14px;
+    border: 1px solid #1d3044;
+    border-radius: 8px;
+    background: #091522;
+    color: #91a5ba;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.cliente-info strong {
+    color: #ffffff;
+}
+
+
+/* ==========================================
+   CABECERA DE LAS LÍNEAS
+========================================== */
+
+.lineas-cabecera {
+    display: grid;
+    grid-template-columns:
+        minmax(220px, 3fr)
+        minmax(80px, 1fr)
+        minmax(100px, 1.2fr)
+        minmax(100px, 1fr)
+        minmax(80px, 1.2fr)
+        45px;
+
+    gap: 10px;
+
+    margin-bottom: 8px;
+
+    color: #8195aa;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   LÍNEA DE FACTURA
+========================================== */
+
+.linea-factura {
+    display: grid;
+    grid-template-columns:
+        minmax(220px, 3fr)
+        minmax(80px, 1fr)
+        minmax(100px, 1.2fr)
+        minmax(100px, 1fr)
+        minmax(80px, 1.2fr)
+        45px;
+
+    gap: 10px;
+
+    margin-bottom: 10px;
+
+    align-items: center;
+}
+
+
+/* ==========================================
+   CAMPOS DE LAS LÍNEAS
+========================================== */
+
+.linea-factura input,
+.linea-factura select {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 10px;
+    border: 1px solid #2a4058;
+    border-radius: 7px;
+    outline: none;
+    background: #07111f;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+.linea-factura input::placeholder {
+    color: #62778d;
+}
+
+.linea-factura input:focus,
+.linea-factura select:focus {
+    border-color: #00f3ff;
+    box-shadow: 0 0 0 2px rgba(0, 243, 255, 0.06);
+}
+
+.linea-factura select {
+    cursor: pointer;
+}
+
+.linea-factura select option {
+    background: #0d1a29;
+    color: #ffffff;
+}
+
+
+/* ==========================================
+   TOTAL DE CADA LÍNEA
+========================================== */
+
+.linea-total {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+}
+
+
+/* ==========================================
+   BOTÓN ELIMINAR LÍNEA
+========================================== */
+
+.boton-eliminar-linea {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    border: 1px solid #5b2930;
+    border-radius: 7px;
+
+    background: #24151a;
+    color: #ff7c89;
+
+    cursor: pointer;
+
+    font-size: 18px;
+    line-height: 1;
+
+    transition: 0.2s ease;
+}
+
+.boton-eliminar-linea:hover {
+    background: #321a20;
+    border-color: #843b46;
+}
+
+
+/* ==========================================
+   BOTÓN AÑADIR LÍNEA
+========================================== */
+
+.boton-anadir-linea {
+    margin-top: 8px;
+    padding: 10px 16px;
+
+    border: 1px solid #24445a;
+    border-radius: 7px;
+
+    background: #102537;
+    color: #ffffff;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+.boton-anadir-linea:hover {
+    background: #16334a;
+    border-color: #35627f;
+}
+
+
+/* ==========================================
+   RESUMEN
+========================================== */
+
+.resumen-factura {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+}
+
+.totales-factura {
+    width: 100%;
+    max-width: 400px;
+}
+
+
+/* ==========================================
+   FILAS DE TOTALES
+========================================== */
+
+.fila-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    padding: 9px 0;
+
+    border-bottom: 1px solid #1d2d3f;
+
+    color: #aab9c8;
+    font-size: 14px;
+}
+
+.fila-total strong {
+    color: #ffffff;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+.fila-total.total-final {
+    padding-top: 15px;
+    border-bottom: 0;
+    font-size: 21px;
+}
+
+.fila-total.total-final strong {
+    color: #00f3ff;
+    font-size: 22px;
+}
+
+
+/* ==========================================
+   ACCIONES DEL FORMULARIO
+========================================== */
+
+.acciones-formulario {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+
+/* ==========================================
+   BOTÓN GUARDAR
+========================================== */
+
+.boton-guardar-factura {
+    padding: 13px 24px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #00cfe0;
+    color: #031017;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.boton-guardar-factura:hover {
+    background: #00f3ff;
+    transform: translateY(-1px);
+}
+
+.boton-guardar-factura:active {
+    transform: translateY(0);
+}
+
+
+/* ==========================================
+   BOTÓN CANCELAR
+========================================== */
+
+.boton-cancelar-factura {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 13px 22px;
+
+    border: 1px solid #2a4058;
+    border-radius: 8px;
+
+    background: #101d2d;
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+.boton-cancelar-factura:hover {
+    background: #17283b;
+    border-color: #35506c;
+}
+
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 1000px) {
+
+    .crear-factura-contenedor {
+        padding: 25px 18px 50px;
+    }
+
+    .lineas-cabecera {
+        grid-template-columns:
+            minmax(180px, 2.5fr)
+            minmax(70px, 1fr)
+            minmax(90px, 1fr)
+            minmax(90px, 1fr)
+            minmax(70px, 1fr)
+            45px;
+    }
+
+    .linea-factura {
+        grid-template-columns:
+            minmax(180px, 2.5fr)
+            minmax(70px, 1fr)
+            minmax(90px, 1fr)
+            minmax(90px, 1fr)
+            minmax(70px, 1fr)
+            45px;
+    }
+
+}
+
+
+/* ==========================================
+   TABLET PEQUEÑA
+========================================== */
+
+@media (max-width: 800px) {
+
+    .crear-factura-header {
+        align-items: flex-start;
+    }
+
+    .lineas-cabecera {
+        display: none;
+    }
+
+    .linea-factura {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+
+        padding: 15px;
+
+        border: 1px solid #203247;
+        border-radius: 9px;
+
+        background: #091522;
+    }
+
+    .linea-factura input:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .linea-total {
+        text-align: left;
+    }
+
+}
+
+
+/* ==========================================
+   MÓVIL
+========================================== */
+
+@media (max-width: 700px) {
+
+    .crear-factura-contenedor {
+        padding: 20px 14px 40px;
+    }
+
+    .crear-factura-header {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 22px;
+    }
+
+    .crear-factura-header h1 {
+        font-size: 25px;
+    }
+
+    .crear-factura-header p {
+        font-size: 14px;
+    }
+
+    .boton-volver {
+        width: 100%;
+    }
+
+    .formulario-factura {
+        gap: 15px;
+    }
+
+    .bloque-factura {
+        padding: 18px;
+        border-radius: 10px;
+    }
+
+    .bloque-factura h2 {
+        font-size: 18px;
+        margin-bottom: 17px;
+    }
+
+    .grid-factura {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .campo-factura.completo {
+        grid-column: auto;
+    }
+
+    .linea-factura {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .linea-factura input:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .linea-total {
+        font-size: 13px;
+    }
+
+    .boton-eliminar-linea {
+        width: 38px;
+        height: 38px;
+    }
+
+    .resumen-factura {
+        margin-top: 20px;
+    }
+
+    .totales-factura {
+        max-width: none;
+    }
+
+    .fila-total {
+        font-size: 14px;
+    }
+
+    .fila-total.total-final {
+        font-size: 19px;
+    }
+
+    .fila-total.total-final strong {
+        font-size: 20px;
+    }
+
+    .acciones-formulario {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .boton-guardar-factura,
+    .boton-cancelar-factura {
+        width: 100%;
+    }
+
+}
+
+
+/* ==========================================
+   MÓVIL PEQUEÑO
+========================================== */
+
+@media (max-width: 450px) {
+
+    .crear-factura-contenedor {
+        padding: 16px 10px 35px;
+    }
+
+    .bloque-factura {
+        padding: 15px;
+    }
+
+    .crear-factura-header h1 {
+        font-size: 23px;
+    }
+
+    .linea-factura {
+        grid-template-columns: 1fr;
+    }
+
+    .linea-factura input:first-child {
+        grid-column: auto;
+    }
+
+    .linea-total {
+        padding: 5px 0;
+    }
+
+    .boton-eliminar-linea {
+        width: 100%;
+    }
+
+    .boton-anadir-linea {
+        width: 100%;
+    }
+
+}
