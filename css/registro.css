@@ -1,0 +1,205 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px 20px;
+
+    background: #07111f;
+    color: #ffffff;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+.registro {
+    width: 100%;
+    max-width: 500px;
+
+    padding: 35px;
+
+    background: #0d1a29;
+
+    border: 1px solid #20364d;
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.registro-cabecera {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.registro-cabecera h1 {
+    margin: 0;
+
+    color: #00cfe0;
+
+    font-size: 32px;
+}
+
+.registro-cabecera p {
+    margin: 8px 0 0;
+
+    color: #9fb1c1;
+
+    font-size: 15px;
+}
+
+.campo {
+    margin-bottom: 20px;
+}
+
+.campo label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.campo input {
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px solid #30465c;
+    border-radius: 8px;
+
+    background: #07111f;
+    color: #ffffff;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.campo input:focus {
+    border-color: #00cfe0;
+
+    box-shadow:
+        0 0 0 3px rgba(0, 207, 224, 0.12);
+}
+
+.campo input.error {
+    border-color: #ff6b78;
+}
+
+.campo small {
+    display: block;
+
+    margin-top: 6px;
+
+    min-height: 16px;
+
+    color: #ff8d98;
+
+    font-size: 12px;
+}
+
+#botonRegistro {
+    width: 100%;
+
+    padding: 14px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #00cfe0;
+    color: #031017;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        opacity 0.2s,
+        transform 0.2s;
+}
+
+#botonRegistro:hover {
+    opacity: 0.9;
+}
+
+#botonRegistro:active {
+    transform: scale(0.99);
+}
+
+#botonRegistro:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.mensaje-error {
+    margin-bottom: 20px;
+
+    padding: 14px;
+
+    border-radius: 8px;
+
+    background: #3a1820;
+
+    border: 1px solid #71323d;
+
+    color: #ffb5bd;
+
+    line-height: 1.5;
+
+    font-size: 14px;
+}
+
+.enlace-login {
+    margin-top: 24px;
+
+    text-align: center;
+
+    color: #9fb1c1;
+
+    font-size: 14px;
+}
+
+.enlace-login a {
+    color: #00cfe0;
+
+    text-decoration: none;
+
+    font-weight: bold;
+}
+
+.enlace-login a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 20px 15px;
+    }
+
+    .registro {
+        padding: 25px 20px;
+    }
+
+    .registro-cabecera h1 {
+        font-size: 28px;
+    }
+
+}

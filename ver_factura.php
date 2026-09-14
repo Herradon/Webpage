@@ -1,4 +1,7 @@
+
 <?php
+
+session_start();
 
 require_once 'config.php';
 
@@ -23,53 +26,241 @@ if (!$facturaId || $facturaId <= 0) {
    OBTENER FACTURA
 ========================================== */
 
-$stmtFactura = $pdo->prepare("
-    SELECT
-        f.id,
-        f.serie,
-        f.numero,
-        f.fecha_emision,
-        f.cliente_id,
-        f.moneda,
-        f.base_imponible,
-        f.total_iva,
-        f.total_irpf,
-        f.total,
-        f.metodo_pago,
-        f.fecha_vencimiento,
-        f.observaciones,
-        f.estado,
-        f.created_at,
-        f.updated_at,
+/*
+|--------------------------------------------------------------------------
+| SEGURIDAD DE ACCESO
+|--------------------------------------------------------------------------
+|
+| Si hay un usuario conectado:
+|
+| usuarios.id
+|      ↓
+| clientes.usuario_id
+|      ↓
+| facturas.cliente_id
+|
+| El usuario solo puede consultar sus propias
+| facturas.
+|
+*/
 
-        c.nombre_razon_social,
-        c.nif,
-        c.direccion,
-        c.codigo_postal,
-        c.ciudad,
-        c.provincia,
-        c.pais,
-        c.email,
-        c.telefono
+if (isset($_SESSION['usuario_id'])) {
 
-    FROM facturas f
+    $usuarioId =
+        (int) $_SESSION['usuario_id'];
 
-    INNER JOIN clientes c
-        ON c.id = f.cliente_id
 
-    WHERE f.id = ?
+    if ($usuarioId <= 0) {
 
-    LIMIT 1
-");
+        http_response_code(403);
 
-$stmtFactura->execute([
-    $facturaId
-]);
+        echo '
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Acceso no permitido | ViziuneAI</title>
+            <link rel="stylesheet" href="css/ver-factura.css">
+        </head>
+
+        <body>
+
+            <div class="error-factura">
+
+                <h1>Acceso no permitido</h1>
+
+                <p>
+                    No tienes permiso para consultar esta factura.
+                </p>
+
+                <a href="mi_cuenta.php" class="boton boton-principal">
+                    ← Volver a mi cuenta
+                </a>
+
+            </div>
+
+        </body>
+        </html>
+        ';
+
+        exit;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | USUARIO CONECTADO
+    |--------------------------------------------------------------------------
+    |
+    | Buscamos la factura únicamente si pertenece
+    | al cliente asociado al usuario conectado.
+    |
+    */
+
+    $stmtFactura = $pdo->prepare("
+        SELECT
+            f.id,
+            f.serie,
+            f.numero,
+            f.fecha_emision,
+            f.cliente_id,
+            f.moneda,
+            f.base_imponible,
+            f.total_iva,
+            f.total_irpf,
+            f.total,
+            f.metodo_pago,
+            f.fecha_vencimiento,
+            f.observaciones,
+            f.estado,
+            f.created_at,
+            f.updated_at,
+
+            c.nombre_razon_social,
+            c.nif,
+            c.direccion,
+            c.codigo_postal,
+            c.ciudad,
+            c.provincia,
+            c.pais,
+            c.email,
+            c.telefono
+
+        FROM facturas f
+
+        INNER JOIN clientes c
+            ON c.id = f.cliente_id
+
+        WHERE f.id = ?
+          AND c.usuario_id = ?
+          AND c.activo = 1
+
+        LIMIT 1
+    ");
+
+    $stmtFactura->execute([
+        $facturaId,
+        $usuarioId
+    ]);
+
+} else {
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMINISTRACIÓN
+    |--------------------------------------------------------------------------
+    |
+    | Si no hay usuario conectado, mantenemos
+    | el comportamiento original.
+    |
+    */
+
+    $stmtFactura = $pdo->prepare("
+        SELECT
+            f.id,
+            f.serie,
+            f.numero,
+            f.fecha_emision,
+            f.cliente_id,
+            f.moneda,
+            f.base_imponible,
+            f.total_iva,
+            f.total_irpf,
+            f.total,
+            f.metodo_pago,
+            f.fecha_vencimiento,
+            f.observaciones,
+            f.estado,
+            f.created_at,
+            f.updated_at,
+
+            c.nombre_razon_social,
+            c.nif,
+            c.direccion,
+            c.codigo_postal,
+            c.ciudad,
+            c.provincia,
+            c.pais,
+            c.email,
+            c.telefono
+
+        FROM facturas f
+
+        INNER JOIN clientes c
+            ON c.id = f.cliente_id
+
+        WHERE f.id = ?
+
+        LIMIT 1
+    ");
+
+    $stmtFactura->execute([
+        $facturaId
+    ]);
+
+}
+
 
 $factura = $stmtFactura->fetch();
 
 
+/* ==========================================
+   FACTURA NO ENCONTRADA / SIN PERMISO
+========================================== */
+
 if (!$factura) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Si hay usuario conectado, no revelamos si la factura
+    | existe o pertenece a otra persona.
+    |--------------------------------------------------------------------------
+    */
+
+    if (isset($_SESSION['usuario_id'])) {
+
+        http_response_code(403);
+
+        echo '
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Acceso no permitido | ViziuneAI</title>
+            <link rel="stylesheet" href="css/ver-factura.css">
+        </head>
+
+        <body>
+
+            <div class="error-factura">
+
+                <h1>Acceso no permitido</h1>
+
+                <p>
+                    No tienes permiso para consultar esta factura.
+                </p>
+
+                <a href="mi_cuenta.php" class="boton boton-principal">
+                    ← Volver a mi cuenta
+                </a>
+
+            </div>
+
+        </body>
+        </html>
+        ';
+
+        exit;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | COMPORTAMIENTO ORIGINAL PARA ADMINISTRACIÓN
+    |--------------------------------------------------------------------------
+    */
 
     http_response_code(404);
 
@@ -904,6 +1095,7 @@ function dinero($valor)
                                 ',',
                                 '.'
                             );
+
                             ?>
 
                             %
@@ -1224,9 +1416,10 @@ function dinero($valor)
             $estado === 'emitida'
         ): ?>
 
-            <a
-                href="generar_pdf.php?id=<?php echo $facturaId; ?>"
-                class="boton boton-principal"
+           <a
+                href="generar_pdf.php?id=<?php echo (int) $factura['id']; ?>"
+                class="boton boton-pdf"
+                target="_blank"
             >
                 Generar PDF
             </a>

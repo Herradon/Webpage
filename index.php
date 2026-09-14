@@ -31,7 +31,7 @@ session_start();
      HEADER
 ========================================== -->
 
-<!--
+
 <header class="header">
 
     <div class="container nav">
@@ -50,16 +50,16 @@ session_start();
 
         <nav>
 
-            <a href="#inicio">
+            <a href="index.php">
                 Inicio
             </a>
 
-            <a href="#chat">
-                Asistente IA
+            <a href="calendario.php">
+                Calendario
             </a>
 
-            <a href="#contacto">
-                Contacto
+            <a href="login.php">
+                Facturación
             </a>
 
         </nav>
@@ -67,7 +67,7 @@ session_start();
     </div>
 
 </header>
--->
+
 
 <main>
 
@@ -283,7 +283,7 @@ session_start();
 
                     <div class="chat-intro-info">
 
-                       <!--  <strong id="assistantName">
+                        <strong id="assistantName">
 
                             Diseño y Desarrollo Web
 
@@ -296,9 +296,8 @@ session_start();
                             profesionales, modernas y adaptadas
                             a las necesidades de tu negocio.
 
-                        </small> -->
+                        </small>
                         
-                        <a href="calendario.php">Revisar calendario</a>
 
                     </div>
 

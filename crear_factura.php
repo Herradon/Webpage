@@ -1,23 +1,234 @@
+
 <?php
 
+session_start();
+
 require_once 'config.php';
+
+
+/* ==========================================
+   COMPROBAR SI HAY CLIENTE CONECTADO
+========================================== */
+
+$usuarioConectado = isset($_SESSION['usuario_id']);
+
+$clienteUsuario = null;
+
+
+/* ==========================================
+   COMPROBAR SI ESTAMOS EDITANDO
+========================================== */
+
+$facturaId = filter_input(
+    INPUT_GET,
+    'id',
+    FILTER_VALIDATE_INT
+);
+
+$modoEdicion = false;
+
+$facturaEditar = null;
+
+$lineasEditar = [];
+
+
+/* ==========================================
+   CLIENTE CONECTADO
+========================================== */
+
+if ($usuarioConectado) {
+
+    $usuarioId = (int) $_SESSION['usuario_id'];
+
+    $stmtClienteUsuario = $pdo->prepare("
+        SELECT
+            id,
+            nombre_razon_social,
+            nif,
+            email
+        FROM clientes
+        WHERE usuario_id = ?
+          AND activo = 1
+        LIMIT 1
+    ");
+
+    $stmtClienteUsuario->execute([
+        $usuarioId
+    ]);
+
+    $clienteUsuario = $stmtClienteUsuario->fetch(PDO::FETCH_ASSOC);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Si hay usuario conectado pero no tiene cliente asociado
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$clienteUsuario) {
+
+        die('
+            <div style="
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 80px auto;
+                padding: 30px;
+                text-align: center;
+                border: 1px solid #ddd;
+                border-radius: 12px;
+            ">
+                <h2>No se ha encontrado tu perfil de cliente</h2>
+
+                <p>
+                    Tu usuario todavía no tiene un perfil de cliente asociado.
+                </p>
+
+                <a href="mi_cuenta.php">
+                    Volver a mi cuenta
+                </a>
+            </div>
+        ');
+    }
+
+
+    /* ==========================================
+       EDITAR FACTURA
+    ========================================== */
+
+    if ($facturaId) {
+
+        $stmtFactura = $pdo->prepare("
+            SELECT f.*
+            FROM facturas f
+            INNER JOIN clientes c
+                ON c.id = f.cliente_id
+            WHERE f.id = ?
+              AND c.usuario_id = ?
+              AND c.activo = 1
+            LIMIT 1
+        ");
+
+        $stmtFactura->execute([
+            $facturaId,
+            $usuarioId
+        ]);
+
+        $facturaEditar = $stmtFactura->fetch(PDO::FETCH_ASSOC);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | La factura no pertenece al usuario
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$facturaEditar) {
+
+            http_response_code(403);
+
+            die('
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 80px auto;
+                    padding: 30px;
+                    text-align: center;
+                    border: 1px solid #ddd;
+                    border-radius: 12px;
+                ">
+                    <h2>Acceso no permitido</h2>
+
+                    <p>
+                        No tienes permiso para acceder a esta factura.
+                    </p>
+
+                    <a href="mi_cuenta.php">
+                        Volver a mi cuenta
+                    </a>
+                </div>
+            ');
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Solo se pueden editar borradores
+        |--------------------------------------------------------------------------
+        */
+
+        if ($facturaEditar['estado'] !== 'borrador') {
+
+            die('
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 80px auto;
+                    padding: 30px;
+                    text-align: center;
+                    border: 1px solid #ddd;
+                    border-radius: 12px;
+                ">
+                    <h2>Factura no editable</h2>
+
+                    <p>
+                        Esta factura ya ha sido emitida y no puede modificarse.
+                    </p>
+
+                    <a href="ver_factura.php?id=' . (int) $facturaId . '">
+                        Ver factura
+                    </a>
+                </div>
+            ');
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Obtener líneas
+        |--------------------------------------------------------------------------
+        */
+
+        $stmtLineasEditar = $pdo->prepare("
+            SELECT *
+            FROM factura_lineas
+            WHERE factura_id = ?
+            ORDER BY orden ASC, id ASC
+        ");
+
+        $stmtLineasEditar->execute([
+            $facturaId
+        ]);
+
+        $lineasEditar = $stmtLineasEditar->fetchAll(PDO::FETCH_ASSOC);
+
+        $modoEdicion = true;
+    }
+}
+
 
 /* ==========================================
    CLIENTES
 ========================================== */
 
-$stmtClientes = $pdo->query("
-    SELECT
-        id,
-        nombre_razon_social,
-        nif,
-        email
-    FROM clientes
-    WHERE activo = 1
-    ORDER BY nombre_razon_social ASC
-");
+if (!$usuarioConectado) {
 
-$clientes = $stmtClientes->fetchAll();
+    $stmtClientes = $pdo->query("
+        SELECT
+            id,
+            nombre_razon_social,
+            nif,
+            email
+        FROM clientes
+        WHERE activo = 1
+        ORDER BY nombre_razon_social ASC
+    ");
+
+    $clientes = $stmtClientes->fetchAll();
+
+} else {
+
+    $clientes = [];
+}
 
 
 /* ==========================================
@@ -38,9 +249,46 @@ $empresa = $stmtEmpresa->fetch();
    DATOS POR DEFECTO
 ========================================== */
 
-$serieFactura = $empresa['serie_factura'] ?? 'A';
+$serieFactura = $facturaEditar['serie']
+    ?? ($empresa['serie_factura'] ?? 'A');
 
-$fechaHoy = date('Y-m-d');
+$fechaHoy = $facturaEditar['fecha_emision']
+    ?? date('Y-m-d');
+
+$fechaVencimiento = $facturaEditar['fecha_vencimiento']
+    ?? '';
+
+$tipoIrpf = 0;
+
+if ($modoEdicion && $facturaEditar) {
+    $baseFactura = (float) ($facturaEditar['base_imponible'] ?? 0);
+    $totalIrpfFactura = (float) ($facturaEditar['total_irpf'] ?? 0);
+
+    if ($baseFactura > 0 && $totalIrpfFactura > 0) {
+        $porcentajeIrpf = ($totalIrpfFactura / $baseFactura) * 100;
+
+        if (abs($porcentajeIrpf - 7) < 0.01) {
+            $tipoIrpf = 7;
+        } elseif (abs($porcentajeIrpf - 15) < 0.01) {
+            $tipoIrpf = 15;
+        }
+    }
+}
+
+$metodoPago = $facturaEditar['metodo_pago']
+    ?? '';
+
+$observaciones = $facturaEditar['observaciones']
+    ?? '';
+
+
+/* ==========================================
+   DESTINO AL VOLVER
+========================================== */
+
+$urlVolver = $usuarioConectado
+    ? 'mi_cuenta.php'
+    : 'facturas.php';
 
 ?>
 
@@ -56,7 +304,9 @@ $fechaHoy = date('Y-m-d');
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Crear factura | ViziuneAI</title>
+    <title>
+        <?= $modoEdicion ? 'Editar factura' : 'Crear factura' ?> | ViziuneAI
+    </title>
 
     <link
         rel="stylesheet"
@@ -77,19 +327,31 @@ $fechaHoy = date('Y-m-d');
 
             <div>
 
-                <h1>Crear factura</h1>
+                <h1>
+                    <?= $modoEdicion ? 'Editar factura' : 'Crear factura' ?>
+                </h1>
 
                 <p>
-                    Crea una nueva factura y guárdala como borrador.
+
+                    <?php if ($modoEdicion): ?>
+
+                        Modifica la factura y guarda los cambios.
+
+                    <?php else: ?>
+
+                        Crea una nueva factura y guárdala como borrador.
+
+                    <?php endif; ?>
+
                 </p>
 
             </div>
 
             <a
-                href="facturas.php"
+                href="<?= htmlspecialchars($urlVolver) ?>"
                 class="boton-volver"
             >
-                ← Volver a facturas
+                ← Volver
             </a>
 
         </header>
@@ -105,6 +367,16 @@ $fechaHoy = date('Y-m-d');
             action="guardar_factura.php"
             method="POST"
         >
+
+            <?php if ($modoEdicion): ?>
+
+                <input
+                    type="hidden"
+                    name="factura_id"
+                    value="<?= (int) $facturaId ?>"
+                >
+
+            <?php endif; ?>
 
 
             <!-- ==========================================
@@ -144,7 +416,9 @@ $fechaHoy = date('Y-m-d');
                         <input
                             type="text"
                             id="numero"
-                            value="Automático al emitir"
+                            value="<?= $modoEdicion
+                                ? 'Se asignará al emitir'
+                                : 'Automático al emitir' ?>"
                             readonly
                         >
 
@@ -182,6 +456,7 @@ $fechaHoy = date('Y-m-d');
                             type="date"
                             id="fecha_vencimiento"
                             name="fecha_vencimiento"
+                            value="<?= htmlspecialchars($fechaVencimiento) ?>"
                         >
 
                     </div>
@@ -203,51 +478,129 @@ $fechaHoy = date('Y-m-d');
 
                     <div class="campo-factura completo">
 
-                        <label for="cliente_id">
-                            Cliente
-                        </label>
+                        <?php if ($usuarioConectado): ?>
 
-                        <select
-                            id="cliente_id"
-                            name="cliente_id"
-                            required
-                        >
+                            <label>
+                                Cliente
+                            </label>
 
-                            <option value="">
-                                Selecciona un cliente
-                            </option>
+                            <div
+                                class="cliente-info"
+                                style="
+                                    margin-top: 0;
+                                    padding: 15px;
+                                    border: 1px solid rgba(0, 243, 255, 0.25);
+                                    border-radius: 8px;
+                                "
+                            >
 
-                            <?php foreach ($clientes as $cliente): ?>
+                                <strong>
+                                    <?= htmlspecialchars(
+                                        $clienteUsuario['nombre_razon_social']
+                                    ) ?>
+                                </strong>
 
-                                <option
-                                    value="<?= (int) $cliente['id'] ?>"
-                                    data-nif="<?= htmlspecialchars($cliente['nif']) ?>"
-                                    data-email="<?= htmlspecialchars($cliente['email'] ?? '') ?>"
-                                >
+                                <br>
 
-                                    <?= htmlspecialchars($cliente['nombre_razon_social']) ?>
-                                    —
-                                    <?= htmlspecialchars($cliente['nif']) ?>
+                                <span>
+                                    NIF:
+                                    <?= htmlspecialchars(
+                                        $clienteUsuario['nif'] ?: 'No indicado'
+                                    ) ?>
+                                </span>
 
+                                <?php if (!empty($clienteUsuario['email'])): ?>
+
+                                    <br>
+
+                                    <span>
+                                        <?= htmlspecialchars(
+                                            $clienteUsuario['email']
+                                        ) ?>
+                                    </span>
+
+                                <?php endif; ?>
+
+                            </div>
+
+
+                            <input
+                                type="hidden"
+                                id="cliente_id"
+                                name="cliente_id"
+                                value="<?= (int) $clienteUsuario['id'] ?>"
+                            >
+
+                        <?php else: ?>
+
+                            <label for="cliente_id">
+                                Cliente
+                            </label>
+
+                            <select
+                                id="cliente_id"
+                                name="cliente_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Selecciona un cliente
                                 </option>
 
-                            <?php endforeach; ?>
+                                <?php foreach ($clientes as $cliente): ?>
 
-                        </select>
+                                    <option
+                                        value="<?= (int) $cliente['id'] ?>"
+                                        data-nif="<?= htmlspecialchars($cliente['nif']) ?>"
+                                        data-email="<?= htmlspecialchars($cliente['email'] ?? '') ?>"
+                                    >
+
+                                        <?= htmlspecialchars(
+                                            $cliente['nombre_razon_social']
+                                        ) ?>
+
+                                        —
+
+                                        <?= htmlspecialchars(
+                                            $cliente['nif']
+                                        ) ?>
+
+                                    </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                        <?php endif; ?>
 
                     </div>
 
                 </div>
 
 
-                <div
-                    id="clienteInfo"
-                    class="cliente-info"
-                >
+                <?php if (!$usuarioConectado): ?>
 
-                    Selecciona un cliente para ver sus datos.
+                    <div
+                        id="clienteInfo"
+                        class="cliente-info"
+                    >
+                        Selecciona un cliente para ver sus datos.
+                    </div>
 
-                </div>
+                <?php else: ?>
+
+                    <div
+                        id="clienteInfo"
+                        class="cliente-info"
+                    >
+
+                        <?= htmlspecialchars(
+                            $clienteUsuario['nombre_razon_social']
+                        ) ?>
+
+                    </div>
+
+                <?php endif; ?>
 
             </section>
 
@@ -274,81 +627,201 @@ $fechaHoy = date('Y-m-d');
 
                 <div id="lineasFactura">
 
-                    <div class="linea-factura">
+                    <?php if ($modoEdicion && !empty($lineasEditar)): ?>
 
-                        <input
-                            type="text"
-                            name="descripcion[]"
-                            placeholder="Descripción del producto o servicio"
-                            required
-                        >
+                        <?php foreach ($lineasEditar as $linea): ?>
 
-                        <input
-                            type="number"
-                            name="cantidad[]"
-                            class="cantidad"
-                            value="1"
-                            min="0.001"
-                            step="0.001"
-                            required
-                        >
+                            <div class="linea-factura">
 
-                        <input
-                            type="number"
-                            name="precio_unitario[]"
-                            class="precio-unitario"
-                            value="0"
-                            min="0"
-                            step="0.01"
-                            required
-                        >
+                                <input
+                                    type="text"
+                                    name="descripcion[]"
+                                    placeholder="Descripción del producto o servicio"
+                                    value="<?= htmlspecialchars(
+                                        $linea['descripcion']
+                                    ) ?>"
+                                    required
+                                >
 
-                        <input
-                            type="number"
-                            name="descuento[]"
-                            class="descuento"
-                            value="0"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                        >
+                                <input
+                                    type="number"
+                                    name="cantidad[]"
+                                    class="cantidad"
+                                    value="<?= htmlspecialchars(
+                                        $linea['cantidad']
+                                    ) ?>"
+                                    min="0.001"
+                                    step="0.001"
+                                    required
+                                >
 
-                        <select
-                            name="tipo_iva[]"
-                            class="tipo-iva"
-                        >
+                                <input
+                                    type="number"
+                                    name="precio_unitario[]"
+                                    class="precio-unitario"
+                                    value="<?= htmlspecialchars(
+                                        $linea['precio_unitario']
+                                    ) ?>"
+                                    min="0"
+                                    step="0.01"
+                                    required
+                                >
 
-                            <option value="21">
-                                21%
-                            </option>
+                                <input
+                                    type="number"
+                                    name="descuento[]"
+                                    class="descuento"
+                                    value="<?= htmlspecialchars(
+                                        $linea['descuento']
+                                    ) ?>"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                >
 
-                            <option value="10">
-                                10%
-                            </option>
+                                <select
+                                    name="tipo_iva[]"
+                                    class="tipo-iva"
+                                >
 
-                            <option value="4">
-                                4%
-                            </option>
+                                    <option
+                                        value="21"
+                                        <?= (float) $linea['tipo_iva'] === 21.0
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        21%
+                                    </option>
 
-                            <option value="0">
-                                0%
-                            </option>
+                                    <option
+                                        value="10"
+                                        <?= (float) $linea['tipo_iva'] === 10.0
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        10%
+                                    </option>
 
-                        </select>
+                                    <option
+                                        value="4"
+                                        <?= (float) $linea['tipo_iva'] === 4.0
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        4%
+                                    </option>
 
-                        <div class="linea-total">
-                            0,00 €
+                                    <option
+                                        value="0"
+                                        <?= (float) $linea['tipo_iva'] === 0.0
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        0%
+                                    </option>
+
+                                </select>
+
+                                <div class="linea-total">
+                                    <?= number_format(
+                                        (float) $linea['total_linea'],
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) ?> €
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="boton-eliminar-linea"
+                                    title="Eliminar línea"
+                                >
+                                    ×
+                                </button>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+
+                        <div class="linea-factura">
+
+                            <input
+                                type="text"
+                                name="descripcion[]"
+                                placeholder="Descripción del producto o servicio"
+                                required
+                            >
+
+                            <input
+                                type="number"
+                                name="cantidad[]"
+                                class="cantidad"
+                                value="1"
+                                min="0.001"
+                                step="0.001"
+                                required
+                            >
+
+                            <input
+                                type="number"
+                                name="precio_unitario[]"
+                                class="precio-unitario"
+                                value="0"
+                                min="0"
+                                step="0.01"
+                                required
+                            >
+
+                            <input
+                                type="number"
+                                name="descuento[]"
+                                class="descuento"
+                                value="0"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                            >
+
+                            <select
+                                name="tipo_iva[]"
+                                class="tipo-iva"
+                            >
+
+                                <option value="21">
+                                    21%
+                                </option>
+
+                                <option value="10">
+                                    10%
+                                </option>
+
+                                <option value="4">
+                                    4%
+                                </option>
+
+                                <option value="0">
+                                    0%
+                                </option>
+
+                            </select>
+
+                            <div class="linea-total">
+                                0,00 €
+                            </div>
+
+                            <button
+                                type="button"
+                                class="boton-eliminar-linea"
+                                title="Eliminar línea"
+                            >
+                                ×
+                            </button>
+
                         </div>
 
-                        <button
-                            type="button"
-                            class="boton-eliminar-linea"
-                            title="Eliminar línea"
-                        >
-                            ×
-                        </button>
-
-                    </div>
+                    <?php endif; ?>
 
                 </div>
 
@@ -385,15 +858,30 @@ $fechaHoy = date('Y-m-d');
                             name="tipo_irpf"
                         >
 
-                            <option value="0">
+                            <option
+                                value="0"
+                                <?= (float) $tipoIrpf === 0.0
+                                    ? 'selected'
+                                    : '' ?>
+                            >
                                 Sin IRPF
                             </option>
 
-                            <option value="7">
+                            <option
+                                value="7"
+                                <?= (float) $tipoIrpf === 7.0
+                                    ? 'selected'
+                                    : '' ?>
+                            >
                                 7%
                             </option>
 
-                            <option value="15">
+                            <option
+                                value="15"
+                                <?= (float) $tipoIrpf === 15.0
+                                    ? 'selected'
+                                    : '' ?>
+                            >
                                 15%
                             </option>
 
@@ -413,23 +901,48 @@ $fechaHoy = date('Y-m-d');
                             name="metodo_pago"
                         >
 
-                            <option value="">
+                            <option
+                                value=""
+                                <?= $metodoPago === ''
+                                    ? 'selected'
+                                    : '' ?>
+                            >
                                 Seleccionar
                             </option>
 
-                            <option value="Transferencia bancaria">
+                            <option
+                                value="Transferencia bancaria"
+                                <?= $metodoPago === 'Transferencia bancaria'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
                                 Transferencia bancaria
                             </option>
 
-                            <option value="Domiciliación">
+                            <option
+                                value="Domiciliación"
+                                <?= $metodoPago === 'Domiciliación'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
                                 Domiciliación
                             </option>
 
-                            <option value="Tarjeta">
+                            <option
+                                value="Tarjeta"
+                                <?= $metodoPago === 'Tarjeta'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
                                 Tarjeta
                             </option>
 
-                            <option value="Efectivo">
+                            <option
+                                value="Efectivo"
+                                <?= $metodoPago === 'Efectivo'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
                                 Efectivo
                             </option>
 
@@ -520,7 +1033,7 @@ $fechaHoy = date('Y-m-d');
                         id="observaciones"
                         name="observaciones"
                         placeholder="Información adicional que quieras incluir..."
-                    ></textarea>
+                    ><?= htmlspecialchars($observaciones) ?></textarea>
 
                 </div>
 
@@ -567,7 +1080,7 @@ $fechaHoy = date('Y-m-d');
             <div class="acciones-formulario">
 
                 <a
-                    href="facturas.php"
+                    href="<?= htmlspecialchars($urlVolver) ?>"
                     class="boton-cancelar-factura"
                 >
                     Cancelar
@@ -577,7 +1090,17 @@ $fechaHoy = date('Y-m-d');
                     type="submit"
                     class="boton-guardar-factura"
                 >
-                    💾 Guardar como borrador
+
+                    <?php if ($modoEdicion): ?>
+
+                        Guardar cambios
+
+                    <?php else: ?>
+
+                        Guardar como borrador
+
+                    <?php endif; ?>
+
                 </button>
 
             </div>
@@ -596,3 +1119,4 @@ $fechaHoy = date('Y-m-d');
 </body>
 
 </html>
+

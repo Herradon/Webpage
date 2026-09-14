@@ -1,4 +1,7 @@
+
 <?php
+
+session_start();
 
 require_once 'config.php';
 
@@ -6,7 +9,8 @@ $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$id) {
     http_response_code(400);
-    die('ID de factura no válido.');
+    $error = 'ID de factura no válido.';
+    goto mostrar_error;
 }
 
 try {
@@ -15,24 +19,63 @@ try {
 
     /*
      * 1. Bloquear la factura
+     *
+     * Si hay un usuario conectado, además comprobamos
+     * que la factura pertenece a su cliente.
      */
-    $stmt = $pdo->prepare("
-        SELECT *
-        FROM facturas
-        WHERE id = ?
-        FOR UPDATE
-    ");
+    if (isset($_SESSION['usuario_id'])) {
 
-    $stmt->execute([$id]);
+        $usuarioId = (int) $_SESSION['usuario_id'];
+
+        if ($usuarioId <= 0) {
+            throw new Exception(
+                'No tienes permiso para emitir esta factura.'
+            );
+        }
+
+        $stmt = $pdo->prepare("
+            SELECT f.*
+            FROM facturas f
+            INNER JOIN clientes c
+                ON c.id = f.cliente_id
+            WHERE f.id = ?
+              AND c.usuario_id = ?
+              AND c.activo = 1
+            FOR UPDATE
+        ");
+
+        $stmt->execute([
+            $id,
+            $usuarioId
+        ]);
+
+    } else {
+
+        /*
+         * Comportamiento original para administración.
+         */
+        $stmt = $pdo->prepare("
+            SELECT *
+            FROM facturas
+            WHERE id = ?
+            FOR UPDATE
+        ");
+
+        $stmt->execute([
+            $id
+        ]);
+    }
 
     $factura = $stmt->fetch();
 
     if (!$factura) {
-        throw new Exception('La factura no existe.');
+        throw new Exception(
+            'No tienes permiso para emitir esta factura.'
+        );
     }
 
     /*
-     * 2. Comprobar que todavía es borrador
+     * 2. Comprobar estado
      */
     if ($factura['estado'] !== 'borrador') {
         throw new Exception(
@@ -41,7 +84,7 @@ try {
     }
 
     /*
-     * 3. Obtener las líneas
+     * 3. Obtener líneas
      */
     $stmt = $pdo->prepare("
         SELECT *
@@ -92,7 +135,7 @@ try {
     }
 
     /*
-     * 5. Obtener empresa
+     * 5. Obtener empresa emisora
      */
     $stmt = $pdo->query("
         SELECT *
@@ -204,12 +247,12 @@ try {
     }
 
     /*
-     * 11. Confirmar transacción
+     * 11. Confirmar
      */
     $pdo->commit();
 
     /*
-     * 12. Redirigir a la factura
+     * 12. Volver a ver la factura
      */
     header(
         'Location: ver_factura.php?id=' .
@@ -234,10 +277,92 @@ try {
 
     $error = $e->getMessage();
 
-    /*
-     * Cargar la página HTML de error
-     */
-    require __DIR__ . '/emitir-factura.html';
-
-    exit;
+    goto mostrar_error;
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| HTML DE ERROR
+|--------------------------------------------------------------------------
+*/
+
+mostrar_error:
+
+function h($texto)
+{
+    return htmlspecialchars(
+        (string) $texto,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Error al emitir factura | ViziuneAI</title>
+
+    <link
+        rel="stylesheet"
+        href="css/emitir-factura.css"
+    >
+
+</head>
+
+<body>
+
+    <main class="emitir-contenedor">
+
+        <section class="emitir-card error-card">
+
+            <div class="emitir-icono error-icono">
+                !
+            </div>
+
+            <h1>
+                No se ha podido emitir la factura
+            </h1>
+
+            <p class="emitir-texto">
+                <?php echo h($error); ?>
+            </p>
+
+            <div class="emitir-acciones">
+
+                <a
+                    href="javascript:history.back()"
+                    class="boton boton-secundario"
+                >
+                    ← Volver
+                </a>
+
+                <a
+                    href="facturas.php"
+                    class="boton boton-principal"
+                >
+                    Ver facturas
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="js/emitir-factura.js"></script>
+
+</body>
+
+</html>

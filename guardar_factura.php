@@ -1,4 +1,7 @@
+
 <?php
+
+session_start();
 
 require_once 'config.php';
 
@@ -29,6 +32,7 @@ function volverConError($mensaje)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error | ViziuneAI</title>
+
     <style>
         body {
             margin: 0;
@@ -74,14 +78,15 @@ function volverConError($mensaje)
         }
     </style>
 </head>
+
 <body>
 
     <div class="error">
 
         <h1>❌ No se pudo guardar la factura</h1>
 
-        <p>' .
-        htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8')
+        <p>'
+        . htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8')
         . '</p>
 
         <a href="crear_factura.php">
@@ -100,6 +105,16 @@ function volverConError($mensaje)
 /* ==========================================
    RECIBIR DATOS
 ========================================== */
+
+/*
+|--------------------------------------------------------------------------
+| Si existe factura_id estamos editando.
+|--------------------------------------------------------------------------
+*/
+
+$facturaId =
+    (int) ($_POST['factura_id'] ?? 0);
+
 
 $serie = trim($_POST['serie'] ?? '');
 
@@ -240,43 +255,241 @@ if ($fechaVencimiento !== '') {
 
 
 /* ==========================================
-   VALIDAR CLIENTE
+   CLIENTE
 ========================================== */
 
-if ($clienteId <= 0) {
+/*
+|--------------------------------------------------------------------------
+| SI HAY USUARIO CONECTADO
+|--------------------------------------------------------------------------
+|
+| NO confiamos en el cliente_id enviado por el navegador.
+|
+| Buscamos el cliente directamente mediante:
+|
+| usuarios.id
+|      ↓
+| clientes.usuario_id
+|
+*/
 
-    volverConError(
-        'Debes seleccionar un cliente.'
-    );
+if (isset($_SESSION['usuario_id'])) {
+
+    $usuarioId =
+        (int) $_SESSION['usuario_id'];
+
+
+    if ($usuarioId <= 0) {
+
+        volverConError(
+            'La sesión de usuario no es válida.'
+        );
+
+    }
+
+
+    $stmtClienteUsuario =
+        $pdo->prepare("
+            SELECT
+                id,
+                nombre_razon_social,
+                nif
+            FROM clientes
+            WHERE usuario_id = ?
+              AND activo = 1
+            LIMIT 1
+        ");
+
+    $stmtClienteUsuario->execute([
+        $usuarioId
+    ]);
+
+    $cliente =
+        $stmtClienteUsuario->fetch();
+
+
+    if (!$cliente) {
+
+        volverConError(
+            'No se ha encontrado un cliente asociado a tu cuenta.'
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORTANTE
+    |--------------------------------------------------------------------------
+    |
+    | Sobrescribimos el cliente_id enviado por POST.
+    |
+    */
+
+    $clienteId =
+        (int) $cliente['id'];
+
+
+} else {
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMINISTRACIÓN
+    |--------------------------------------------------------------------------
+    */
+
+    if ($clienteId <= 0) {
+
+        volverConError(
+            'Debes seleccionar un cliente.'
+        );
+
+    }
+
+
+    $stmtCliente =
+        $pdo->prepare("
+            SELECT
+                id,
+                nombre_razon_social,
+                nif
+            FROM clientes
+            WHERE id = ?
+              AND activo = 1
+            LIMIT 1
+        ");
+
+    $stmtCliente->execute([
+        $clienteId
+    ]);
+
+    $cliente =
+        $stmtCliente->fetch();
+
+
+    if (!$cliente) {
+
+        volverConError(
+            'El cliente seleccionado no existe o está inactivo.'
+        );
+
+    }
 
 }
 
 
-$stmtCliente =
-    $pdo->prepare("
-        SELECT
-            id,
-            nombre_razon_social,
-            nif
-        FROM clientes
-        WHERE id = ?
-          AND activo = 1
-        LIMIT 1
-    ");
+/* ==========================================
+   VALIDAR FACTURA EN MODO EDICIÓN
+========================================== */
 
-$stmtCliente->execute([
-    $clienteId
-]);
+if ($facturaId > 0) {
 
-$cliente =
-    $stmtCliente->fetch();
+    /*
+    |--------------------------------------------------------------------------
+    | USUARIO CONECTADO
+    |--------------------------------------------------------------------------
+    |
+    | Comprobamos que la factura pertenece al cliente
+    | del usuario conectado.
+    |--------------------------------------------------------------------------
+    */
+
+    if (isset($_SESSION['usuario_id'])) {
+
+        $stmtFacturaEditar =
+            $pdo->prepare("
+                SELECT
+                    f.id,
+                    f.cliente_id,
+                    f.estado
+                FROM facturas f
+                INNER JOIN clientes c
+                    ON c.id = f.cliente_id
+                WHERE f.id = ?
+                  AND c.usuario_id = ?
+                  AND c.activo = 1
+                LIMIT 1
+            ");
+
+        $stmtFacturaEditar->execute([
+            $facturaId,
+            $usuarioId
+        ]);
+
+    } else {
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMINISTRACIÓN
+        |--------------------------------------------------------------------------
+        */
+
+        $stmtFacturaEditar =
+            $pdo->prepare("
+                SELECT
+                    id,
+                    cliente_id,
+                    estado
+                FROM facturas
+                WHERE id = ?
+                LIMIT 1
+            ");
+
+        $stmtFacturaEditar->execute([
+            $facturaId
+        ]);
+
+    }
 
 
-if (!$cliente) {
+    $facturaEditar =
+        $stmtFacturaEditar->fetch();
 
-    volverConError(
-        'El cliente seleccionado no existe o está inactivo.'
-    );
+
+    if (!$facturaEditar) {
+
+        volverConError(
+            'No tienes permiso para modificar esta factura.'
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SOLO SE PUEDEN EDITAR BORRADORES
+    |--------------------------------------------------------------------------
+    */
+
+    if ($facturaEditar['estado'] !== 'borrador') {
+
+        volverConError(
+            'Esta factura ya ha sido emitida y no puede modificarse.'
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEGURIDAD EXTRA
+    |--------------------------------------------------------------------------
+    |
+    | Si el usuario está conectado, la factura debe seguir
+    | perteneciendo al cliente obtenido mediante la sesión.
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        isset($_SESSION['usuario_id']) &&
+        (int) $facturaEditar['cliente_id'] !== $clienteId
+    ) {
+
+        volverConError(
+            'No tienes permiso para modificar esta factura.'
+        );
+
+    }
 
 }
 
@@ -294,7 +507,7 @@ $porcentajesIrpfPermitidos = [
 
 if (
     !in_array(
-        $tipoIrpf,
+        (int) $tipoIrpf,
         $porcentajesIrpfPermitidos,
         true
     )
@@ -480,7 +693,7 @@ foreach (
 
     if (
         !in_array(
-            $tipoIva,
+            (int) $tipoIva,
             $tiposIvaPermitidos,
             true
         )
@@ -671,116 +884,221 @@ try {
 
 
     /* ==========================================
-       CREAR FACTURA COMO BORRADOR
+       MODO EDICIÓN
     ========================================== */
 
-    /*
-       IMPORTANTE:
+    if ($facturaId > 0) {
 
-       numero = NULL porque todavía no
-       se está emitiendo la factura.
+        /*
+        |--------------------------------------------------------------------------
+        | Actualizar cabecera de la factura
+        |--------------------------------------------------------------------------
+        */
 
-       El número definitivo se asignará
-       posteriormente en el proceso de emisión.
-    */
-
-    $stmtFactura =
-        $pdo->prepare("
-            INSERT INTO facturas (
-                serie,
-                numero,
-                fecha_emision,
-                cliente_id,
-                moneda,
-                base_imponible,
-                total_iva,
-                total_irpf,
-                total,
-                metodo_pago,
-                fecha_vencimiento,
-                observaciones,
-                estado
-            )
-            VALUES (
-                ?,
-                NULL,
-                ?,
-                ?,
-                'EUR',
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                'borrador'
-            )
-        ");
+        $stmtFactura =
+            $pdo->prepare("
+                UPDATE facturas
+                SET
+                    serie = ?,
+                    fecha_emision = ?,
+                    cliente_id = ?,
+                    base_imponible = ?,
+                    total_iva = ?,
+                    total_irpf = ?,
+                    total = ?,
+                    metodo_pago = ?,
+                    fecha_vencimiento = ?,
+                    observaciones = ?
+                WHERE id = ?
+                  AND estado = 'borrador'
+            ");
 
 
-    $stmtFactura->execute([
+        $actualizado =
+            $stmtFactura->execute([
 
-        $serie,
+                $serie,
 
-        $fechaEmision,
+                $fechaEmision,
 
-        $clienteId,
+                $clienteId,
 
-        number_format(
-            $baseImponible,
-            2,
-            '.',
-            ''
-        ),
+                number_format(
+                    $baseImponible,
+                    2,
+                    '.',
+                    ''
+                ),
 
-        number_format(
-            $totalIva,
-            2,
-            '.',
-            ''
-        ),
+                number_format(
+                    $totalIva,
+                    2,
+                    '.',
+                    ''
+                ),
 
-        number_format(
-            $totalIrpf,
-            2,
-            '.',
-            ''
-        ),
+                number_format(
+                    $totalIrpf,
+                    2,
+                    '.',
+                    ''
+                ),
 
-        number_format(
-            $totalFactura,
-            2,
-            '.',
-            ''
-        ),
+                number_format(
+                    $totalFactura,
+                    2,
+                    '.',
+                    ''
+                ),
 
-        $metodoPago !== ''
-            ? $metodoPago
-            : null,
+                $metodoPago !== ''
+                    ? $metodoPago
+                    : null,
 
-        $fechaVencimiento,
+                $fechaVencimiento,
 
-        $observaciones !== ''
-            ? $observaciones
-            : null
+                $observaciones !== ''
+                    ? $observaciones
+                    : null,
 
-    ]);
+                $facturaId
 
-
-    /* ==========================================
-       ID DE LA FACTURA
-    ========================================== */
-
-    $facturaId =
-        (int) $pdo->lastInsertId();
+            ]);
 
 
-    if ($facturaId <= 0) {
+        if (!$actualizado) {
 
-        throw new Exception(
-            'No se pudo obtener el ID de la factura.'
-        );
+            throw new Exception(
+                'No se pudo actualizar la factura.'
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Eliminar líneas anteriores
+        |--------------------------------------------------------------------------
+        */
+
+        $stmtEliminarLineas =
+            $pdo->prepare("
+                DELETE FROM factura_lineas
+                WHERE factura_id = ?
+            ");
+
+        $stmtEliminarLineas->execute([
+            $facturaId
+        ]);
+
+
+    } else {
+
+        /* ==========================================
+           CREAR FACTURA COMO BORRADOR
+        ========================================== */
+
+        $stmtFactura =
+            $pdo->prepare("
+                INSERT INTO facturas (
+                    serie,
+                    numero,
+                    fecha_emision,
+                    cliente_id,
+                    moneda,
+                    base_imponible,
+                    total_iva,
+                    total_irpf,
+                    total,
+                    metodo_pago,
+                    fecha_vencimiento,
+                    observaciones,
+                    estado
+                )
+                VALUES (
+                    ?,
+                    NULL,
+                    ?,
+                    ?,
+                    'EUR',
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    'borrador'
+                )
+            ");
+
+
+        $stmtFactura->execute([
+
+            $serie,
+
+            $fechaEmision,
+
+            $clienteId,
+
+            number_format(
+                $baseImponible,
+                2,
+                '.',
+                ''
+            ),
+
+            number_format(
+                $totalIva,
+                2,
+                '.',
+                ''
+            ),
+
+            number_format(
+                $totalIrpf,
+                2,
+                '.',
+                ''
+            ),
+
+            number_format(
+                $totalFactura,
+                2,
+                '.',
+                ''
+            ),
+
+            $metodoPago !== ''
+                ? $metodoPago
+                : null,
+
+            $fechaVencimiento,
+
+            $observaciones !== ''
+                ? $observaciones
+                : null
+
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ID DE LA NUEVA FACTURA
+        |--------------------------------------------------------------------------
+        */
+
+        $facturaId =
+            (int) $pdo->lastInsertId();
+
+
+        if ($facturaId <= 0) {
+
+            throw new Exception(
+                'No se pudo obtener el ID de la factura.'
+            );
+
+        }
 
     }
 
