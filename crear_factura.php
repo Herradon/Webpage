@@ -294,7 +294,7 @@ $observaciones = $facturaEditar['observaciones']
    DESTINO AL VOLVER
 ========================================== */
 
-$urlVolver = 'mi_cuenta.php';
+$urlVolver = 'facturas.php';
 
 ?>
 

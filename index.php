@@ -25,62 +25,83 @@ $usuarioId = (int) $_SESSION['usuario_id'];
 |--------------------------------------------------------------------------
 | Comprobar suscripción
 |--------------------------------------------------------------------------
+|
+| La cuenta oficial de ViziuneSL (usuario ID 8)
+| tiene acceso gratuito.
+|
+| Todos los demás usuarios necesitan una
+| suscripción activa.
+|--------------------------------------------------------------------------
 */
 
-$stmtSuscripcion = $pdo->prepare("
-    SELECT
-        suscripcion_activa,
-        suscripcion_fin
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-");
-
-$stmtSuscripcion->execute([$usuarioId]);
-
-$suscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
-
-$suscripcionActiva = false;
-
-if ($suscripcion) {
-
-    $suscripcionActiva = (int) $suscripcion['suscripcion_activa'] === 1;
+if ($usuarioId === 8) {
 
     /*
-    |--------------------------------------------------------------------------
-    | Comprobar fecha de finalización
-    |--------------------------------------------------------------------------
+    | Cuenta oficial de ViziuneSL:
+    | acceso gratuito.
     */
 
-    if (
-        $suscripcionActiva &&
-        !empty($suscripcion['suscripcion_fin'])
-    ) {
+    $suscripcionActiva = true;
 
-        try {
+} else {
 
-            $fechaFin = new DateTime(
-                $suscripcion['suscripcion_fin']
-            );
+    $stmtSuscripcion = $pdo->prepare("
+        SELECT
+            suscripcion_activa,
+            suscripcion_fin
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ");
 
-            $ahora = new DateTime();
+    $stmtSuscripcion->execute([$usuarioId]);
 
-            if ($fechaFin < $ahora) {
+    $suscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
+
+    $suscripcionActiva = false;
+
+    if ($suscripcion) {
+
+        $suscripcionActiva =
+            (int) $suscripcion['suscripcion_activa'] === 1;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Comprobar fecha de finalización
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $suscripcionActiva &&
+            !empty($suscripcion['suscripcion_fin'])
+        ) {
+
+            try {
+
+                $fechaFin = new DateTime(
+                    $suscripcion['suscripcion_fin']
+                );
+
+                $ahora = new DateTime();
+
+                if ($fechaFin < $ahora) {
+
+                    $suscripcionActiva = false;
+
+                    $stmtActualizar = $pdo->prepare("
+                        UPDATE usuarios
+                        SET suscripcion_activa = 0
+                        WHERE id = ?
+                    ");
+
+                    $stmtActualizar->execute([$usuarioId]);
+                }
+
+            } catch (Exception $e) {
 
                 $suscripcionActiva = false;
-
-                $stmtActualizar = $pdo->prepare("
-                    UPDATE usuarios
-                    SET suscripcion_activa = 0
-                    WHERE id = ?
-                ");
-
-                $stmtActualizar->execute([$usuarioId]);
             }
-
-        } catch (Exception $e) {
-
-            $suscripcionActiva = false;
         }
     }
 }
@@ -127,8 +148,6 @@ $_SESSION['suscripcion_activa'] = 1;
 
 <title>ViziuneAI</title>
 
-<?php include 'menu.php'; ?>
-
 
 <link
     rel="stylesheet"
@@ -146,10 +165,9 @@ $_SESSION['suscripcion_activa'] = 1;
 ========================================== -->
 
 
-<header class="header">
+<header class="header" style="position: fixed">
 
     <div class="container nav">
-
 
         <div class="logo">
 
@@ -163,11 +181,11 @@ $_SESSION['suscripcion_activa'] = 1;
 
         </div>
 
-
+        <?php include 'menu.php'; ?>
+       
     </div>
 
 </header>
-
 
 
 <main>
@@ -227,7 +245,6 @@ $_SESSION['suscripcion_activa'] = 1;
 </section>
 
 
-
 <!-- ==========================================
      ESPECIALIDADES
 ========================================== -->
@@ -262,7 +279,6 @@ $_SESSION['suscripcion_activa'] = 1;
     </div>
 
 
-
     <div class="d2">
 
         <img
@@ -286,7 +302,6 @@ $_SESSION['suscripcion_activa'] = 1;
     </div>
 
 
-
     <div class="d3">
 
         <img
@@ -307,7 +322,6 @@ $_SESSION['suscripcion_activa'] = 1;
         </p>
 
     </div>
-
 
 
     <div class="d4">
@@ -338,7 +352,6 @@ $_SESSION['suscripcion_activa'] = 1;
 </section>
 
 
-
 <!-- ==========================================
      CHAT
 ========================================== -->
@@ -350,7 +363,6 @@ $_SESSION['suscripcion_activa'] = 1;
 
 
 <div class="container">
-
 
 
 <!-- ======================================
@@ -386,7 +398,6 @@ $_SESSION['suscripcion_activa'] = 1;
 </div>
 
 
-
 <!-- ======================================
      SELECTOR
 ======================================= -->
@@ -408,30 +419,26 @@ $_SESSION['suscripcion_activa'] = 1;
     </p>
 
 
-
-    <!-- ==================================
-         CHAT BOX
-    ================================== -->
+<!-- ==================================
+     CHAT BOX
+================================== -->
 
 
     <div class="chat-box">
 
 
-
-        <!-- ==================================
-             CABECERA
-        ================================== -->
+<!-- ==================================
+     CABECERA
+================================== -->
 
 
         <div class="chat-header">
 
 
-
             <div class="chat-intro">
 
 
-
-                <!-- AVATAR -->
+<!-- AVATAR -->
 
 
                 <div class="assistant-avatar">
@@ -445,8 +452,7 @@ $_SESSION['suscripcion_activa'] = 1;
                 </div>
 
 
-
-                <!-- INFORMACIÓN -->
+<!-- INFORMACIÓN -->
 
 
                 <div class="chat-intro-info">
@@ -471,8 +477,7 @@ $_SESSION['suscripcion_activa'] = 1;
                 </div>
 
 
-
-                <!-- REINICIAR -->
+<!-- REINICIAR -->
 
 
                 <button
@@ -493,14 +498,12 @@ $_SESSION['suscripcion_activa'] = 1;
             </div>
 
 
-
-            <!-- ==================================
-                 BOTONES DE AGENTE
-            ================================== -->
+<!-- ==================================
+     BOTONES DE AGENTE
+================================== -->
 
 
             <div class="agent-buttons">
-
 
 
                 <button
@@ -513,7 +516,6 @@ $_SESSION['suscripcion_activa'] = 1;
                 </button>
 
 
-
                 <button
                     type="button"
                     class="agent-button"
@@ -522,7 +524,6 @@ $_SESSION['suscripcion_activa'] = 1;
                     Tiendas online
 
                 </button>
-
 
 
                 <button
@@ -535,7 +536,6 @@ $_SESSION['suscripcion_activa'] = 1;
                 </button>
 
 
-
                 <button
                     type="button"
                     class="agent-button"
@@ -546,17 +546,15 @@ $_SESSION['suscripcion_activa'] = 1;
                 </button>
 
 
-
             </div>
 
 
         </div>
 
 
-
-        <!-- ==================================
-             MENSAJES
-        ================================== -->
+<!-- ==================================
+     MENSAJES
+================================== -->
 
 
         <div
@@ -565,16 +563,14 @@ $_SESSION['suscripcion_activa'] = 1;
         </div>
 
 
-
-        <!-- ==================================
-             FORMULARIO CHAT
-        ================================== -->
+<!-- ==================================
+     FORMULARIO CHAT
+================================== -->
 
 
         <form
             id="chatForm"
             class="chat-input">
-
 
 
             <input
@@ -586,10 +582,9 @@ $_SESSION['suscripcion_activa'] = 1;
                 required>
 
 
-
-            <!-- ==================================
-                 SOLICITAR REUNIÓN
-            ================================== -->
+<!-- ==================================
+     SOLICITAR REUNIÓN
+================================== -->
 
 
             <label class="reunion-check">
@@ -608,10 +603,9 @@ $_SESSION['suscripcion_activa'] = 1;
             </label>
 
 
-
-            <!-- ==================================
-                 BOTÓN ENVIAR
-            ================================== -->
+<!-- ==================================
+     BOTÓN ENVIAR
+================================== -->
 
 
             <button
@@ -635,7 +629,6 @@ $_SESSION['suscripcion_activa'] = 1;
 
 
 </div>
-
 
 
 <!-- ==========================================
@@ -662,10 +655,9 @@ $_SESSION['suscripcion_activa'] = 1;
     </div>
 
 
-
-    <!-- ======================================
-         DATOS CLIENTE
-    ======================================= -->
+<!-- ======================================
+     DATOS CLIENTE
+======================================= -->
 
 
     <div
@@ -683,8 +675,7 @@ $_SESSION['suscripcion_activa'] = 1;
         </p>
 
 
-
-        <!-- NOMBRE -->
+<!-- NOMBRE -->
 
 
         <div class="form-group">
@@ -701,8 +692,7 @@ $_SESSION['suscripcion_activa'] = 1;
         </div>
 
 
-
-        <!-- EMAIL -->
+<!-- EMAIL -->
 
 
         <div class="form-group">
@@ -719,8 +709,7 @@ $_SESSION['suscripcion_activa'] = 1;
         </div>
 
 
-
-        <!-- ARCHIVO -->
+<!-- ARCHIVO -->
 
 
         <div class="form-group">
@@ -736,8 +725,7 @@ $_SESSION['suscripcion_activa'] = 1;
         </div>
 
 
-
-        <!-- CONFIRMAR -->
+<!-- CONFIRMAR -->
 
 
         <button
@@ -752,8 +740,7 @@ $_SESSION['suscripcion_activa'] = 1;
     </div>
 
 
-
-    <!-- TEXTO -->
+<!-- TEXTO -->
 
 
     <p>
@@ -776,7 +763,6 @@ $_SESSION['suscripcion_activa'] = 1;
 </section>
 
 
-
 <!-- ==========================================
      CONTACTO
 ========================================== -->
@@ -788,7 +774,6 @@ $_SESSION['suscripcion_activa'] = 1;
 
 
 <div class="container">
-
 
 
     <div class="section-title">
@@ -815,20 +800,16 @@ $_SESSION['suscripcion_activa'] = 1;
     </div>
 
 
-
     <div class="contact-card">
-
 
 
         <form id="contactForm">
 
 
-
             <div class="form-grid">
 
 
-
-                <!-- NOMBRE -->
+<!-- NOMBRE -->
 
 
                 <div class="form-group">
@@ -844,8 +825,7 @@ $_SESSION['suscripcion_activa'] = 1;
                 </div>
 
 
-
-                <!-- EMPRESA -->
+<!-- EMPRESA -->
 
 
                 <div class="form-group">
@@ -861,8 +841,7 @@ $_SESSION['suscripcion_activa'] = 1;
                 </div>
 
 
-
-                <!-- EMAIL -->
+<!-- EMAIL -->
 
 
                 <div class="form-group full">
@@ -878,8 +857,7 @@ $_SESSION['suscripcion_activa'] = 1;
                 </div>
 
 
-
-                <!-- MENSAJE -->
+<!-- MENSAJE -->
 
 
                 <div class="form-group full">
@@ -899,7 +877,6 @@ $_SESSION['suscripcion_activa'] = 1;
             </div>
 
 
-
             <button
                 type="submit"
                 class="whatsapp-button">
@@ -907,7 +884,6 @@ $_SESSION['suscripcion_activa'] = 1;
                 Contactar por WhatsApp
 
             </button>
-
 
 
             <div id="formResult"></div>
@@ -928,7 +904,6 @@ $_SESSION['suscripcion_activa'] = 1;
 </main>
 
 
-
 <!-- ==========================================
      MODAL SOLICITAR REUNIÓN
 ========================================== -->
@@ -946,7 +921,6 @@ $_SESSION['suscripcion_activa'] = 1;
     </div>
 
 
-
     <div
         class="reunion-modal-content"
         role="dialog"
@@ -954,8 +928,7 @@ $_SESSION['suscripcion_activa'] = 1;
         aria-labelledby="reunionModalTitle">
 
 
-
-        <!-- CABECERA -->
+<!-- CABECERA -->
 
 
         <div class="reunion-modal-header">
@@ -977,7 +950,6 @@ $_SESSION['suscripcion_activa'] = 1;
             </div>
 
 
-
             <button
                 type="button"
                 id="closeReunionModal"
@@ -992,8 +964,7 @@ $_SESSION['suscripcion_activa'] = 1;
         </div>
 
 
-
-        <!-- CONTENIDO -->
+<!-- CONTENIDO -->
 
 
         <div class="reunion-modal-body">
@@ -1007,10 +978,9 @@ $_SESSION['suscripcion_activa'] = 1;
             </p>
 
 
-
-            <!-- ======================================
-                 CALENDARIO
-            ======================================= -->
+<!-- ======================================
+     CALENDARIO
+======================================= -->
 
 
             <div class="form-group">
@@ -1021,12 +991,10 @@ $_SESSION['suscripcion_activa'] = 1;
                 </label>
 
 
-
                 <div class="calendar-container">
 
 
-
-                    <!-- CABECERA CALENDARIO -->
+<!-- CABECERA CALENDARIO -->
 
 
                     <div class="calendar-header">
@@ -1043,11 +1011,9 @@ $_SESSION['suscripcion_activa'] = 1;
                         </button>
 
 
-
                         <h3 id="calendarMonth">
                             Septiembre 2026
                         </h3>
-
 
 
                         <button
@@ -1064,8 +1030,7 @@ $_SESSION['suscripcion_activa'] = 1;
                     </div>
 
 
-
-                    <!-- DÍAS DE LA SEMANA -->
+<!-- DÍAS DE LA SEMANA -->
 
 
                     <div class="calendar-weekdays">
@@ -1083,8 +1048,7 @@ $_SESSION['suscripcion_activa'] = 1;
                     </div>
 
 
-
-                    <!-- DÍAS -->
+<!-- DÍAS -->
 
 
                     <div
@@ -1096,10 +1060,9 @@ $_SESSION['suscripcion_activa'] = 1;
                 </div>
 
 
-
-                <!-- ==================================
-                     CAMPO OCULTO
-                ================================== -->
+<!-- ==================================
+     CAMPO OCULTO
+================================== -->
 
 
                 <input
@@ -1108,8 +1071,7 @@ $_SESSION['suscripcion_activa'] = 1;
                     name="chatFechaReunion">
 
 
-
-                <!-- FECHA SELECCIONADA -->
+<!-- FECHA SELECCIONADA -->
 
 
                 <p
@@ -1124,10 +1086,9 @@ $_SESSION['suscripcion_activa'] = 1;
             </div>
 
 
-
-            <!-- ======================================
-                 HORA
-            ======================================= -->
+<!-- ======================================
+     HORA
+======================================= -->
 
 
             <div class="form-group">
@@ -1147,10 +1108,9 @@ $_SESSION['suscripcion_activa'] = 1;
             </div>
 
 
-
-            <!-- ======================================
-                 CONFIRMAR
-            ======================================= -->
+<!-- ======================================
+     CONFIRMAR
+======================================= -->
 
 
             <button
@@ -1170,7 +1130,6 @@ $_SESSION['suscripcion_activa'] = 1;
 
 
 </div>
-
 
 
 <!-- ==========================================
@@ -1196,7 +1155,6 @@ $_SESSION['suscripcion_activa'] = 1;
 
 
 </footer>
-
 
 
 <!-- ==========================================

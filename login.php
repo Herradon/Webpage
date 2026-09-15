@@ -147,52 +147,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             |--------------------------------------------------------------------------
             | COMPROBAR SUSCRIPCIÓN
             |--------------------------------------------------------------------------
-            */
-
-            $suscripcionActiva =
-                (int) $usuario['suscripcion_activa'] === 1;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Comprobar fecha de finalización
+            |
+            | La cuenta de ViziuneSL (usuario ID 8) tiene
+            | acceso gratuito.
+            |
+            | Todos los demás usuarios necesitan una
+            | suscripción activa.
             |--------------------------------------------------------------------------
             */
 
-            if (
-                $suscripcionActiva &&
-                !empty($usuario['suscripcion_fin'])
-            ) {
+            if ((int) $usuario['id'] === 8) {
 
-                $fechaFin =
-                    new DateTime(
-                        $usuario['suscripcion_fin']
-                    );
+                /*
+                | Cuenta oficial de ViziuneSL:
+                | acceso gratuito.
+                */
 
-                $ahora =
-                    new DateTime();
+                $suscripcionActiva = true;
+
+            } else {
+
+                /*
+                | Resto de usuarios:
+                | comprobar su suscripción.
+                */
+
+                $suscripcionActiva =
+                    (int) $usuario['suscripcion_activa'] === 1;
 
 
                 /*
-                | Si la suscripción ha caducado,
-                | la desactivamos.
+                |--------------------------------------------------------------------------
+                | Comprobar fecha de finalización
+                |--------------------------------------------------------------------------
                 */
 
-                if ($fechaFin < $ahora) {
+                if (
+                    $suscripcionActiva &&
+                    !empty($usuario['suscripcion_fin'])
+                ) {
 
-                    $suscripcionActiva = false;
+                    $fechaFin =
+                        new DateTime(
+                            $usuario['suscripcion_fin']
+                        );
+
+                    $ahora =
+                        new DateTime();
 
 
-                    $stmtActualizar =
-                        $pdo->prepare("
-                            UPDATE usuarios
-                            SET suscripcion_activa = 0
-                            WHERE id = ?
-                        ");
+                    /*
+                    | Si la suscripción ha caducado,
+                    | la desactivamos.
+                    */
 
-                    $stmtActualizar->execute([
-                        $usuario['id']
-                    ]);
+                    if ($fechaFin < $ahora) {
+
+                        $suscripcionActiva = false;
+
+
+                        $stmtActualizar =
+                            $pdo->prepare("
+                                UPDATE usuarios
+                                SET suscripcion_activa = 0
+                                WHERE id = ?
+                            ");
+
+                        $stmtActualizar->execute([
+                            $usuario['id']
+                        ]);
+
+                    }
 
                 }
 
@@ -218,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($suscripcionActiva) {
 
                 /*
-                | Usuario con suscripción:
+                | Usuario con suscripción o cuenta ViziuneSL:
                 | entra normalmente a la web.
                 */
 

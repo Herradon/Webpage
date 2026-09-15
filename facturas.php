@@ -22,67 +22,84 @@ $usuarioId = (int) $_SESSION['usuario_id'];
    COMPROBAR SUSCRIPCIÓN
 ========================================== */
 
-$stmtSuscripcion = $pdo->prepare("
-    SELECT
-        suscripcion_activa,
-        suscripcion_fin
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-");
+/*
+|--------------------------------------------------------------------------
+| Cuenta oficial de ViziuneSL
+|--------------------------------------------------------------------------
+|
+| El usuario ID 8 tiene acceso gratuito.
+|--------------------------------------------------------------------------
+*/
 
-$stmtSuscripcion->execute([
-    $usuarioId
-]);
-
-$datosSuscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
-
-$suscripcionActiva = false;
-
-
-if (
-    $datosSuscripcion &&
-    (int) $datosSuscripcion['suscripcion_activa'] === 1
-) {
+if ($usuarioId === 8) {
 
     $suscripcionActiva = true;
 
+} else {
 
-    /* ==========================================
-       COMPROBAR FECHA DE FINALIZACIÓN
-    ========================================== */
+    $stmtSuscripcion = $pdo->prepare("
+        SELECT
+            suscripcion_activa,
+            suscripcion_fin
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ");
 
-    if (!empty($datosSuscripcion['suscripcion_fin'])) {
+    $stmtSuscripcion->execute([
+        $usuarioId
+    ]);
 
-        try {
+    $datosSuscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
 
-            $fechaFin = new DateTime(
-                $datosSuscripcion['suscripcion_fin']
-            );
-
-            $ahora = new DateTime();
+    $suscripcionActiva = false;
 
 
-            if ($fechaFin < $ahora) {
+    if (
+        $datosSuscripcion &&
+        (int) $datosSuscripcion['suscripcion_activa'] === 1
+    ) {
 
-                $pdo->prepare("
-                    UPDATE usuarios
-                    SET suscripcion_activa = 0
-                    WHERE id = ?
-                ")->execute([
-                    $usuarioId
-                ]);
+        $suscripcionActiva = true;
 
+
+        /* ==========================================
+           COMPROBAR FECHA DE FINALIZACIÓN
+        ========================================== */
+
+        if (!empty($datosSuscripcion['suscripcion_fin'])) {
+
+            try {
+
+                $fechaFin = new DateTime(
+                    $datosSuscripcion['suscripcion_fin']
+                );
+
+                $ahora = new DateTime();
+
+
+                if ($fechaFin < $ahora) {
+
+                    $pdo->prepare("
+                        UPDATE usuarios
+                        SET suscripcion_activa = 0
+                        WHERE id = ?
+                    ")->execute([
+                        $usuarioId
+                    ]);
+
+
+                    $suscripcionActiva = false;
+
+                    $_SESSION['suscripcion_activa'] = 0;
+
+                }
+
+            } catch (Exception $e) {
 
                 $suscripcionActiva = false;
 
-                $_SESSION['suscripcion_activa'] = 0;
-
             }
-
-        } catch (Exception $e) {
-
-            $suscripcionActiva = false;
 
         }
 
@@ -103,6 +120,9 @@ if (!$suscripcionActiva) {
     exit;
 
 }
+
+
+$_SESSION['suscripcion_activa'] = 1;
 
 
 /* ==========================================

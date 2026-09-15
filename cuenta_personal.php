@@ -136,49 +136,94 @@ if ($suscripcionActiva && !empty($usuario['suscripcion_fin'])) {
             color: #ffffff;
         }
 
-        header {
-            background: #0d1a29;
-            border-bottom: 1px solid #1c3045;
-            padding: 18px 30px;
-        }
+       .header {
 
-        .header-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
+    width: 100%;
 
-        .logo {
-            color: #00cfe0;
-            font-size: 24px;
-            font-weight: bold;
-            text-decoration: none;
-        }
+    background: #0d1a29;
 
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 22px;
-            flex-wrap: wrap;
-        }
+    border-bottom: 1px solid #1c3045;
 
-        nav a {
-            color: #b7c5d3;
-            text-decoration: none;
-            font-size: 14px;
-        }
+    position: f;
 
-        nav a:hover {
-            color: #00cfe0;
-        }
+    top: 0;
 
-        nav a.activo {
-            color: #00cfe0;
-        }
+    z-index: 100;
 
+    }
+    
+    .nav {
+    
+        width: 100%;
+    
+        min-height: 75px;
+    
+        display: flex;
+        justify-content: space-between;
+    
+        align-items: center;
+    
+        padding: 0 25px;
+    
+    }
+    
+    .logo {
+    
+        display: flex;
+    
+        align-items: center;
+    
+        font-size: 22px;
+    
+        font-weight: 800;
+    
+        white-space: nowrap;
+    
+    }
+    
+    .logo-v {
+    
+        color: #00cfe0;
+    
+        font-size: 25px;
+    
+    }
+    
+    .logo-text {
+    
+        font-size: 25px;
+    
+        color: #ffffff;
+    
+    }
+    
+    nav {
+    
+        flex: 1;
+    
+        text-align: center;
+    
+        margin-left: 30px;
+    
+    }
+    
+    nav a {
+    
+        color: #b7c5d3;
+    
+        text-decoration: none;
+    
+        font-weight: 600;
+    
+        margin: 0 20px;
+    
+    }
+    
+    nav a:hover {
+    
+        color: #00cfe0;
+    
+    }
         main {
             max-width: 1100px;
             margin: 0 auto;
@@ -332,9 +377,27 @@ if ($suscripcionActiva && !empty($usuario['suscripcion_fin'])) {
 
 <body>
 
-<header>
+<header class="header" style="position: fixed">
 
-  <?php include 'menu.php'; ?>
+    <div class="container nav">
+
+        <div class="logo">
+
+            <div class="logo-v">
+                V
+            </div>
+
+            <div class="logo-text">
+                IZIUNE
+            </div>
+
+        </div>
+
+        <?php include 'menu.php'; ?>
+       
+    </div>
+
+</header>
 
 
 <main>
