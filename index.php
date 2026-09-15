@@ -165,7 +165,7 @@ $_SESSION['suscripcion_activa'] = 1;
 ========================================== -->
 
 
-<header class="header" style="position: fixed">
+<header class="header" style="position:fixed;">
 
     <div class="container nav">
 

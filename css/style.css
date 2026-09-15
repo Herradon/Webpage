@@ -112,6 +112,24 @@ textarea {
 
 }
 
+nav a {
+
+    color: #b7c5d3;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+    margin: 0 20px;
+
+}
+
+nav a:hover {
+
+    color: #00cfe0;
+
+}
+
 .logo {
 
     display: flex;
@@ -142,33 +160,7 @@ textarea {
 
 }
 
-nav {
 
-    flex: 1;
-
-    text-align: center;
-
-    margin-left: 30px;
-
-}
-
-nav a {
-
-    color: #b7c5d3;
-
-    text-decoration: none;
-
-    font-weight: 600;
-
-    margin: 0 20px;
-
-}
-
-nav a:hover {
-
-    color: #00cfe0;
-
-}
 
 
 

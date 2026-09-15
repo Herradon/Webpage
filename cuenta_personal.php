@@ -732,7 +732,7 @@ if ($suscripcionActiva && !empty($usuario['suscripcion_fin'])) {
                 </div>
 
 
-                <div class="dato">
+                <!--<div class="dato">
 
                     <span class="dato-label">
                         Teléfono
@@ -747,7 +747,7 @@ if ($suscripcionActiva && !empty($usuario['suscripcion_fin'])) {
 
                     </span>
 
-                </div>
+                </div>-->
 
 
                 <div class="dato">
