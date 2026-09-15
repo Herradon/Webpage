@@ -41,66 +41,79 @@ $usuarioId = (int) $_SESSION["usuario_id"];
    COMPROBAR SUSCRIPCIÓN
 ========================================================== */
 
-$stmtSuscripcion = $pdo->prepare("
-    SELECT
-        suscripcion_activa,
-        suscripcion_fin
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-");
+/*
+   ViziuneSL (usuario ID 8) tiene acceso gratuito
+   únicamente para esta cuenta.
+*/
 
-$stmtSuscripcion->execute([$usuarioId]);
+if ($usuarioId === 8) {
 
-$suscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
+    $suscripcionActiva = true;
 
-$suscripcionActiva = false;
+} else {
 
+    $stmtSuscripcion = $pdo->prepare("
+        SELECT
+            suscripcion_activa,
+            suscripcion_fin
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ");
 
-if ($suscripcion) {
+    $stmtSuscripcion->execute([$usuarioId]);
 
-    $suscripcionActiva =
-        (int) $suscripcion["suscripcion_activa"] === 1;
+    $suscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Comprobar fecha de finalización
-    |--------------------------------------------------------------------------
-    */
-
-    if (
-        $suscripcionActiva &&
-        !empty($suscripcion["suscripcion_fin"])
-    ) {
-
-        try {
-
-            $fechaFin = new DateTime(
-                $suscripcion["suscripcion_fin"]
-            );
-
-            $ahora = new DateTime();
+    $suscripcionActiva = false;
 
 
-            if ($fechaFin < $ahora) {
+    if ($suscripcion) {
+
+        $suscripcionActiva =
+            (int) $suscripcion["suscripcion_activa"] === 1;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Comprobar fecha de finalización
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $suscripcionActiva &&
+            !empty($suscripcion["suscripcion_fin"])
+        ) {
+
+            try {
+
+                $fechaFin = new DateTime(
+                    $suscripcion["suscripcion_fin"]
+                );
+
+                $ahora = new DateTime();
+
+
+                if ($fechaFin < $ahora) {
+
+                    $suscripcionActiva = false;
+
+
+                    $stmtActualizar = $pdo->prepare("
+                        UPDATE usuarios
+                        SET suscripcion_activa = 0
+                        WHERE id = ?
+                    ");
+
+                    $stmtActualizar->execute([$usuarioId]);
+
+                }
+
+            } catch (Exception $e) {
 
                 $suscripcionActiva = false;
 
-
-                $stmtActualizar = $pdo->prepare("
-                    UPDATE usuarios
-                    SET suscripcion_activa = 0
-                    WHERE id = ?
-                ");
-
-                $stmtActualizar->execute([$usuarioId]);
-
             }
-
-        } catch (Exception $e) {
-
-            $suscripcionActiva = false;
 
         }
 
@@ -120,7 +133,8 @@ if (!$suscripcionActiva) {
     echo json_encode(
         [
             "success" => false,
-            "error" => "Necesitas una suscripción activa para utilizar el asistente."
+            "error" =>
+                "Necesitas una suscripción activa para utilizar el asistente."
         ],
         JSON_UNESCAPED_UNICODE
     );
@@ -128,6 +142,10 @@ if (!$suscripcionActiva) {
     exit;
 }
 
+
+/* ==========================================================
+   MARCAR SUSCRIPCIÓN COMO ACTIVA EN LA SESIÓN
+========================================================== */
 
 $_SESSION["suscripcion_activa"] = 1;
 
@@ -888,8 +906,6 @@ if ($action === "email") {
                 );
 
 
-            finfo_close($finfo);
-
 
             /* ==============================================
                TIPOS PERMITIDOS
@@ -1384,7 +1400,6 @@ $curlError =
    CERRAR CURL
 ========================================================== */
 
-curl_close($ch);
 
 
 /* ==========================================================

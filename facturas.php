@@ -11,97 +11,190 @@ require_once 'config.php';
 ========================================== */
 
 if (!isset($_SESSION['usuario_id'])) {
+
     header('Location: login.php');
     exit;
+
 }
 
 $usuarioId = (int) $_SESSION['usuario_id'];
 
 
 /* ==========================================
-   COMPROBAR SUSCRIPCIÓN
+   COMPROBAR CLAVE DE CIFRADO
 ========================================== */
 
-/*
-|--------------------------------------------------------------------------
-| Cuenta oficial de ViziuneSL
-|--------------------------------------------------------------------------
-|
-| El usuario ID 8 tiene acceso gratuito.
-|--------------------------------------------------------------------------
-*/
+$claveCifrado =
+    $VIZIUNEAI_FACTURAS_KEY ?? '';
 
-if ($usuarioId === 8) {
 
-    $suscripcionActiva = true;
+if (!$claveCifrado || strlen($claveCifrado) < 32) {
+
+    error_log(
+        'Error: clave de cifrado de facturas no configurada correctamente.'
+    );
+
+    $claveCifradoValida = false;
 
 } else {
 
-    $stmtSuscripcion = $pdo->prepare("
-        SELECT
-            suscripcion_activa,
-            suscripcion_fin
-        FROM usuarios
-        WHERE id = ?
-        LIMIT 1
-    ");
+    $claveCifradoValida = true;
 
-    $stmtSuscripcion->execute([
-        $usuarioId
-    ]);
-
-    $datosSuscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
-
-    $suscripcionActiva = false;
+}
 
 
-    if (
-        $datosSuscripcion &&
-        (int) $datosSuscripcion['suscripcion_activa'] === 1
-    ) {
+/* ==========================================
+   GENERAR CLAVE AES-256
+========================================== */
 
-        $suscripcionActiva = true;
+$clave = null;
 
+if ($claveCifradoValida) {
 
-        /* ==========================================
-           COMPROBAR FECHA DE FINALIZACIÓN
-        ========================================== */
+    $clave =
+        hash(
+            'sha256',
+            $claveCifrado,
+            true
+        );
 
-        if (!empty($datosSuscripcion['suscripcion_fin'])) {
-
-            try {
-
-                $fechaFin = new DateTime(
-                    $datosSuscripcion['suscripcion_fin']
-                );
-
-                $ahora = new DateTime();
+}
 
 
-                if ($fechaFin < $ahora) {
+/* ==========================================
+   FUNCIÓN PARA DESCIFRAR FACTURA PRIVADA
+========================================== */
 
-                    $pdo->prepare("
-                        UPDATE usuarios
-                        SET suscripcion_activa = 0
-                        WHERE id = ?
-                    ")->execute([
-                        $usuarioId
-                    ]);
+function descifrarDatosFactura(
+    $datosCifrados,
+    $clave
+) {
 
+    try {
 
-                    $suscripcionActiva = false;
+        if (
+            !$datosCifrados ||
+            !$clave
+        ) {
 
-                    $_SESSION['suscripcion_activa'] = 0;
-
-                }
-
-            } catch (Exception $e) {
-
-                $suscripcionActiva = false;
-
-            }
+            return null;
 
         }
+
+
+        if (
+            !function_exists(
+                'openssl_decrypt'
+            )
+        ) {
+
+            return null;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Los datos guardados por guardar_factura.php
+        | tienen este formato:
+        |
+        | BASE64(
+        |     IV de 16 bytes
+        |     +
+        |     datos cifrados
+        | )
+        |--------------------------------------------------------------------------
+        */
+
+        $contenidoPrivado =
+            base64_decode(
+                $datosCifrados,
+                true
+            );
+
+
+        if (
+            $contenidoPrivado === false ||
+            strlen($contenidoPrivado) <= 16
+        ) {
+
+            return null;
+
+        }
+
+
+        /* ======================================
+           EXTRAER IV
+        ====================================== */
+
+        $iv =
+            substr(
+                $contenidoPrivado,
+                0,
+                16
+            );
+
+
+        /* ======================================
+           EXTRAER DATOS CIFRADOS
+        ====================================== */
+
+        $datos =
+            substr(
+                $contenidoPrivado,
+                16
+            );
+
+
+        if (
+            $datos === false ||
+            $datos === ''
+        ) {
+
+            return null;
+
+        }
+
+
+        /* ======================================
+           DESCIFRAR AES-256-CBC
+        ====================================== */
+
+        $json =
+            openssl_decrypt(
+                $datos,
+                'AES-256-CBC',
+                $clave,
+                OPENSSL_RAW_DATA,
+                $iv
+            );
+
+
+        if ($json === false) {
+
+            return null;
+
+        }
+
+
+        /* ======================================
+           CONVERTIR JSON
+        ====================================== */
+
+        return json_decode(
+            $json,
+            true
+        );
+
+
+    } catch (Throwable $e) {
+
+        error_log(
+            'Error descifrando factura en facturas.php: ' .
+            $e->getMessage()
+        );
+
+        return null;
 
     }
 
@@ -109,27 +202,28 @@ if ($usuarioId === 8) {
 
 
 /* ==========================================
-   BLOQUEAR FACTURACIÓN SI NO HAY SUSCRIPCIÓN
-========================================== */
-
-if (!$suscripcionActiva) {
-
-    $_SESSION['suscripcion_activa'] = 0;
-
-    header('Location: suscripcion.php');
-    exit;
-
-}
-
-
-$_SESSION['suscripcion_activa'] = 1;
-
-
-/* ==========================================
    OBTENER FACTURAS DEL USUARIO CONECTADO
 ========================================== */
 
+$facturas = [];
+
+
 try {
+
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORTANTE
+    |--------------------------------------------------------------------------
+    |
+    | clientes solamente se utiliza aquí como
+    | vínculo técnico entre:
+    |
+    | usuario → factura
+    |
+    | Los datos reales del cliente de la factura
+    | están cifrados en facturas_privadas.
+    |
+    */
 
     $stmt = $pdo->prepare("
         SELECT
@@ -137,40 +231,285 @@ try {
             f.serie,
             f.numero,
             f.fecha_emision,
-            f.base_imponible,
-            f.total_iva,
-            f.total_irpf,
-            f.total,
             f.estado,
-            c.nombre_razon_social,
-            c.nif
+            f.created_at,
+            f.updated_at,
+            fp.datos_cifrados
+
         FROM facturas f
 
         INNER JOIN clientes c
             ON f.cliente_id = c.id
 
+        LEFT JOIN facturas_privadas fp
+            ON fp.factura_id = f.id
+            AND fp.usuario_id = ?
+
         WHERE c.usuario_id = ?
           AND c.activo = 1
 
-        ORDER BY f.fecha_emision DESC, f.id DESC
+        ORDER BY
+            f.fecha_emision DESC,
+            f.id DESC
     ");
 
+
     $stmt->execute([
+        $usuarioId,
         $usuarioId
     ]);
 
-    $facturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $facturasTecnicas =
+        $stmt->fetchAll(
+            PDO::FETCH_ASSOC
+        );
+
+
+    /* ==========================================
+       DESCIFRAR INFORMACIÓN PRIVADA
+    ========================================== */
+
+    foreach (
+        $facturasTecnicas
+        as $factura
+    ) {
+
+        $datosPrivados = null;
+
+
+        if (
+            !empty(
+                $factura['datos_cifrados']
+            )
+        ) {
+
+            $datosPrivados =
+                descifrarDatosFactura(
+                    $factura[
+                        'datos_cifrados'
+                    ],
+                    $clave
+                );
+
+        }
+
+
+        /* ======================================
+           DATOS DEL CLIENTE
+        ====================================== */
+
+        $nombreCliente = '';
+
+        $nifCliente = '';
+
+
+        if (
+            is_array($datosPrivados) &&
+            isset(
+                $datosPrivados['cliente']
+            )
+        ) {
+
+            $clientePrivado =
+                $datosPrivados['cliente'];
+
+
+            $nombreCliente =
+                $clientePrivado[
+                    'nombre_razon_social'
+                ] ?? '';
+
+
+            $nifCliente =
+                $clientePrivado[
+                    'nif'
+                ] ?? '';
+
+        }
+
+
+        /* ======================================
+           DATOS ECONÓMICOS
+        ====================================== */
+
+        $baseImponible = 0;
+
+        $totalIva = 0;
+
+        $totalIrpf = 0;
+
+        $total = 0;
+
+
+        if (
+            is_array($datosPrivados) &&
+            isset(
+                $datosPrivados['factura']
+            )
+        ) {
+
+            $datosFactura =
+                $datosPrivados['factura'];
+
+
+            $baseImponible =
+                (float) (
+                    $datosFactura[
+                        'base_imponible'
+                    ] ?? 0
+                );
+
+
+            $totalIva =
+                (float) (
+                    $datosFactura[
+                        'total_iva'
+                    ] ?? 0
+                );
+
+
+            $totalIrpf =
+                (float) (
+                    $datosFactura[
+                        'total_irpf'
+                    ] ?? 0
+                );
+
+
+            $total =
+                (float) (
+                    $datosFactura[
+                        'total'
+                    ] ?? 0
+                );
+
+        }
+
+
+        /* ======================================
+           FECHA
+        ====================================== */
+
+        $fechaEmision =
+            $factura['fecha_emision'];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si la fecha técnica está vacía,
+        | intentamos obtenerla de la información
+        | privada.
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            empty($fechaEmision) &&
+            isset($datosFactura) &&
+            !empty(
+                $datosFactura[
+                    'fecha_emision'
+                ]
+            )
+        ) {
+
+            $fechaEmision =
+                $datosFactura[
+                    'fecha_emision'
+                ];
+
+        }
+
+
+        /* ======================================
+           NÚMERO
+        ====================================== */
+
+        if (
+            $factura['numero'] !== null &&
+            $factura['numero'] !== ''
+        ) {
+
+            $numeroFactura =
+                $factura['serie'] .
+                '-' .
+                str_pad(
+                    $factura['numero'],
+                    6,
+                    '0',
+                    STR_PAD_LEFT
+                );
+
+        } else {
+
+            $numeroFactura =
+                'BORRADOR';
+
+        }
+
+
+        /* ======================================
+           AÑADIR FACTURA AL LISTADO
+        ====================================== */
+
+        $facturas[] = [
+
+            'id' =>
+                (int) $factura['id'],
+
+            'serie' =>
+                $factura['serie'],
+
+            'numero' =>
+                $factura['numero'],
+
+            'numero_factura' =>
+                $numeroFactura,
+
+            'fecha_emision' =>
+                $fechaEmision,
+
+            'base_imponible' =>
+                $baseImponible,
+
+            'total_iva' =>
+                $totalIva,
+
+            'total_irpf' =>
+                $totalIrpf,
+
+            'total' =>
+                $total,
+
+            'estado' =>
+                $factura['estado'],
+
+            'nombre_razon_social' =>
+                $nombreCliente,
+
+            'nif' =>
+                $nifCliente
+
+        ];
+
+    }
+
 
 } catch (PDOException $e) {
 
     error_log(
-        "Error obteniendo facturas del usuario: "
-        . $e->getMessage()
+        'Error obteniendo facturas del usuario: ' .
+        $e->getMessage()
     );
 
     $facturas = [];
 
 }
+
+
+/* ==========================================
+   HTML
+========================================== */
 
 ?>
 <!DOCTYPE html>
@@ -185,7 +524,9 @@ try {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Facturación | ViziuneAI</title>
+    <title>
+        Facturación | ViziuneAI
+    </title>
 
     <link
         rel="stylesheet"
@@ -195,6 +536,7 @@ try {
 </head>
 
 <body>
+
 
     <!-- ==========================================
          CABECERA
@@ -226,6 +568,7 @@ try {
                     ← Volver
                 </a>
 
+
                 <a
                     href="crear_factura.php"
                     class="boton-principal"
@@ -255,7 +598,8 @@ try {
 
             <?php
 
-            $totalFacturas = count($facturas);
+            $totalFacturas =
+                count($facturas);
 
             $totalEmitidas = 0;
 
@@ -266,23 +610,49 @@ try {
             $importeTotal = 0;
 
 
-            foreach ($facturas as $factura) {
+            foreach (
+                $facturas
+                as $factura
+            ) {
 
-                if ($factura['estado'] === 'emitida') {
+                if (
+                    $factura['estado']
+                    === 'emitida'
+                ) {
+
                     $totalEmitidas++;
+
                 }
 
-                if ($factura['estado'] === 'borrador') {
+
+                if (
+                    $factura['estado']
+                    === 'borrador'
+                ) {
+
                     $totalBorradores++;
+
                 }
 
-                if ($factura['estado'] === 'anulada') {
+
+                if (
+                    $factura['estado']
+                    === 'anulada'
+                ) {
+
                     $totalAnuladas++;
+
                 }
 
-                if ($factura['estado'] !== 'anulada') {
 
-                    $importeTotal += (float) $factura['total'];
+                if (
+                    $factura['estado']
+                    !== 'anulada'
+                ) {
+
+                    $importeTotal +=
+                        (float)
+                        $factura['total'];
 
                 }
 
@@ -337,12 +707,16 @@ try {
                 </span>
 
                 <strong>
+
                     <?= number_format(
                         $importeTotal,
                         2,
                         ',',
                         '.'
-                    ) ?> €
+                    ) ?>
+
+                    €
+
                 </strong>
 
             </div>
@@ -416,13 +790,17 @@ try {
                 </h2>
 
                 <span>
-                    <?= $totalFacturas ?> registros
+                    <?= $totalFacturas ?>
+                    registros
                 </span>
 
             </div>
 
 
-            <?php if (!empty($facturas)): ?>
+            <?php if (
+                !empty($facturas)
+            ): ?>
+
 
                 <div class="tabla-responsive">
 
@@ -475,37 +853,35 @@ try {
 
                         <tbody>
 
-                            <?php foreach ($facturas as $factura): ?>
 
-                                <?php
-
-                                $numeroFactura =
-                                    $factura['serie']
-                                    . '-'
-                                    . str_pad(
-                                        $factura['numero'],
-                                        6,
-                                        '0',
-                                        STR_PAD_LEFT
-                                    );
-
-                                ?>
+                            <?php foreach (
+                                $facturas
+                                as $factura
+                            ): ?>
 
 
                                 <tr
                                     class="fila-factura"
+
                                     data-estado="<?= htmlspecialchars(
                                         $factura['estado'],
                                         ENT_QUOTES,
                                         'UTF-8'
                                     ) ?>"
+
                                     data-busqueda="<?= htmlspecialchars(
                                         strtolower(
-                                            $numeroFactura
+                                            $factura[
+                                                'numero_factura'
+                                            ]
                                             . ' '
-                                            . $factura['nombre_razon_social']
+                                            . $factura[
+                                                'nombre_razon_social'
+                                            ]
                                             . ' '
-                                            . $factura['nif']
+                                            . $factura[
+                                                'nif'
+                                            ]
                                         ),
                                         ENT_QUOTES,
                                         'UTF-8'
@@ -513,23 +889,37 @@ try {
                                 >
 
 
+                                    <!-- ==============================
+                                         NÚMERO
+                                    =============================== -->
+
                                     <td>
 
                                         <strong>
+
                                             <?= htmlspecialchars(
-                                                $numeroFactura,
+                                                $factura[
+                                                    'numero_factura'
+                                                ],
                                                 ENT_QUOTES,
                                                 'UTF-8'
                                             ) ?>
+
                                         </strong>
 
                                     </td>
 
 
+                                    <!-- ==============================
+                                         CLIENTE
+                                    =============================== -->
+
                                     <td>
 
                                         <?= htmlspecialchars(
-                                            $factura['nombre_razon_social'],
+                                            $factura[
+                                                'nombre_razon_social'
+                                            ],
                                             ENT_QUOTES,
                                             'UTF-8'
                                         ) ?>
@@ -537,104 +927,180 @@ try {
                                     </td>
 
 
+                                    <!-- ==============================
+                                         NIF
+                                    =============================== -->
+
                                     <td>
 
                                         <?= htmlspecialchars(
-                                            $factura['nif'],
+                                            $factura[
+                                                'nif'
+                                            ],
                                             ENT_QUOTES,
                                             'UTF-8'
                                         ) ?>
 
                                     </td>
 
+
+                                    <!-- ==============================
+                                         FECHA
+                                    =============================== -->
 
                                     <td>
 
                                         <?php
 
-                                        $fecha = date(
-                                            'd/m/Y',
-                                            strtotime(
-                                                $factura['fecha_emision']
+                                        if (
+                                            !empty(
+                                                $factura[
+                                                    'fecha_emision'
+                                                ]
                                             )
-                                        );
+                                        ) {
+
+                                            $fecha =
+                                                date(
+                                                    'd/m/Y',
+                                                    strtotime(
+                                                        $factura[
+                                                            'fecha_emision'
+                                                        ]
+                                                    )
+                                                );
+
+                                        } else {
+
+                                            $fecha =
+                                                '—';
+
+                                        }
 
                                         ?>
 
-                                        <?= $fecha ?>
+                                        <?= htmlspecialchars(
+                                            $fecha,
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
 
                                     </td>
 
+
+                                    <!-- ==============================
+                                         BASE
+                                    =============================== -->
 
                                     <td>
 
                                         <?= number_format(
-                                            (float) $factura['base_imponible'],
+                                            (float)
+                                            $factura[
+                                                'base_imponible'
+                                            ],
                                             2,
                                             ',',
                                             '.'
-                                        ) ?> €
+                                        ) ?>
+
+                                        €
 
                                     </td>
 
+
+                                    <!-- ==============================
+                                         IVA
+                                    =============================== -->
 
                                     <td>
 
                                         <?= number_format(
-                                            (float) $factura['total_iva'],
+                                            (float)
+                                            $factura[
+                                                'total_iva'
+                                            ],
                                             2,
                                             ',',
                                             '.'
-                                        ) ?> €
+                                        ) ?>
+
+                                        €
 
                                     </td>
 
+
+                                    <!-- ==============================
+                                         TOTAL
+                                    =============================== -->
 
                                     <td>
 
                                         <strong>
 
                                             <?= number_format(
-                                                (float) $factura['total'],
+                                                (float)
+                                                $factura[
+                                                    'total'
+                                                ],
                                                 2,
                                                 ',',
                                                 '.'
-                                            ) ?> €
+                                            ) ?>
+
+                                            €
 
                                         </strong>
 
                                     </td>
 
 
+                                    <!-- ==============================
+                                         ESTADO
+                                    =============================== -->
+
                                     <td>
 
                                         <?php
 
-                                        switch ($factura['estado']) {
+                                        switch (
+                                            $factura[
+                                                'estado'
+                                            ]
+                                        ) {
 
                                             case 'emitida':
 
-                                                $textoEstado = 'Emitida';
+                                                $textoEstado =
+                                                    'Emitida';
 
                                                 break;
+
 
                                             case 'borrador':
 
-                                                $textoEstado = 'Borrador';
+                                                $textoEstado =
+                                                    'Borrador';
 
                                                 break;
+
 
                                             case 'anulada':
 
-                                                $textoEstado = 'Anulada';
+                                                $textoEstado =
+                                                    'Anulada';
 
                                                 break;
 
+
                                             default:
 
-                                                $textoEstado = ucfirst(
-                                                    $factura['estado']
-                                                );
+                                                $textoEstado =
+                                                    ucfirst(
+                                                        $factura[
+                                                            'estado'
+                                                        ]
+                                                    );
 
                                         }
 
@@ -643,7 +1109,9 @@ try {
 
                                         <span
                                             class="estado estado-<?= htmlspecialchars(
-                                                $factura['estado'],
+                                                $factura[
+                                                    'estado'
+                                                ],
                                                 ENT_QUOTES,
                                                 'UTF-8'
                                             ) ?>"
@@ -660,6 +1128,10 @@ try {
                                     </td>
 
 
+                                    <!-- ==============================
+                                         ACCIONES
+                                    =============================== -->
+
                                     <td>
 
                                         <div class="acciones-factura">
@@ -674,7 +1146,13 @@ try {
                                             </a>
 
 
-                                            <?php if ($factura['estado'] === 'borrador'): ?>
+                                            <?php if (
+                                                $factura[
+                                                    'estado'
+                                                ]
+                                                === 'borrador'
+                                            ): ?>
+
 
                                                 <a
                                                     href="crear_factura.php?id=<?= (int) $factura['id'] ?>"
@@ -684,10 +1162,17 @@ try {
                                                     Editar
                                                 </a>
 
+
                                             <?php endif; ?>
 
 
-                                            <?php if ($factura['estado'] === 'emitida'): ?>
+                                            <?php if (
+                                                $factura[
+                                                    'estado'
+                                                ]
+                                                === 'emitida'
+                                            ): ?>
+
 
                                                 <a
                                                     href="generar_pdf.php?id=<?= (int) $factura['id'] ?>"
@@ -698,6 +1183,7 @@ try {
                                                     PDF
                                                 </a>
 
+
                                             <?php endif; ?>
 
 
@@ -705,9 +1191,12 @@ try {
 
                                     </td>
 
+
                                 </tr>
 
+
                             <?php endforeach; ?>
+
 
                         </tbody>
 
@@ -719,20 +1208,27 @@ try {
             <?php else: ?>
 
 
+                <!-- ==========================================
+                     SIN FACTURAS
+                ========================================== -->
+
                 <div class="sin-facturas">
 
                     <div class="sin-facturas-icono">
                         📄
                     </div>
 
+
                     <h3>
                         Todavía no hay facturas
                     </h3>
 
+
                     <p>
-                        Crea tu primera factura para empezar a utilizar
-                        el sistema de facturación.
+                        Crea tu primera factura para empezar
+                        a utilizar el sistema de facturación.
                     </p>
+
 
                     <a
                         href="crear_factura.php"
@@ -749,6 +1245,7 @@ try {
 
         </section>
 
+
     </main>
 
 
@@ -757,6 +1254,7 @@ try {
     ========================================== -->
 
     <script src="js/facturas.js"></script>
+
 
 </body>
 

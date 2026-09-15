@@ -7,6 +7,30 @@ require_once 'config.php';
 
 
 /* ==========================================
+   COMPROBAR SESIÓN
+========================================== */
+
+if (!isset($_SESSION['usuario_id'])) {
+
+    header('Location: login.php');
+    exit;
+
+}
+
+
+$usuarioId =
+    (int) $_SESSION['usuario_id'];
+
+
+if ($usuarioId <= 0) {
+
+    header('Location: login.php');
+    exit;
+
+}
+
+
+/* ==========================================
    OBTENER ID
 ========================================== */
 
@@ -17,8 +41,10 @@ $facturaId = filter_input(
 );
 
 if (!$facturaId || $facturaId <= 0) {
+
     header('Location: facturas.php');
     exit;
+
 }
 
 
@@ -31,8 +57,6 @@ if (!$facturaId || $facturaId <= 0) {
 | SEGURIDAD DE ACCESO
 |--------------------------------------------------------------------------
 |
-| Si hay un usuario conectado:
-|
 | usuarios.id
 |      ↓
 | clientes.usuario_id
@@ -42,227 +66,56 @@ if (!$facturaId || $facturaId <= 0) {
 | El usuario solo puede consultar sus propias
 | facturas.
 |
+| IMPORTANTE:
+|
+| Aquí solamente obtenemos información técnica
+| de la factura.
+|
+| Los datos privados están en facturas_privadas
+| y se descifran después.
+|
 */
 
-if (isset($_SESSION['usuario_id'])) {
+$stmtFactura = $pdo->prepare("
+    SELECT
+        f.id,
+        f.serie,
+        f.numero,
+        f.fecha_emision,
+        f.cliente_id,
+        f.estado,
+        f.created_at,
+        f.updated_at
 
-    $usuarioId =
-        (int) $_SESSION['usuario_id'];
+    FROM facturas f
 
+    INNER JOIN clientes c
+        ON c.id = f.cliente_id
 
-    if ($usuarioId <= 0) {
+    WHERE f.id = ?
+      AND c.usuario_id = ?
+      AND c.activo = 1
 
-        http_response_code(403);
+    LIMIT 1
+");
 
-        echo '
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Acceso no permitido | ViziuneAI</title>
-            <link rel="stylesheet" href="css/ver-factura.css">
-        </head>
-
-        <body>
-
-            <div class="error-factura">
-
-                <h1>Acceso no permitido</h1>
-
-                <p>
-                    No tienes permiso para consultar esta factura.
-                </p>
-
-                <a href="mi_cuenta.php" class="boton boton-principal">
-                    ← Volver a mi cuenta
-                </a>
-
-            </div>
-
-        </body>
-        </html>
-        ';
-
-        exit;
-    }
+$stmtFactura->execute([
+    $facturaId,
+    $usuarioId
+]);
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | USUARIO CONECTADO
-    |--------------------------------------------------------------------------
-    |
-    | Buscamos la factura únicamente si pertenece
-    | al cliente asociado al usuario conectado.
-    |
-    */
-
-    $stmtFactura = $pdo->prepare("
-        SELECT
-            f.id,
-            f.serie,
-            f.numero,
-            f.fecha_emision,
-            f.cliente_id,
-            f.moneda,
-            f.base_imponible,
-            f.total_iva,
-            f.total_irpf,
-            f.total,
-            f.metodo_pago,
-            f.fecha_vencimiento,
-            f.observaciones,
-            f.estado,
-            f.created_at,
-            f.updated_at,
-
-            c.nombre_razon_social,
-            c.nif,
-            c.direccion,
-            c.codigo_postal,
-            c.ciudad,
-            c.provincia,
-            c.pais,
-            c.email,
-            c.telefono
-
-        FROM facturas f
-
-        INNER JOIN clientes c
-            ON c.id = f.cliente_id
-
-        WHERE f.id = ?
-          AND c.usuario_id = ?
-          AND c.activo = 1
-
-        LIMIT 1
-    ");
-
-    $stmtFactura->execute([
-        $facturaId,
-        $usuarioId
-    ]);
-
-} else {
-
-    /*
-    |--------------------------------------------------------------------------
-    | ADMINISTRACIÓN
-    |--------------------------------------------------------------------------
-    |
-    | Si no hay usuario conectado, mantenemos
-    | el comportamiento original.
-    |
-    */
-
-    $stmtFactura = $pdo->prepare("
-        SELECT
-            f.id,
-            f.serie,
-            f.numero,
-            f.fecha_emision,
-            f.cliente_id,
-            f.moneda,
-            f.base_imponible,
-            f.total_iva,
-            f.total_irpf,
-            f.total,
-            f.metodo_pago,
-            f.fecha_vencimiento,
-            f.observaciones,
-            f.estado,
-            f.created_at,
-            f.updated_at,
-
-            c.nombre_razon_social,
-            c.nif,
-            c.direccion,
-            c.codigo_postal,
-            c.ciudad,
-            c.provincia,
-            c.pais,
-            c.email,
-            c.telefono
-
-        FROM facturas f
-
-        INNER JOIN clientes c
-            ON c.id = f.cliente_id
-
-        WHERE f.id = ?
-
-        LIMIT 1
-    ");
-
-    $stmtFactura->execute([
-        $facturaId
-    ]);
-
-}
-
-
-$factura = $stmtFactura->fetch();
+$facturaTecnica =
+    $stmtFactura->fetch();
 
 
 /* ==========================================
    FACTURA NO ENCONTRADA / SIN PERMISO
 ========================================== */
 
-if (!$factura) {
+if (!$facturaTecnica) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Si hay usuario conectado, no revelamos si la factura
-    | existe o pertenece a otra persona.
-    |--------------------------------------------------------------------------
-    */
-
-    if (isset($_SESSION['usuario_id'])) {
-
-        http_response_code(403);
-
-        echo '
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Acceso no permitido | ViziuneAI</title>
-            <link rel="stylesheet" href="css/ver-factura.css">
-        </head>
-
-        <body>
-
-            <div class="error-factura">
-
-                <h1>Acceso no permitido</h1>
-
-                <p>
-                    No tienes permiso para consultar esta factura.
-                </p>
-
-                <a href="mi_cuenta.php" class="boton boton-principal">
-                    ← Volver a mi cuenta
-                </a>
-
-            </div>
-
-        </body>
-        </html>
-        ';
-
-        exit;
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | COMPORTAMIENTO ORIGINAL PARA ADMINISTRACIÓN
-    |--------------------------------------------------------------------------
-    */
-
-    http_response_code(404);
+    http_response_code(403);
 
     echo '
     <!DOCTYPE html>
@@ -270,7 +123,7 @@ if (!$factura) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Factura no encontrada | ViziuneAI</title>
+        <title>Acceso no permitido | ViziuneAI</title>
         <link rel="stylesheet" href="css/ver-factura.css">
     </head>
 
@@ -278,10 +131,94 @@ if (!$factura) {
 
         <div class="error-factura">
 
-            <h1>Factura no encontrada</h1>
+            <h1>Acceso no permitido</h1>
 
             <p>
-                La factura solicitada no existe o ya no está disponible.
+                No tienes permiso para consultar esta factura.
+            </p>
+
+            <a href="mi_cuenta.php" class="boton boton-principal">
+                ← Volver a mi cuenta
+            </a>
+
+        </div>
+
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+
+/* ==========================================
+   COMPROBAR CLAVE DE CIFRADO
+========================================== */
+
+$claveCifrado =
+    $VIZIUNEAI_FACTURAS_KEY ?? '';
+
+
+if (!$claveCifrado) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+
+    <body>
+
+        <div class="error-factura">
+
+            <h1>Error de configuración</h1>
+
+            <p>
+                No está configurada la clave de cifrado de las facturas.
+            </p>
+
+            <a href="facturas.php" class="boton boton-principal">
+                ← Volver a facturas
+            </a>
+
+        </div>
+
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+
+if (strlen($claveCifrado) < 32) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+
+    <body>
+
+        <div class="error-factura">
+
+            <h1>Error de configuración</h1>
+
+            <p>
+                La clave de cifrado configurada no es válida.
             </p>
 
             <a href="facturas.php" class="boton boton-principal">
@@ -299,34 +236,519 @@ if (!$factura) {
 
 
 /* ==========================================
-   OBTENER LINEAS
+   GENERAR CLAVE BINARIA
 ========================================== */
 
-$stmtLineas = $pdo->prepare("
-    SELECT
-        id,
-        descripcion,
-        cantidad,
-        precio_unitario,
-        descuento,
-        tipo_iva,
-        base_linea,
-        cuota_iva,
-        total_linea,
-        orden
+$clave =
+    hash(
+        'sha256',
+        $claveCifrado,
+        true
+    );
 
-    FROM factura_lineas
+
+/* ==========================================
+   OBTENER FACTURA PRIVADA CIFRADA
+========================================== */
+
+$stmtPrivada = $pdo->prepare("
+    SELECT
+        datos_cifrados
+
+    FROM facturas_privadas
 
     WHERE factura_id = ?
+      AND usuario_id = ?
 
-    ORDER BY orden ASC, id ASC
+    LIMIT 1
 ");
 
-$stmtLineas->execute([
-    $facturaId
+$stmtPrivada->execute([
+    $facturaId,
+    $usuarioId
 ]);
 
-$lineas = $stmtLineas->fetchAll();
+
+$facturaPrivada =
+    $stmtPrivada->fetch();
+
+
+/* ==========================================
+   COMPROBAR DATOS PRIVADOS
+========================================== */
+
+if (!$facturaPrivada) {
+
+    http_response_code(404);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Factura no disponible | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+
+    <body>
+
+        <div class="error-factura">
+
+            <h1>Factura no disponible</h1>
+
+            <p>
+                No se han encontrado los datos privados de esta factura.
+            </p>
+
+            <a href="facturas.php" class="boton boton-principal">
+                ← Volver a facturas
+            </a>
+
+        </div>
+
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+
+/* ==========================================
+   DESCIFRAR FACTURA CON OPENSSL
+========================================== */
+
+try {
+
+    /* ------------------------------------------
+       COMPROBAR OPENSSL
+    ------------------------------------------ */
+
+    if (
+        !function_exists('openssl_decrypt')
+    ) {
+
+        throw new Exception(
+            'La extensión OpenSSL de PHP no está disponible.'
+        );
+
+    }
+
+
+    /* ------------------------------------------
+       DECODIFICAR CONTENIDO
+    ------------------------------------------ */
+
+    $contenidoPrivado =
+        base64_decode(
+            $facturaPrivada['datos_cifrados'],
+            true
+        );
+
+
+    if (
+        $contenidoPrivado === false ||
+        strlen($contenidoPrivado) <= 16
+    ) {
+
+        throw new Exception(
+            'Contenido cifrado no válido.'
+        );
+
+    }
+
+
+    /* ------------------------------------------
+       EXTRAER IV
+    ------------------------------------------
+
+       guardar_factura.php guarda:
+
+       IV de 16 bytes
+       +
+       datos cifrados
+
+    ------------------------------------------ */
+
+    $iv =
+        substr(
+            $contenidoPrivado,
+            0,
+            16
+        );
+
+
+    /* ------------------------------------------
+       EXTRAER DATOS CIFRADOS
+    ------------------------------------------ */
+
+    $datosCifrados =
+        substr(
+            $contenidoPrivado,
+            16
+        );
+
+
+    if (
+        $datosCifrados === false ||
+        $datosCifrados === ''
+    ) {
+
+        throw new Exception(
+            'No se encontraron datos cifrados.'
+        );
+
+    }
+
+
+    /* ------------------------------------------
+       GENERAR CLAVE AES-256
+    ------------------------------------------ */
+
+    $clave =
+        hash(
+            'sha256',
+            $claveCifrado,
+            true
+        );
+
+
+    if (
+        strlen($clave) !== 32
+    ) {
+
+        throw new Exception(
+            'La clave de cifrado no tiene una longitud válida.'
+        );
+
+    }
+
+
+    /* ------------------------------------------
+       DESCIFRAR AES-256-CBC
+    ------------------------------------------ */
+
+    $jsonFactura =
+        openssl_decrypt(
+            $datosCifrados,
+            'AES-256-CBC',
+            $clave,
+            OPENSSL_RAW_DATA,
+            $iv
+        );
+
+
+    if ($jsonFactura === false) {
+
+        throw new Exception(
+            'No se pudieron descifrar los datos de la factura.'
+        );
+
+    }
+
+
+    /* ------------------------------------------
+       CONVERTIR JSON
+    ------------------------------------------ */
+
+    $datosFactura =
+        json_decode(
+            $jsonFactura,
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
+
+} catch (Throwable $e) {
+
+    error_log(
+        'Error descifrando factura ' .
+        $facturaId .
+        ': ' .
+        $e->getMessage()
+    );
+
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+
+    <body>
+
+        <div class="error-factura">
+
+            <h1>Error al abrir la factura</h1>
+
+            <p>
+                No se ha podido descifrar la información privada de esta factura.
+            </p>
+
+            <a href="facturas.php" class="boton boton-principal">
+                ← Volver a facturas
+            </a>
+
+        </div>
+
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+
+/* ==========================================
+   COMPROBAR ESTRUCTURA DESCIFRADA
+========================================== */
+
+if (
+    !isset($datosFactura['factura']) ||
+    !isset($datosFactura['cliente']) ||
+    !isset($datosFactura['lineas'])
+) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+
+    <body>
+
+        <div class="error-factura">
+
+            <h1>Datos de factura incompletos</h1>
+
+            <p>
+                La información privada de esta factura no tiene un formato válido.
+            </p>
+
+            <a href="facturas.php" class="boton boton-principal">
+                ← Volver a facturas
+            </a>
+
+        </div>
+
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+
+/* ==========================================
+   RECONSTRUIR FACTURA
+========================================== */
+
+/*
+|--------------------------------------------------------------------------
+| Información técnica procedente de facturas
+|--------------------------------------------------------------------------
+*/
+
+$factura = [
+
+    'id' =>
+        $facturaTecnica['id'],
+
+    'serie' =>
+        $facturaTecnica['serie'],
+
+    'numero' =>
+        $facturaTecnica['numero'],
+
+    'fecha_emision' =>
+        $facturaTecnica['fecha_emision'],
+
+    'cliente_id' =>
+        $facturaTecnica['cliente_id'],
+
+    'estado' =>
+        $facturaTecnica['estado'],
+
+    'created_at' =>
+        $facturaTecnica['created_at'],
+
+    'updated_at' =>
+        $facturaTecnica['updated_at']
+
+];
+
+
+/*
+|--------------------------------------------------------------------------
+| Datos privados de la factura
+|--------------------------------------------------------------------------
+*/
+
+$datosFacturaReal =
+    $datosFactura['factura'];
+
+
+/*
+|--------------------------------------------------------------------------
+| Si el dato privado contiene número, fecha,
+| etc., usamos ese contenido.
+|--------------------------------------------------------------------------
+*/
+
+if (
+    array_key_exists(
+        'numero',
+        $datosFacturaReal
+    ) &&
+    $datosFacturaReal['numero'] !== null
+) {
+
+    $factura['numero'] =
+        $datosFacturaReal['numero'];
+
+}
+
+
+if (
+    !empty(
+        $datosFacturaReal['fecha_emision']
+    )
+) {
+
+    $factura['fecha_emision'] =
+        $datosFacturaReal['fecha_emision'];
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Estado
+|--------------------------------------------------------------------------
+*/
+
+if (
+    !empty(
+        $datosFacturaReal['estado']
+    )
+) {
+
+    $factura['estado'] =
+        $datosFacturaReal['estado'];
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| DATOS PRIVADOS QUE UTILIZA LA VISTA
+|--------------------------------------------------------------------------
+*/
+
+$factura['moneda'] =
+    $datosFacturaReal['moneda'] ?? 'EUR';
+
+
+$factura['base_imponible'] =
+    $datosFacturaReal['base_imponible'] ?? 0;
+
+
+$factura['total_iva'] =
+    $datosFacturaReal['total_iva'] ?? 0;
+
+
+$factura['total_irpf'] =
+    $datosFacturaReal['total_irpf'] ?? 0;
+
+
+$factura['total'] =
+    $datosFacturaReal['total'] ?? 0;
+
+
+$factura['metodo_pago'] =
+    $datosFacturaReal['metodo_pago'] ?? null;
+
+
+$factura['fecha_vencimiento'] =
+    $datosFacturaReal['fecha_vencimiento'] ?? null;
+
+
+$factura['observaciones'] =
+    $datosFacturaReal['observaciones'] ?? null;
+
+
+$factura['tipo_irpf'] =
+    $datosFacturaReal['tipo_irpf'] ?? 0;
+
+
+/* ==========================================
+   DATOS DEL CLIENTE PRIVADOS
+========================================== */
+
+$clientePrivado =
+    $datosFactura['cliente'];
+
+
+$factura['nombre_razon_social'] =
+    $clientePrivado['nombre_razon_social'] ?? '';
+
+
+$factura['nif'] =
+    $clientePrivado['nif'] ?? '';
+
+
+$factura['direccion'] =
+    $clientePrivado['direccion'] ?? '';
+
+
+$factura['codigo_postal'] =
+    $clientePrivado['codigo_postal'] ?? '';
+
+
+$factura['ciudad'] =
+    $clientePrivado['ciudad'] ?? '';
+
+
+$factura['provincia'] =
+    $clientePrivado['provincia'] ?? '';
+
+
+$factura['pais'] =
+    $clientePrivado['pais'] ?? '';
+
+
+$factura['email'] =
+    $clientePrivado['email'] ?? '';
+
+
+$factura['telefono'] =
+    $clientePrivado['telefono'] ?? '';
+
+
+/* ==========================================
+   LINEAS PRIVADAS
+========================================== */
+
+$lineas =
+    is_array(
+        $datosFactura['lineas']
+    )
+    ? $datosFactura['lineas']
+    : [];
 
 
 /* ==========================================
@@ -1095,7 +1517,6 @@ function dinero($valor)
                                 ',',
                                 '.'
                             );
-
                             ?>
 
                             %
@@ -1416,7 +1837,7 @@ function dinero($valor)
             $estado === 'emitida'
         ): ?>
 
-           <a
+            <a
                 href="generar_pdf.php?id=<?php echo (int) $factura['id']; ?>"
                 class="boton boton-pdf"
                 target="_blank"

@@ -1,3 +1,4 @@
+
 <?php
 
 /* ==========================================
@@ -11,6 +12,14 @@ $dbname = "chatbot_web";
 $username = "root";
 
 $password = "";
+
+
+/* ==========================================
+   CLAVE DE CIFRADO DE FACTURAS
+========================================== */
+
+$VIZIUNEAI_FACTURAS_KEY = 'fowcL+yRg3hDeHyHVDmeiQ3oWTD9yreK90s7kZAKnXc=';
+
 
 /* ==========================================
    CONEXIÓN MYSQL
@@ -42,6 +51,7 @@ try {
 
     exit;
 }
+
 
 /* ==========================================
    KIMI

@@ -1,0 +1,2912 @@
+```php
+<?php
+
+session_start();
+
+require_once 'config.php';
+
+/* ==========================================
+   OBTENER ID
+========================================== */
+
+$facturaId = filter_input(
+    INPUT_GET,
+    'id',
+    FILTER_VALIDATE_INT
+);
+
+if (!$facturaId || $facturaId <= 0) {
+    header('Location: facturas.php');
+    exit;
+}
+
+/* ==========================================
+   SEGURIDAD
+========================================== */
+
+if (!isset($_SESSION['usuario_id'])) {
+
+    http_response_code(401);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Acceso no permitido | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Acceso no permitido</h1>
+            <p>
+                Debes iniciar sesión para consultar esta factura.
+            </p>
+            <a href="login.php" class="boton boton-principal">
+                ← Iniciar sesión
+            </a>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+$usuarioId = (int) $_SESSION['usuario_id'];
+
+if ($usuarioId <= 0) {
+
+    http_response_code(403);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Acceso no permitido | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Acceso no permitido</h1>
+            <p>
+                No tienes permiso para consultar esta factura.
+            </p>
+            <a href="mi_cuenta.php" class="boton boton-principal">
+                ← Volver a mi cuenta
+            </a>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+/* ==========================================
+   OBTENER FACTURA TÉCNICA
+========================================== */
+
+$stmtFactura = $pdo->prepare("
+    SELECT
+        f.id,
+        f.cliente_id,
+        f.estado,
+        f.created_at,
+        f.updated_at
+    FROM facturas f
+    INNER JOIN clientes c
+        ON c.id = f.cliente_id
+    WHERE f.id = ?
+      AND c.usuario_id = ?
+      AND c.activo = 1
+    LIMIT 1
+");
+
+$stmtFactura->execute([
+    $facturaId,
+    $usuarioId
+]);
+
+$facturaTecnica = $stmtFactura->fetch();
+
+/* ==========================================
+   FACTURA NO ENCONTRADA / SIN PERMISO
+========================================== */
+
+if (!$facturaTecnica) {
+
+    http_response_code(403);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Acceso no permitido | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Acceso no permitido</h1>
+            <p>
+                No tienes permiso para consultar esta factura.
+            </p>
+            <a href="facturas.php" class="boton boton-principal">
+                ← Volver a facturas
+            </a>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+/* ==========================================
+   COMPROBAR SODIUM
+========================================== */
+
+if (!function_exists('sodium_crypto_secretbox_open')) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Error interno</h1>
+            <p>
+                El sistema de cifrado de facturas no está disponible.
+            </p>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+/* ==========================================
+   OBTENER CLAVE DE CIFRADO
+========================================== */
+
+$claveCifrado = getenv('VIZIUNEAI_FACTURAS_KEY');
+
+if (!$claveCifrado) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Error interno</h1>
+            <p>
+                No está configurada la clave de cifrado de las facturas.
+            </p>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+if (strlen($claveCifrado) < 32) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Error interno</h1>
+            <p>
+                La clave de cifrado configurada no es suficientemente segura.
+            </p>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+$clave = hash('sha256', $claveCifrado, true);
+
+/* ==========================================
+   OBTENER DATOS PRIVADOS CIFRADOS
+========================================== */
+
+$stmtPrivada = $pdo->prepare("
+    SELECT
+        datos_cifrados
+    FROM facturas_privadas
+    WHERE factura_id = ?
+      AND usuario_id = ?
+    LIMIT 1
+");
+
+$stmtPrivada->execute([
+    $facturaId,
+    $usuarioId
+]);
+
+$facturaPrivada = $stmtPrivada->fetch();
+
+if (!$facturaPrivada || empty($facturaPrivada['datos_cifrados'])) {
+
+    http_response_code(404);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Factura no disponible | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Factura no disponible</h1>
+            <p>
+                Los datos privados de esta factura no están disponibles.
+            </p>
+            <a href="facturas.php" class="boton boton-principal">
+                ← Volver a facturas
+            </a>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+/* ==========================================
+   DESCIFRAR FACTURA
+========================================== */
+
+$contenidoCifrado = base64_decode(
+    $facturaPrivada['datos_cifrados'],
+    true
+);
+
+if ($contenidoCifrado === false) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Error interno</h1>
+            <p>
+                No se han podido leer los datos de la factura.
+            </p>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+$nonceBytes = SODIUM_CRYPTO_SECRETBOX_NONCEBYTES;
+
+if (strlen($contenidoCifrado) <= $nonceBytes) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Error interno</h1>
+            <p>
+                Los datos de la factura están dañados.
+            </p>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+$nonce = substr(
+    $contenidoCifrado,
+    0,
+    $nonceBytes
+);
+
+$cifrado = substr(
+    $contenidoCifrado,
+    $nonceBytes
+);
+
+$jsonFactura = sodium_crypto_secretbox_open(
+    $cifrado,
+    $nonce,
+    $clave
+);
+
+if ($jsonFactura === false) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Error interno</h1>
+            <p>
+                No se han podido descifrar los datos de la factura.
+            </p>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+$datosPrivados = json_decode(
+    $jsonFactura,
+    true
+);
+
+if (!is_array($datosPrivados)) {
+
+    http_response_code(500);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+    <body>
+        <div class="error-factura">
+            <h1>Error interno</h1>
+            <p>
+                El formato de los datos de la factura no es válido.
+            </p>
+        </div>
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+/* ==========================================
+   RECONSTRUIR FACTURA
+========================================== */
+
+$cliente = $datosPrivados['cliente'] ?? [];
+
+$factura = [
+    'id' => $facturaTecnica['id'],
+    'cliente_id' => $facturaTecnica['cliente_id'],
+    'serie' => $datosPrivados['serie'] ?? null,
+    'numero' => $datosPrivados['numero'] ?? null,
+    'fecha_emision' => $datosPrivados['fecha_emision'] ?? null,
+    'moneda' => $datosPrivados['moneda'] ?? 'EUR',
+    'base_imponible' => $datosPrivados['base_imponible'] ?? 0,
+    'total_iva' => $datosPrivados['total_iva'] ?? 0,
+    'total_irpf' => $datosPrivados['total_irpf'] ?? 0,
+    'total' => $datosPrivados['total'] ?? 0,
+    'metodo_pago' => $datosPrivados['metodo_pago'] ?? null,
+    'fecha_vencimiento' => $datosPrivados['fecha_vencimiento'] ?? null,
+    'observaciones' => $datosPrivados['observaciones'] ?? null,
+    'estado' => $facturaTecnica['estado'],
+    'created_at' => $facturaTecnica['created_at'],
+    'updated_at' => $facturaTecnica['updated_at'],
+
+    'nombre_razon_social' =>
+        $cliente['nombre_razon_social'] ?? '',
+
+    'nif' =>
+        $cliente['nif'] ?? '',
+
+    'direccion' =>
+        $cliente['direccion'] ?? '',
+
+    'codigo_postal' =>
+        $cliente['codigo_postal'] ?? '',
+
+    'ciudad' =>
+        $cliente['ciudad'] ?? '',
+
+    'provincia' =>
+        $cliente['provincia'] ?? '',
+
+    'pais' =>
+        $cliente['pais'] ?? '',
+
+    'email' =>
+        $cliente['email'] ?? '',
+
+    'telefono' =>
+        $cliente['telefono'] ?? ''
+];
+
+/* ==========================================
+   OBTENER LÍNEAS DESDE LOS DATOS CIFRADOS
+========================================== */
+
+$lineas = [];
+
+if (
+    isset($datosPrivados['lineas']) &&
+    is_array($datosPrivados['lineas'])
+) {
+    $lineas = $datosPrivados['lineas'];
+}
+
+/* ==========================================
+   DATOS DE LA EMPRESA
+========================================== */
+
+$stmtEmpresa = $pdo->query("
+    SELECT
+        razon_social,
+        nif,
+        direccion,
+        codigo_postal,
+        ciudad,
+        provincia,
+        pais,
+        email,
+        telefono,
+        web,
+        iban,
+        logo
+    FROM empresa_facturacion
+    ORDER BY id ASC
+    LIMIT 1
+");
+
+$empresa = $stmtEmpresa->fetch();
+
+/* ==========================================
+   NUMERO DE FACTURA
+========================================== */
+
+if (
+    $factura['numero'] !== null &&
+    $factura['numero'] !== ''
+) {
+
+    $numeroFactura =
+        $factura['serie'] .
+        '-' .
+        $factura['numero'];
+
+} else {
+
+    $numeroFactura = 'BORRADOR';
+}
+
+/* ==========================================
+   FECHAS
+========================================== */
+
+$fechaEmision = '';
+
+if (!empty($factura['fecha_emision'])) {
+
+    $fechaEmision = date(
+        'd/m/Y',
+        strtotime($factura['fecha_emision'])
+    );
+}
+
+$fechaVencimiento = '';
+
+if (!empty($factura['fecha_vencimiento'])) {
+
+    $fechaVencimiento = date(
+        'd/m/Y',
+        strtotime($factura['fecha_vencimiento'])
+    );
+}
+
+/* ==========================================
+   ESTADO
+========================================== */
+
+$estado = $factura['estado'];
+
+$estadoTexto = 'Borrador';
+
+if ($estado === 'emitida') {
+
+    $estadoTexto = 'Emitida';
+
+} elseif ($estado === 'anulada') {
+
+    $estadoTexto = 'Anulada';
+}
+
+/* ==========================================
+   MENSAJE GUARDADA
+========================================== */
+
+$guardada =
+    isset($_GET['guardada']) &&
+    $_GET['guardada'] === '1';
+
+/* ==========================================
+   FUNCIONES
+========================================== */
+
+function h($valor)
+{
+    return htmlspecialchars(
+        (string) $valor,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
+
+function dinero($valor)
+{
+    return number_format(
+        (float) $valor,
+        2,
+        ',',
+        '.'
+    ) . ' €';
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        <?php echo h($numeroFactura); ?> |
+        ViziuneAI
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="css/ver-factura.css"
+    >
+
+</head>
+
+<body>
+
+<div class="contenedor-factura">
+
+    <!-- ======================================
+         BARRA SUPERIOR
+    ====================================== -->
+
+    <div class="barra-superior">
+
+        <h1>
+            Factura <?php echo h($numeroFactura); ?>
+        </h1>
+
+        <div class="navegacion">
+
+            <a
+                href="facturas.php"
+                class="boton"
+            >
+                ← Facturas
+            </a>
+
+            <?php if ($estado === 'borrador'): ?>
+
+                <a
+                    href="crear_factura.php?id=<?php echo $facturaId; ?>"
+                    class="boton"
+                >
+                    ✏️ Editar
+                </a>
+
+            <?php endif; ?>
+
+            <?php if ($estado === 'emitida'): ?>
+
+                <a
+                    href="generar_pdf.php?id=<?php echo $facturaId; ?>"
+                    class="boton boton-principal"
+                >
+                    📄 Generar PDF
+                </a>
+
+            <?php endif; ?>
+
+            <button
+                type="button"
+                class="boton"
+                onclick="window.print();"
+            >
+                🖨️ Imprimir
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ======================================
+         MENSAJE
+    ====================================== -->
+
+    <?php if ($guardada): ?>
+
+        <div class="mensaje-exito">
+
+            ✅ La factura se ha guardado correctamente
+            como borrador.
+
+        </div>
+
+    <?php endif; ?>
+
+    <!-- ======================================
+         DOCUMENTO
+    ====================================== -->
+
+    <div class="documento">
+
+        <!-- ==================================
+             CABECERA
+        ================================== -->
+
+        <div class="documento-cabecera">
+
+            <!-- EMPRESA -->
+
+            <div class="empresa">
+
+                <?php if (!empty($empresa['logo'])): ?>
+
+                    <img
+                        src="<?php echo h($empresa['logo']); ?>"
+                        alt="Logo"
+                        class="empresa-logo"
+                    >
+
+                <?php endif; ?>
+
+                <?php if ($empresa): ?>
+
+                    <h2>
+                        <?php
+                        echo h(
+                            $empresa['razon_social']
+                        );
+                        ?>
+                    </h2>
+
+                    <?php if (!empty($empresa['nif'])): ?>
+
+                        <p>
+                            <strong>NIF:</strong>
+                            <?php
+                            echo h(
+                                $empresa['nif']
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+                    <?php if (!empty($empresa['direccion'])): ?>
+
+                        <p>
+                            <?php
+                            echo h(
+                                $empresa['direccion']
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+                    <?php
+
+                    $ubicacionEmpresa = [];
+
+                    if (!empty($empresa['codigo_postal'])) {
+
+                        $ubicacionEmpresa[] =
+                            $empresa['codigo_postal'];
+                    }
+
+                    if (!empty($empresa['ciudad'])) {
+
+                        $ubicacionEmpresa[] =
+                            $empresa['ciudad'];
+                    }
+
+                    if (!empty($empresa['provincia'])) {
+
+                        $ubicacionEmpresa[] =
+                            $empresa['provincia'];
+                    }
+
+                    ?>
+
+                    <?php if (!empty($ubicacionEmpresa)): ?>
+
+                        <p>
+                            <?php
+                            echo h(
+                                implode(
+                                    ', ',
+                                    $ubicacionEmpresa
+                                )
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+                    <?php if (!empty($empresa['email'])): ?>
+
+                        <p>
+                            <?php
+                            echo h(
+                                $empresa['email']
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+                    <?php if (!empty($empresa['telefono'])): ?>
+
+                        <p>
+                            <?php
+                            echo h(
+                                $empresa['telefono']
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+                <?php else: ?>
+
+                    <h2>
+                        Empresa de facturación
+                    </h2>
+
+                    <p>
+                        Configura los datos de la empresa
+                        en empresa_facturacion.
+                    </p>
+
+                <?php endif; ?>
+
+            </div>
+
+            <!-- DATOS FACTURA -->
+
+            <div class="datos-factura">
+
+                <h2>
+                    FACTURA
+                </h2>
+
+                <p class="numero">
+
+                    Nº:
+
+                    <?php
+                    echo h(
+                        $numeroFactura
+                    );
+                    ?>
+
+                </p>
+
+                <p>
+
+                    Fecha emisión:
+
+                    <?php
+                    echo h(
+                        $fechaEmision
+                    );
+                    ?>
+
+                </p>
+
+                <?php if ($fechaVencimiento !== ''): ?>
+
+                    <p>
+
+                        Vencimiento:
+
+                        <?php
+                        echo h(
+                            $fechaVencimiento
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+                <p>
+
+                    <span
+                        class="estado estado-<?php echo h($estado); ?>"
+                    >
+
+                        <?php
+                        echo h(
+                            $estadoTexto
+                        );
+                        ?>
+
+                    </span>
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- ==================================
+             CLIENTE
+        ================================== -->
+
+        <div class="bloque-cliente">
+
+            <h3>
+                Cliente
+            </h3>
+
+            <div class="cliente">
+
+                <p>
+
+                    <strong>
+
+                        <?php
+                        echo h(
+                            $factura[
+                                'nombre_razon_social'
+                            ]
+                        );
+                        ?>
+
+                    </strong>
+
+                </p>
+
+                <p>
+
+                    <strong>NIF:</strong>
+
+                    <?php
+                    echo h(
+                        $factura['nif']
+                    );
+                    ?>
+
+                </p>
+
+                <?php if (!empty($factura['direccion'])): ?>
+
+                    <p>
+
+                        <?php
+                        echo h(
+                            $factura['direccion']
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+                <?php
+
+                $ubicacionCliente = [];
+
+                if (
+                    !empty(
+                        $factura['codigo_postal']
+                    )
+                ) {
+
+                    $ubicacionCliente[] =
+                        $factura['codigo_postal'];
+                }
+
+                if (
+                    !empty(
+                        $factura['ciudad']
+                    )
+                ) {
+
+                    $ubicacionCliente[] =
+                        $factura['ciudad'];
+                }
+
+                if (
+                    !empty(
+                        $factura['provincia']
+                    )
+                ) {
+
+                    $ubicacionCliente[] =
+                        $factura['provincia'];
+                }
+
+                ?>
+
+                <?php if (!empty($ubicacionCliente)): ?>
+
+                    <p>
+
+                        <?php
+                        echo h(
+                            implode(
+                                ', ',
+                                $ubicacionCliente
+                            )
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+                <?php if (!empty($factura['email'])): ?>
+
+                    <p>
+
+                        <strong>Email:</strong>
+
+                        <?php
+                        echo h(
+                            $factura['email']
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+                <?php if (!empty($factura['telefono'])): ?>
+
+                    <p>
+
+                        <strong>Teléfono:</strong>
+
+                        <?php
+                        echo h(
+                            $factura['telefono']
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+            </div>
+
+        </div>
+
+        <!-- ==================================
+             LINEAS
+        ================================== -->
+
+        <div class="tabla-contenedor">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Descripción
+                        </th>
+
+                        <th class="texto-centro">
+                            Cantidad
+                        </th>
+
+                        <th class="texto-derecha">
+                            Precio
+                        </th>
+
+                        <th class="texto-derecha">
+                            Descuento
+                        </th>
+
+                        <th class="texto-derecha">
+                            IVA
+                        </th>
+
+                        <th class="texto-derecha">
+                            Total
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                <?php foreach ($lineas as $linea): ?>
+
+                    <tr>
+
+                        <td>
+
+                            <div class="descripcion">
+
+                                <?php
+                                echo h(
+                                    $linea[
+                                        'descripcion'
+                                    ] ?? ''
+                                );
+                                ?>
+
+                            </div>
+
+                        </td>
+
+                        <td class="texto-centro">
+
+                            <?php
+                            echo number_format(
+                                (float)
+                                ($linea['cantidad'] ?? 0),
+                                3,
+                                ',',
+                                '.'
+                            );
+                            ?>
+
+                        </td>
+
+                        <td class="texto-derecha">
+
+                            <?php
+                            echo dinero(
+                                $linea[
+                                    'precio_unitario'
+                                ] ?? 0
+                            );
+                            ?>
+
+                        </td>
+
+                        <td class="texto-derecha">
+
+                            <?php
+                            echo number_format(
+                                (float)
+                                ($linea['descuento'] ?? 0),
+                                2,
+                                ',',
+                                '.'
+                            );
+                            ?>
+
+                            %
+
+                        </td>
+
+                        <td class="texto-derecha">
+
+                            <?php
+                            echo number_format(
+                                (float)
+                                ($linea['tipo_iva'] ?? 0),
+                                2,
+                                ',',
+                                '.'
+                            );
+                            ?>
+
+                            %
+
+                            <div class="subtexto">
+
+                                <?php
+                                echo dinero(
+                                    $linea[
+                                        'cuota_iva'
+                                    ] ?? 0
+                                );
+                                ?>
+
+                            </div>
+
+                        </td>
+
+                        <td class="texto-derecha">
+
+                            <strong>
+
+                                <?php
+                                echo dinero(
+                                    $linea[
+                                        'total_linea'
+                                    ] ?? 0
+                                );
+                                ?>
+
+                            </strong>
+
+                        </td>
+
+                    </tr>
+
+                <?php endforeach; ?>
+
+                <?php if (count($lineas) === 0): ?>
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="sin-lineas"
+                        >
+                            No hay líneas en esta factura.
+                        </td>
+
+                    </tr>
+
+                <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ==================================
+             TOTALES
+        ================================== -->
+
+        <div class="zona-totales">
+
+            <div class="totales">
+
+                <div class="fila-total">
+
+                    <span>
+                        Base imponible
+                    </span>
+
+                    <strong>
+
+                        <?php
+                        echo dinero(
+                            $factura[
+                                'base_imponible'
+                            ]
+                        );
+                        ?>
+
+                    </strong>
+
+                </div>
+
+                <div class="fila-total">
+
+                    <span>
+                        IVA
+                    </span>
+
+                    <strong>
+
+                        <?php
+                        echo dinero(
+                            $factura[
+                                'total_iva'
+                            ]
+                        );
+                        ?>
+
+                    </strong>
+
+                </div>
+
+                <?php if ((float) $factura['total_irpf'] > 0): ?>
+
+                    <div class="fila-total irpf">
+
+                        <span>
+                            IRPF
+                        </span>
+
+                        <strong>
+
+                            −
+
+                            <?php
+                            echo dinero(
+                                $factura[
+                                    'total_irpf'
+                                ]
+                            );
+                            ?>
+
+                        </strong>
+
+                    </div>
+
+                <?php endif; ?>
+
+                <div class="fila-total total-final">
+
+                    <span>
+                        TOTAL
+                    </span>
+
+                    <strong>
+
+                        <?php
+                        echo dinero(
+                            $factura['total']
+                        );
+                        ?>
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==================================
+             INFORMACIÓN FINAL
+        ================================== -->
+
+        <div class="informacion-final">
+
+            <div class="bloque-info">
+
+                <h3>
+                    Forma de pago
+                </h3>
+
+                <p>
+
+                    <?php
+
+                    if (!empty($factura['metodo_pago'])) {
+
+                        echo h(
+                            $factura[
+                                'metodo_pago'
+                            ]
+                        );
+
+                    } else {
+
+                        echo 'No especificada';
+
+                    }
+
+                    ?>
+
+                </p>
+
+                <?php if (!empty($empresa['iban'])): ?>
+
+                    <p>
+
+                        <strong>IBAN:</strong>
+
+                        <?php
+                        echo h(
+                            $empresa['iban']
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+            </div>
+
+            <div class="bloque-info">
+
+                <h3>
+                    Observaciones
+                </h3>
+
+                <p>
+
+                    <?php
+
+                    if (
+                        !empty(
+                            $factura[
+                                'observaciones'
+                            ]
+                        )
+                    ) {
+
+                        echo nl2br(
+                            h(
+                                $factura[
+                                    'observaciones'
+                                ]
+                            )
+                        );
+
+                    } else {
+
+                        echo 'Sin observaciones.';
+
+                    }
+
+                    ?>
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ======================================
+         ACCIONES
+    ====================================== -->
+
+    <div class="acciones-factura">
+
+        <a
+            href="facturas.php"
+            class="boton"
+        >
+            ← Volver
+        </a>
+
+        <?php if ($estado === 'borrador'): ?>
+
+            <a
+                href="crear_factura.php?id=<?php echo $facturaId; ?>"
+                class="boton"
+            >
+                Editar borrador
+            </a>
+
+            <a
+                href="emitir_factura.php?id=<?php echo $facturaId; ?>"
+                class="boton boton-principal"
+            >
+                Emitir factura
+            </a>
+
+        <?php endif; ?>
+
+        <?php if ($estado === 'emitida'): ?>
+
+            <a
+                href="generar_pdf.php?id=<?php echo (int) $factura['id']; ?>"
+                class="boton boton-pdf"
+                target="_blank"
+            >
+                Generar PDF
+            </a>
+
+        <?php endif; ?>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+```
+
+<?php
+
+session_start();
+
+require_once 'config.php';
+
+
+/* ==========================================
+   OBTENER ID
+========================================== */
+
+$facturaId = filter_input(
+    INPUT_GET,
+    'id',
+    FILTER_VALIDATE_INT
+);
+
+if (!$facturaId || $facturaId <= 0) {
+    header('Location: facturas.php');
+    exit;
+}
+
+
+/* ==========================================
+   OBTENER FACTURA
+========================================== */
+
+/*
+|--------------------------------------------------------------------------
+| SEGURIDAD DE ACCESO
+|--------------------------------------------------------------------------
+|
+| Si hay un usuario conectado:
+|
+| usuarios.id
+|      ↓
+| clientes.usuario_id
+|      ↓
+| facturas.cliente_id
+|
+| El usuario solo puede consultar sus propias
+| facturas.
+|
+*/
+
+if (isset($_SESSION['usuario_id'])) {
+
+    $usuarioId =
+        (int) $_SESSION['usuario_id'];
+
+
+    if ($usuarioId <= 0) {
+
+        http_response_code(403);
+
+        echo '
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Acceso no permitido | ViziuneAI</title>
+            <link rel="stylesheet" href="css/ver-factura.css">
+        </head>
+
+        <body>
+
+            <div class="error-factura">
+
+                <h1>Acceso no permitido</h1>
+
+                <p>
+                    No tienes permiso para consultar esta factura.
+                </p>
+
+                <a href="mi_cuenta.php" class="boton boton-principal">
+                    ← Volver a mi cuenta
+                </a>
+
+            </div>
+
+        </body>
+        </html>
+        ';
+
+        exit;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | USUARIO CONECTADO
+    |--------------------------------------------------------------------------
+    |
+    | Buscamos la factura únicamente si pertenece
+    | al cliente asociado al usuario conectado.
+    |
+    */
+
+    $stmtFactura = $pdo->prepare("
+        SELECT
+            f.id,
+            f.serie,
+            f.numero,
+            f.fecha_emision,
+            f.cliente_id,
+            f.moneda,
+            f.base_imponible,
+            f.total_iva,
+            f.total_irpf,
+            f.total,
+            f.metodo_pago,
+            f.fecha_vencimiento,
+            f.observaciones,
+            f.estado,
+            f.created_at,
+            f.updated_at,
+
+            c.nombre_razon_social,
+            c.nif,
+            c.direccion,
+            c.codigo_postal,
+            c.ciudad,
+            c.provincia,
+            c.pais,
+            c.email,
+            c.telefono
+
+        FROM facturas f
+
+        INNER JOIN clientes c
+            ON c.id = f.cliente_id
+
+        WHERE f.id = ?
+          AND c.usuario_id = ?
+          AND c.activo = 1
+
+        LIMIT 1
+    ");
+
+    $stmtFactura->execute([
+        $facturaId,
+        $usuarioId
+    ]);
+
+} else {
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMINISTRACIÓN
+    |--------------------------------------------------------------------------
+    |
+    | Si no hay usuario conectado, mantenemos
+    | el comportamiento original.
+    |
+    */
+
+    $stmtFactura = $pdo->prepare("
+        SELECT
+            f.id,
+            f.serie,
+            f.numero,
+            f.fecha_emision,
+            f.cliente_id,
+            f.moneda,
+            f.base_imponible,
+            f.total_iva,
+            f.total_irpf,
+            f.total,
+            f.metodo_pago,
+            f.fecha_vencimiento,
+            f.observaciones,
+            f.estado,
+            f.created_at,
+            f.updated_at,
+
+            c.nombre_razon_social,
+            c.nif,
+            c.direccion,
+            c.codigo_postal,
+            c.ciudad,
+            c.provincia,
+            c.pais,
+            c.email,
+            c.telefono
+
+        FROM facturas f
+
+        INNER JOIN clientes c
+            ON c.id = f.cliente_id
+
+        WHERE f.id = ?
+
+        LIMIT 1
+    ");
+
+    $stmtFactura->execute([
+        $facturaId
+    ]);
+
+}
+
+
+$factura = $stmtFactura->fetch();
+
+
+/* ==========================================
+   FACTURA NO ENCONTRADA / SIN PERMISO
+========================================== */
+
+if (!$factura) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Si hay usuario conectado, no revelamos si la factura
+    | existe o pertenece a otra persona.
+    |--------------------------------------------------------------------------
+    */
+
+    if (isset($_SESSION['usuario_id'])) {
+
+        http_response_code(403);
+
+        echo '
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Acceso no permitido | ViziuneAI</title>
+            <link rel="stylesheet" href="css/ver-factura.css">
+        </head>
+
+        <body>
+
+            <div class="error-factura">
+
+                <h1>Acceso no permitido</h1>
+
+                <p>
+                    No tienes permiso para consultar esta factura.
+                </p>
+
+                <a href="mi_cuenta.php" class="boton boton-principal">
+                    ← Volver a mi cuenta
+                </a>
+
+            </div>
+
+        </body>
+        </html>
+        ';
+
+        exit;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | COMPORTAMIENTO ORIGINAL PARA ADMINISTRACIÓN
+    |--------------------------------------------------------------------------
+    */
+
+    http_response_code(404);
+
+    echo '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Factura no encontrada | ViziuneAI</title>
+        <link rel="stylesheet" href="css/ver-factura.css">
+    </head>
+
+    <body>
+
+        <div class="error-factura">
+
+            <h1>Factura no encontrada</h1>
+
+            <p>
+                La factura solicitada no existe o ya no está disponible.
+            </p>
+
+            <a href="facturas.php" class="boton boton-principal">
+                ← Volver a facturas
+            </a>
+
+        </div>
+
+    </body>
+    </html>
+    ';
+
+    exit;
+}
+
+
+/* ==========================================
+   OBTENER LINEAS
+========================================== */
+
+$stmtLineas = $pdo->prepare("
+    SELECT
+        id,
+        descripcion,
+        cantidad,
+        precio_unitario,
+        descuento,
+        tipo_iva,
+        base_linea,
+        cuota_iva,
+        total_linea,
+        orden
+
+    FROM factura_lineas
+
+    WHERE factura_id = ?
+
+    ORDER BY orden ASC, id ASC
+");
+
+$stmtLineas->execute([
+    $facturaId
+]);
+
+$lineas = $stmtLineas->fetchAll();
+
+
+/* ==========================================
+   DATOS DE LA EMPRESA
+========================================== */
+
+$stmtEmpresa = $pdo->query("
+    SELECT
+        razon_social,
+        nif,
+        direccion,
+        codigo_postal,
+        ciudad,
+        provincia,
+        pais,
+        email,
+        telefono,
+        web,
+        iban,
+        logo
+
+    FROM empresa_facturacion
+
+    ORDER BY id ASC
+
+    LIMIT 1
+");
+
+$empresa = $stmtEmpresa->fetch();
+
+
+/* ==========================================
+   NUMERO DE FACTURA
+========================================== */
+
+if (
+    $factura['numero'] !== null &&
+    $factura['numero'] !== ''
+) {
+
+    $numeroFactura =
+        $factura['serie'] .
+        '-' .
+        $factura['numero'];
+
+} else {
+
+    $numeroFactura = 'BORRADOR';
+
+}
+
+
+/* ==========================================
+   FECHAS
+========================================== */
+
+$fechaEmision = date(
+    'd/m/Y',
+    strtotime(
+        $factura['fecha_emision']
+    )
+);
+
+
+$fechaVencimiento = '';
+
+if (
+    !empty(
+        $factura['fecha_vencimiento']
+    )
+) {
+
+    $fechaVencimiento = date(
+        'd/m/Y',
+        strtotime(
+            $factura['fecha_vencimiento']
+        )
+    );
+
+}
+
+
+/* ==========================================
+   ESTADO
+========================================== */
+
+$estado = $factura['estado'];
+
+$estadoTexto = 'Borrador';
+
+if ($estado === 'emitida') {
+
+    $estadoTexto = 'Emitida';
+
+} elseif ($estado === 'anulada') {
+
+    $estadoTexto = 'Anulada';
+
+}
+
+
+/* ==========================================
+   MENSAJE GUARDADA
+========================================== */
+
+$guardada =
+    isset($_GET['guardada']) &&
+    $_GET['guardada'] === '1';
+
+
+/* ==========================================
+   FUNCIONES
+========================================== */
+
+function h($valor)
+{
+    return htmlspecialchars(
+        (string) $valor,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
+
+
+function dinero($valor)
+{
+    return number_format(
+        (float) $valor,
+        2,
+        ',',
+        '.'
+    ) . ' €';
+}
+
+?>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        <?php echo h($numeroFactura); ?> |
+        ViziuneAI
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="css/ver-factura.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="contenedor-factura">
+
+
+    <!-- ======================================
+         BARRA SUPERIOR
+    ====================================== -->
+
+    <div class="barra-superior">
+
+        <h1>
+            Factura <?php echo h($numeroFactura); ?>
+        </h1>
+
+
+        <div class="navegacion">
+
+            <a
+                href="facturas.php"
+                class="boton"
+            >
+                ← Facturas
+            </a>
+
+
+            <?php if ($estado === 'borrador'): ?>
+
+                <a
+                    href="crear_factura.php?id=<?php echo $facturaId; ?>"
+                    class="boton"
+                >
+                    ✏️ Editar
+                </a>
+
+            <?php endif; ?>
+
+
+            <?php if ($estado === 'emitida'): ?>
+
+                <a
+                    href="generar_pdf.php?id=<?php echo $facturaId; ?>"
+                    class="boton boton-principal"
+                >
+                    📄 Generar PDF
+                </a>
+
+            <?php endif; ?>
+
+
+            <button
+                type="button"
+                class="boton"
+                onclick="window.print();"
+            >
+                🖨️ Imprimir
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================
+         MENSAJE
+    ====================================== -->
+
+    <?php if ($guardada): ?>
+
+        <div class="mensaje-exito">
+
+            ✅ La factura se ha guardado correctamente
+            como borrador.
+
+        </div>
+
+    <?php endif; ?>
+
+
+    <!-- ======================================
+         DOCUMENTO
+    ====================================== -->
+
+    <div class="documento">
+
+
+        <!-- ==================================
+             CABECERA
+        ================================== -->
+
+        <div class="documento-cabecera">
+
+
+            <!-- EMPRESA -->
+
+            <div class="empresa">
+
+                <?php if (
+                    !empty($empresa['logo'])
+                ): ?>
+
+                    <img
+                        src="<?php echo h($empresa['logo']); ?>"
+                        alt="Logo"
+                        class="empresa-logo"
+                    >
+
+                <?php endif; ?>
+
+
+                <?php if ($empresa): ?>
+
+                    <h2>
+                        <?php
+                        echo h(
+                            $empresa['razon_social']
+                        );
+                        ?>
+                    </h2>
+
+
+                    <?php if (
+                        !empty($empresa['nif'])
+                    ): ?>
+
+                        <p>
+                            <strong>NIF:</strong>
+
+                            <?php
+                            echo h(
+                                $empresa['nif']
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+
+                    <?php if (
+                        !empty($empresa['direccion'])
+                    ): ?>
+
+                        <p>
+                            <?php
+                            echo h(
+                                $empresa['direccion']
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+
+                    <?php
+
+                    $ubicacionEmpresa = [];
+
+                    if (
+                        !empty(
+                            $empresa['codigo_postal']
+                        )
+                    ) {
+                        $ubicacionEmpresa[] =
+                            $empresa['codigo_postal'];
+                    }
+
+                    if (
+                        !empty(
+                            $empresa['ciudad']
+                        )
+                    ) {
+                        $ubicacionEmpresa[] =
+                            $empresa['ciudad'];
+                    }
+
+                    if (
+                        !empty(
+                            $empresa['provincia']
+                        )
+                    ) {
+                        $ubicacionEmpresa[] =
+                            $empresa['provincia'];
+                    }
+
+                    ?>
+
+
+                    <?php if (
+                        !empty($ubicacionEmpresa)
+                    ): ?>
+
+                        <p>
+                            <?php
+                            echo h(
+                                implode(
+                                    ', ',
+                                    $ubicacionEmpresa
+                                )
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+
+                    <?php if (
+                        !empty($empresa['email'])
+                    ): ?>
+
+                        <p>
+                            <?php
+                            echo h(
+                                $empresa['email']
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+
+                    <?php if (
+                        !empty($empresa['telefono'])
+                    ): ?>
+
+                        <p>
+                            <?php
+                            echo h(
+                                $empresa['telefono']
+                            );
+                            ?>
+                        </p>
+
+                    <?php endif; ?>
+
+
+                <?php else: ?>
+
+                    <h2>
+                        Empresa de facturación
+                    </h2>
+
+                    <p>
+                        Configura los datos de la empresa
+                        en empresa_facturacion.
+                    </p>
+
+                <?php endif; ?>
+
+            </div>
+
+
+            <!-- DATOS FACTURA -->
+
+            <div class="datos-factura">
+
+                <h2>
+                    FACTURA
+                </h2>
+
+
+                <p class="numero">
+
+                    Nº:
+                    <?php
+                    echo h(
+                        $numeroFactura
+                    );
+                    ?>
+
+                </p>
+
+
+                <p>
+
+                    Fecha emisión:
+                    <?php
+                    echo h(
+                        $fechaEmision
+                    );
+                    ?>
+
+                </p>
+
+
+                <?php if (
+                    $fechaVencimiento !== ''
+                ): ?>
+
+                    <p>
+
+                        Vencimiento:
+                        <?php
+                        echo h(
+                            $fechaVencimiento
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+
+                <p>
+
+                    <span
+                        class="estado estado-<?php echo h($estado); ?>"
+                    >
+                        <?php
+                        echo h(
+                            $estadoTexto
+                        );
+                        ?>
+                    </span>
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================
+             CLIENTE
+        ================================== -->
+
+        <div class="bloque-cliente">
+
+            <h3>
+                Cliente
+            </h3>
+
+
+            <div class="cliente">
+
+                <p>
+
+                    <strong>
+
+                        <?php
+                        echo h(
+                            $factura[
+                                'nombre_razon_social'
+                            ]
+                        );
+                        ?>
+
+                    </strong>
+
+                </p>
+
+
+                <p>
+
+                    <strong>NIF:</strong>
+
+                    <?php
+                    echo h(
+                        $factura['nif']
+                    );
+                    ?>
+
+                </p>
+
+
+                <?php if (
+                    !empty(
+                        $factura['direccion']
+                    )
+                ): ?>
+
+                    <p>
+
+                        <?php
+                        echo h(
+                            $factura['direccion']
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+
+                <?php
+
+                $ubicacionCliente = [];
+
+                if (
+                    !empty(
+                        $factura[
+                            'codigo_postal'
+                        ]
+                    )
+                ) {
+                    $ubicacionCliente[] =
+                        $factura[
+                            'codigo_postal'
+                        ];
+                }
+
+                if (
+                    !empty(
+                        $factura['ciudad']
+                    )
+                ) {
+                    $ubicacionCliente[] =
+                        $factura['ciudad'];
+                }
+
+                if (
+                    !empty(
+                        $factura['provincia']
+                    )
+                ) {
+                    $ubicacionCliente[] =
+                        $factura['provincia'];
+                }
+
+                ?>
+
+
+                <?php if (
+                    !empty($ubicacionCliente)
+                ): ?>
+
+                    <p>
+
+                        <?php
+                        echo h(
+                            implode(
+                                ', ',
+                                $ubicacionCliente
+                            )
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+
+                <?php if (
+                    !empty(
+                        $factura['email']
+                    )
+                ): ?>
+
+                    <p>
+
+                        <strong>Email:</strong>
+
+                        <?php
+                        echo h(
+                            $factura['email']
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+
+                <?php if (
+                    !empty(
+                        $factura['telefono']
+                    )
+                ): ?>
+
+                    <p>
+
+                        <strong>Teléfono:</strong>
+
+                        <?php
+                        echo h(
+                            $factura['telefono']
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================
+             LINEAS
+        ================================== -->
+
+        <div class="tabla-contenedor">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Descripción
+                        </th>
+
+                        <th class="texto-centro">
+                            Cantidad
+                        </th>
+
+                        <th class="texto-derecha">
+                            Precio
+                        </th>
+
+                        <th class="texto-derecha">
+                            Descuento
+                        </th>
+
+                        <th class="texto-derecha">
+                            IVA
+                        </th>
+
+                        <th class="texto-derecha">
+                            Total
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                <?php foreach (
+                    $lineas as $linea
+                ): ?>
+
+                    <tr>
+
+                        <td>
+
+                            <div class="descripcion">
+
+                                <?php
+                                echo h(
+                                    $linea[
+                                        'descripcion'
+                                    ]
+                                );
+                                ?>
+
+                            </div>
+
+                        </td>
+
+
+                        <td class="texto-centro">
+
+                            <?php
+                            echo number_format(
+                                (float)
+                                $linea['cantidad'],
+                                3,
+                                ',',
+                                '.'
+                            );
+                            ?>
+
+                        </td>
+
+
+                        <td class="texto-derecha">
+
+                            <?php
+                            echo dinero(
+                                $linea[
+                                    'precio_unitario'
+                                ]
+                            );
+                            ?>
+
+                        </td>
+
+
+                        <td class="texto-derecha">
+
+                            <?php
+                            echo number_format(
+                                (float)
+                                $linea['descuento'],
+                                2,
+                                ',',
+                                '.'
+                            );
+                            ?>
+
+                            %
+
+                        </td>
+
+
+                        <td class="texto-derecha">
+
+                            <?php
+                            echo number_format(
+                                (float)
+                                $linea['tipo_iva'],
+                                2,
+                                ',',
+                                '.'
+                            );
+
+                            ?>
+
+                            %
+
+                            <div class="subtexto">
+
+                                <?php
+                                echo dinero(
+                                    $linea[
+                                        'cuota_iva'
+                                    ]
+                                );
+                                ?>
+
+                            </div>
+
+                        </td>
+
+
+                        <td class="texto-derecha">
+
+                            <strong>
+
+                                <?php
+                                echo dinero(
+                                    $linea[
+                                        'total_linea'
+                                    ]
+                                );
+                                ?>
+
+                            </strong>
+
+                        </td>
+
+                    </tr>
+
+                <?php endforeach; ?>
+
+
+                <?php if (
+                    count($lineas) === 0
+                ): ?>
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="sin-lineas"
+                        >
+
+                            No hay líneas en esta factura.
+
+                        </td>
+
+                    </tr>
+
+                <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- ==================================
+             TOTALES
+        ================================== -->
+
+        <div class="zona-totales">
+
+            <div class="totales">
+
+
+                <div class="fila-total">
+
+                    <span>
+                        Base imponible
+                    </span>
+
+                    <strong>
+
+                        <?php
+                        echo dinero(
+                            $factura[
+                                'base_imponible'
+                            ]
+                        );
+                        ?>
+
+                    </strong>
+
+                </div>
+
+
+                <div class="fila-total">
+
+                    <span>
+                        IVA
+                    </span>
+
+                    <strong>
+
+                        <?php
+                        echo dinero(
+                            $factura[
+                                'total_iva'
+                            ]
+                        );
+                        ?>
+
+                    </strong>
+
+                </div>
+
+
+                <?php if (
+                    (float)
+                    $factura['total_irpf'] > 0
+                ): ?>
+
+                    <div class="fila-total irpf">
+
+                        <span>
+                            IRPF
+                        </span>
+
+                        <strong>
+
+                            −
+                            <?php
+                            echo dinero(
+                                $factura[
+                                    'total_irpf'
+                                ]
+                            );
+                            ?>
+
+                        </strong>
+
+                    </div>
+
+                <?php endif; ?>
+
+
+                <div class="fila-total total-final">
+
+                    <span>
+                        TOTAL
+                    </span>
+
+                    <strong>
+
+                        <?php
+                        echo dinero(
+                            $factura['total']
+                        );
+                        ?>
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================
+             INFORMACIÓN FINAL
+        ================================== -->
+
+        <div class="informacion-final">
+
+
+            <div class="bloque-info">
+
+                <h3>
+                    Forma de pago
+                </h3>
+
+
+                <p>
+
+                    <?php
+
+                    if (
+                        !empty(
+                            $factura['metodo_pago']
+                        )
+                    ) {
+
+                        echo h(
+                            $factura[
+                                'metodo_pago'
+                            ]
+                        );
+
+                    } else {
+
+                        echo 'No especificada';
+
+                    }
+
+                    ?>
+
+                </p>
+
+
+                <?php if (
+                    !empty(
+                        $empresa['iban']
+                    )
+                ): ?>
+
+                    <p>
+
+                        <strong>IBAN:</strong>
+
+                        <?php
+                        echo h(
+                            $empresa['iban']
+                        );
+                        ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+            </div>
+
+
+            <div class="bloque-info">
+
+                <h3>
+                    Observaciones
+                </h3>
+
+
+                <p>
+
+                    <?php
+
+                    if (
+                        !empty(
+                            $factura[
+                                'observaciones'
+                            ]
+                        )
+                    ) {
+
+                        echo nl2br(
+                            h(
+                                $factura[
+                                    'observaciones'
+                                ]
+                            )
+                        );
+
+                    } else {
+
+                        echo 'Sin observaciones.';
+
+                    }
+
+                    ?>
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ======================================
+         ACCIONES
+    ====================================== -->
+
+    <div class="acciones-factura">
+
+
+        <a
+            href="facturas.php"
+            class="boton"
+        >
+            ← Volver
+        </a>
+
+
+        <?php if (
+            $estado === 'borrador'
+        ): ?>
+
+            <a
+                href="crear_factura.php?id=<?php echo $facturaId; ?>"
+                class="boton"
+            >
+                Editar borrador
+            </a>
+
+
+            <a
+                href="emitir_factura.php?id=<?php echo $facturaId; ?>"
+                class="boton boton-principal"
+            >
+                Emitir factura
+            </a>
+
+        <?php endif; ?>
+
+
+        <?php if (
+            $estado === 'emitida'
+        ): ?>
+
+           <a
+                href="generar_pdf.php?id=<?php echo (int) $factura['id']; ?>"
+                class="boton boton-pdf"
+                target="_blank"
+            >
+                Generar PDF
+            </a>
+
+        <?php endif; ?>
+
+
+    </div>
+
+
+</div>
+
+</body>
+
+</html>

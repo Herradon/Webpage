@@ -167,23 +167,11 @@ $_SESSION['suscripcion_activa'] = 1;
 
 <header class="header" style="position:fixed;">
 
-    <div class="container nav">
-
-        <div class="logo">
-
-            <div class="logo-v">
-                V
-            </div>
-
-            <div class="logo-text">
-                IZIUNE
-            </div>
-
-        </div>
+    
 
         <?php include 'menu.php'; ?>
        
-    </div>
+
 
 </header>
 
@@ -465,13 +453,13 @@ $_SESSION['suscripcion_activa'] = 1;
                     </strong>
 
 
-                    <small id="assistantDescription">
+                    <!--<small id="assistantDescription">
 
                         ● Diseño y desarrollo de páginas web
                         profesionales, modernas y adaptadas
                         a las necesidades de tu negocio.
 
-                    </small>
+                    </small>-->
 
 
                 </div>

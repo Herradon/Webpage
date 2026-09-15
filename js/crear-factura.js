@@ -1,3 +1,4 @@
+
 /* ==========================================
    VIZIUNEAI - CREAR FACTURA
 ========================================== */
@@ -15,12 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const tipoIrpf =
         document.getElementById("tipo_irpf");
-
-    const clienteSelect =
-        document.getElementById("cliente_id");
-
-    const clienteInfo =
-        document.getElementById("clienteInfo");
 
     const totalBase =
         document.getElementById("totalBase");
@@ -57,21 +52,6 @@ document.addEventListener("DOMContentLoaded", function () {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }) + " €";
-
-    }
-
-
-    /* ==========================================
-       ESCAPAR HTML
-    ========================================== */
-
-    function escaparHTML(texto) {
-
-        const div = document.createElement("div");
-
-        div.textContent = texto;
-
-        return div.innerHTML;
 
     }
 
@@ -427,70 +407,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* ==========================================
-       INFORMACIÓN DEL CLIENTE
-    ========================================== */
-
-    if (clienteSelect) {
-
-        clienteSelect.addEventListener(
-            "change",
-            function () {
-
-                const opcion =
-                    clienteSelect.options[
-                        clienteSelect.selectedIndex
-                    ];
-
-
-                if (
-                    !opcion ||
-                    !opcion.value
-                ) {
-
-                    clienteInfo.innerHTML =
-                        "Selecciona un cliente para ver sus datos.";
-
-                    return;
-
-                }
-
-
-                const nombre =
-                    opcion.textContent.trim();
-
-                const nif =
-                    opcion.dataset.nif || "";
-
-                const email =
-                    opcion.dataset.email || "";
-
-
-                clienteInfo.innerHTML = `
-
-                    <strong>
-                        ${escaparHTML(nombre)}
-                    </strong>
-
-                    <br>
-
-                    NIF:
-                    ${escaparHTML(nif)}
-
-                    ${
-                        email
-                            ? "<br>Email: " + escaparHTML(email)
-                            : ""
-                    }
-
-                `;
-
-            }
-        );
-
-    }
-
-
-    /* ==========================================
        IRPF
     ========================================== */
 
@@ -566,31 +482,59 @@ document.addEventListener("DOMContentLoaded", function () {
             "submit",
             function (evento) {
 
+                /*
+                |--------------------------------------------------------------------------
+                | Ya NO comprobamos cliente_id.
+                |
+                | El cliente se introduce manualmente mediante:
+                |
+                | cliente_nombre_razon_social
+                | cliente_nif
+                | cliente_email
+                | cliente_telefono
+                | cliente_direccion
+                | etc.
+                |--------------------------------------------------------------------------
+                */
+
                 calcularTotales();
 
 
-                const cliente =
-                    clienteSelect
-                        ? clienteSelect.value
-                        : "";
+                /* ==========================================
+                   COMPROBAR CLIENTE MANUAL
+                ========================================== */
+
+                const clienteNombre =
+                    document.getElementById(
+                        "cliente_nombre_razon_social"
+                    );
 
 
-                if (!cliente) {
+                if (
+                    !clienteNombre ||
+                    clienteNombre.value.trim() === ""
+                ) {
 
                     evento.preventDefault();
 
                     alert(
-                        "Selecciona un cliente antes de guardar la factura."
+                        "Introduce el nombre o razón social del cliente."
                     );
 
-                    if (clienteSelect) {
-                        clienteSelect.focus();
+                    if (clienteNombre) {
+
+                        clienteNombre.focus();
+
                     }
 
                     return;
 
                 }
 
+
+                /* ==========================================
+                   COMPROBAR LINEAS
+                ========================================== */
 
                 const lineas =
                     document.querySelectorAll(

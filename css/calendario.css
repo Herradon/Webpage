@@ -14,101 +14,14 @@ body {
     color: #ffffff;
 }
 
-.header {
 
-    width: 100%;
-
-    background: #0d1a29;
-
-    border-bottom: 1px solid #1c3045;
-
-    position: f;
-
-    top: 0;
-
-    z-index: 100;
-
-}
-
-.nav {
-
-    width: 100%;
-
-    min-height: 75px;
-
-    display: flex;
-    justify-content: space-between;
-
-    align-items: center;
-
-    padding: 0 25px;
-
-}
-
-.logo {
-
-    display: flex;
-
-    align-items: center;
-
-    font-size: 22px;
-
-    font-weight: 800;
-
-    white-space: nowrap;
-
-}
-
-.logo-v {
-
-    color: #00cfe0;
-
-    font-size: 25px;
-
-}
-
-.logo-text {
-
-    font-size: 25px;
-
-    color: #ffffff;
-
-}
-
-nav {
-
-    flex: 1;
-
-    text-align: center;
-
-    margin-left: 30px;
-
-}
-
-nav a {
-
-    color: #b7c5d3;
-
-    text-decoration: none;
-
-    font-weight: 600;
-
-    margin: 0 20px;
-
-}
-
-nav a:hover {
-
-    color: #00cfe0;
-
-}
 
 
 .calendario-contenedor {
     width: 100%;
     max-width: 1200px;
 
-    margin: 40px auto;
+    margin: 80px auto;
 
     padding: 20px;
 }
@@ -424,7 +337,7 @@ nav a:hover {
 
     .calendario-contenedor {
 
-        margin: 25px auto;
+         margin: 80px auto;
 
         padding: 15px;
 
@@ -542,7 +455,7 @@ nav a:hover {
 
         width: 100%;
 
-        margin: 15px auto;
+        margin: 80px auto;
 
         padding: 8px;
 
@@ -736,6 +649,8 @@ nav a:hover {
 
         padding: 5px;
 
+          margin: 80px auto;
+
     }
 
 
@@ -770,6 +685,8 @@ nav a:hover {
         padding: 8px 0;
 
         font-size: 9px;
+
+        flex-direction: column;
 
     }
 

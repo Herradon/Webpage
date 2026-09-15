@@ -15,9 +15,7 @@ if (!isset($_SESSION['usuario_id'])) {
     exit;
 }
 
-$usuarioConectado = true;
 $usuarioId = (int) $_SESSION['usuario_id'];
-$clienteUsuario = null;
 
 
 /* ==========================================
@@ -38,58 +36,22 @@ $lineasEditar = [];
 
 
 /* ==========================================
-   CLIENTE CONECTADO
+   DATOS PRIVADOS POR DEFECTO
 ========================================== */
 
-$stmtClienteUsuario = $pdo->prepare("
-    SELECT
-        id,
-        nombre_razon_social,
-        nif,
-        email
-    FROM clientes
-    WHERE usuario_id = ?
-      AND activo = 1
-    LIMIT 1
-");
+$clienteFactura = [
+    'nombre_razon_social' => '',
+    'nif' => '',
+    'direccion' => '',
+    'codigo_postal' => '',
+    'ciudad' => '',
+    'provincia' => '',
+    'pais' => 'España',
+    'email' => '',
+    'telefono' => ''
+];
 
-$stmtClienteUsuario->execute([
-    $usuarioId
-]);
-
-$clienteUsuario = $stmtClienteUsuario->fetch(PDO::FETCH_ASSOC);
-
-
-/*
-|--------------------------------------------------------------------------
-| Si hay usuario conectado pero no tiene cliente asociado
-|--------------------------------------------------------------------------
-*/
-
-if (!$clienteUsuario) {
-
-    die('
-        <div style="
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 80px auto;
-            padding: 30px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-        ">
-            <h2>No se ha encontrado tu perfil de cliente</h2>
-
-            <p>
-                Tu usuario todavía no tiene un perfil de cliente asociado.
-            </p>
-
-            <a href="mi_cuenta.php">
-                Volver a mi cuenta
-            </a>
-        </div>
-    ');
-}
+$datosPrivadosEditar = null;
 
 
 /* ==========================================
@@ -97,6 +59,16 @@ if (!$clienteUsuario) {
 ========================================== */
 
 if ($facturaId) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Buscar factura perteneciente al usuario
+    |--------------------------------------------------------------------------
+    |
+    | El cliente técnico asociado a la factura se utiliza únicamente
+    | para comprobar que la factura pertenece al usuario conectado.
+    |
+    */
 
     $stmtFactura = $pdo->prepare("
         SELECT f.*
@@ -143,8 +115,8 @@ if ($facturaId) {
                     No tienes permiso para acceder a esta factura.
                 </p>
 
-                <a href="mi_cuenta.php">
-                    Volver a mi cuenta
+                <a href="facturas.php">
+                    Volver a facturación
                 </a>
             </div>
         ');
@@ -183,41 +155,226 @@ if ($facturaId) {
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener líneas
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================
+       OBTENER DATOS PRIVADOS CIFRADOS
+    ========================================== */
 
-    $stmtLineasEditar = $pdo->prepare("
-        SELECT *
-        FROM factura_lineas
-        WHERE factura_id = ?
-        ORDER BY orden ASC, id ASC
-    ");
+    try {
 
-    $stmtLineasEditar->execute([
-        $facturaId
-    ]);
+        $stmtPrivada = $pdo->prepare("
+            SELECT datos_cifrados
+            FROM facturas_privadas
+            WHERE factura_id = ?
+              AND usuario_id = ?
+            LIMIT 1
+        ");
 
-    $lineasEditar = $stmtLineasEditar->fetchAll(PDO::FETCH_ASSOC);
+        $stmtPrivada->execute([
+            $facturaId,
+            $usuarioId
+        ]);
+
+        $privada = $stmtPrivada->fetch(PDO::FETCH_ASSOC);
+
+
+        if ($privada && !empty($privada['datos_cifrados'])) {
+
+            $claveCifrado = $VIZIUNEAI_FACTURAS_KEY ?? '';
+
+            if (empty($claveCifrado)) {
+                throw new Exception(
+                    'No está configurada la clave de cifrado.'
+                );
+            }
+
+            if (strlen($claveCifrado) < 32) {
+                throw new Exception(
+                    'La clave de cifrado no es suficientemente segura.'
+                );
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DERIVAR CLAVE AES-256
+            |--------------------------------------------------------------------------
+            */
+
+            $clave = hash(
+                'sha256',
+                $claveCifrado,
+                true
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DECODIFICAR DATOS
+            |--------------------------------------------------------------------------
+            */
+
+            $contenido = base64_decode(
+                $privada['datos_cifrados'],
+                true
+            );
+
+
+            if ($contenido === false) {
+                throw new Exception(
+                    'No se pudieron leer los datos cifrados.'
+                );
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | OPENSSL AES-256-CBC
+            |--------------------------------------------------------------------------
+            |
+            | Los primeros 16 bytes son el IV.
+            | El resto contiene los datos cifrados.
+            |
+            */
+
+            $ivLength = 16;
+
+
+            if (strlen($contenido) <= $ivLength) {
+                throw new Exception(
+                    'Los datos cifrados de la factura no son válidos.'
+                );
+            }
+
+
+            $iv = substr(
+                $contenido,
+                0,
+                $ivLength
+            );
+
+
+            $datosCifrados = substr(
+                $contenido,
+                $ivLength
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DESCIFRAR
+            |--------------------------------------------------------------------------
+            */
+
+            $jsonFactura = openssl_decrypt(
+                $datosCifrados,
+                'AES-256-CBC',
+                $clave,
+                OPENSSL_RAW_DATA,
+                $iv
+            );
+
+
+            if ($jsonFactura === false) {
+                throw new Exception(
+                    'No se pudieron descifrar los datos de la factura.'
+                );
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CONVERTIR JSON
+            |--------------------------------------------------------------------------
+            */
+
+            $datosPrivadosEditar = json_decode(
+                $jsonFactura,
+                true
+            );
+
+
+            if (!is_array($datosPrivadosEditar)) {
+                throw new Exception(
+                    'Los datos privados de la factura no son válidos.'
+                );
+            }
+
+
+            /* ==========================================
+               CLIENTE DE LA FACTURA
+            ========================================== */
+
+            if (
+                isset($datosPrivadosEditar['cliente']) &&
+                is_array($datosPrivadosEditar['cliente'])
+            ) {
+
+                foreach (
+                    $clienteFactura as $campo => $valor
+                ) {
+
+                    if (
+                        array_key_exists(
+                            $campo,
+                            $datosPrivadosEditar['cliente']
+                        )
+                    ) {
+
+                        $clienteFactura[$campo] =
+                            $datosPrivadosEditar['cliente'][$campo] ?? '';
+                    }
+                }
+            }
+
+
+            /* ==========================================
+               LÍNEAS DE LA FACTURA
+            ========================================== */
+
+            if (
+                isset($datosPrivadosEditar['lineas']) &&
+                is_array($datosPrivadosEditar['lineas'])
+            ) {
+
+                $lineasEditar =
+                    $datosPrivadosEditar['lineas'];
+            }
+        }
+
+
+    } catch (Throwable $e) {
+
+        error_log(
+            "Error descifrando factura para edición: "
+            . $e->getMessage()
+        );
+
+        die('
+            <div style="
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 80px auto;
+                padding: 30px;
+                text-align: center;
+                border: 1px solid #ddd;
+                border-radius: 12px;
+            ">
+                <h2>No se pudo cargar la factura</h2>
+
+                <p>
+                    Los datos privados de esta factura no se pudieron recuperar.
+                </p>
+
+                <a href="facturas.php">
+                    Volver a facturación
+                </a>
+            </div>
+        ');
+    }
+
 
     $modoEdicion = true;
 }
-
-
-/* ==========================================
-   CLIENTES
-========================================== */
-
-/*
-|--------------------------------------------------------------------------
-| El usuario ya está identificado mediante la sesión.
-| No cargamos otros clientes.
-|--------------------------------------------------------------------------
-*/
-
-$clientes = [];
 
 
 /* ==========================================
@@ -244,50 +401,37 @@ $serieFactura = $facturaEditar['serie']
 $fechaHoy = $facturaEditar['fecha_emision']
     ?? date('Y-m-d');
 
-$fechaVencimiento = $facturaEditar['fecha_vencimiento']
-    ?? '';
+$fechaVencimiento = '';
 
 $tipoIrpf = 0;
 
+$metodoPago = '';
+
+$observaciones = '';
+
 
 /* ==========================================
-   RECUPERAR IRPF AL EDITAR
+   RECUPERAR DATOS DE FACTURA AL EDITAR
 ========================================== */
 
-if ($modoEdicion && $facturaEditar) {
+if ($modoEdicion && $datosPrivadosEditar) {
 
-    $baseFactura = (float) (
-        $facturaEditar['base_imponible']
-        ?? 0
-    );
+    $fechaVencimiento =
+        $datosPrivadosEditar['factura']['fecha_vencimiento']
+        ?? '';
 
-    $totalIrpfFactura = (float) (
-        $facturaEditar['total_irpf']
-        ?? 0
-    );
+    $tipoIrpf =
+        $datosPrivadosEditar['factura']['tipo_irpf']
+        ?? 0;
 
-    if ($baseFactura > 0 && $totalIrpfFactura > 0) {
+    $metodoPago =
+        $datosPrivadosEditar['factura']['metodo_pago']
+        ?? '';
 
-        $porcentajeIrpf =
-            ($totalIrpfFactura / $baseFactura) * 100;
-
-        if (abs($porcentajeIrpf - 7) < 0.01) {
-
-            $tipoIrpf = 7;
-
-        } elseif (abs($porcentajeIrpf - 15) < 0.01) {
-
-            $tipoIrpf = 15;
-        }
-    }
+    $observaciones =
+        $datosPrivadosEditar['factura']['observaciones']
+        ?? '';
 }
-
-
-$metodoPago = $facturaEditar['metodo_pago']
-    ?? '';
-
-$observaciones = $facturaEditar['observaciones']
-    ?? '';
 
 
 /* ==========================================
@@ -405,7 +549,11 @@ $urlVolver = 'facturas.php';
                             type="text"
                             id="serie"
                             name="serie"
-                            value="<?= htmlspecialchars($serieFactura) ?>"
+                            value="<?= htmlspecialchars(
+                                $serieFactura,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
                             maxlength="20"
                             required
                         >
@@ -445,7 +593,11 @@ $urlVolver = 'facturas.php';
                             type="date"
                             id="fecha_emision"
                             name="fecha_emision"
-                            value="<?= htmlspecialchars($fechaHoy) ?>"
+                            value="<?= htmlspecialchars(
+                                $fechaHoy,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
                             required
                         >
 
@@ -462,7 +614,11 @@ $urlVolver = 'facturas.php';
                             type="date"
                             id="fecha_vencimiento"
                             name="fecha_vencimiento"
-                            value="<?= htmlspecialchars($fechaVencimiento) ?>"
+                            value="<?= htmlspecialchars(
+                                $fechaVencimiento,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
                         >
 
                     </div>
@@ -480,74 +636,214 @@ $urlVolver = 'facturas.php';
 
                 <h2>Cliente</h2>
 
+                <p style="
+                    margin-top: -5px;
+                    margin-bottom: 20px;
+                    opacity: 0.8;
+                ">
+                    Introduce los datos del cliente al que vas a emitir la factura.
+                </p>
+
+
                 <div class="grid-factura">
 
                     <div class="campo-factura completo">
 
-                        <label>
-                            Cliente
+                        <label for="cliente_nombre_razon_social">
+                            Nombre / Razón social
                         </label>
 
-                        <div
-                            class="cliente-info"
-                            style="
-                                margin-top: 0;
-                                padding: 15px;
-                                border: 1px solid rgba(0, 243, 255, 0.25);
-                                border-radius: 8px;
-                            "
-                        >
-
-                            <strong>
-                                <?= htmlspecialchars(
-                                    $clienteUsuario['nombre_razon_social']
-                                ) ?>
-                            </strong>
-
-                            <br>
-
-                            <span>
-                                NIF:
-                                <?= htmlspecialchars(
-                                    $clienteUsuario['nif'] ?: 'No indicado'
-                                ) ?>
-                            </span>
-
-                            <?php if (!empty($clienteUsuario['email'])): ?>
-
-                                <br>
-
-                                <span>
-                                    <?= htmlspecialchars(
-                                        $clienteUsuario['email']
-                                    ) ?>
-                                </span>
-
-                            <?php endif; ?>
-
-                        </div>
-
-
                         <input
-                            type="hidden"
-                            id="cliente_id"
-                            name="cliente_id"
-                            value="<?= (int) $clienteUsuario['id'] ?>"
+                            type="text"
+                            id="cliente_nombre_razon_social"
+                            name="cliente_nombre_razon_social"
+                            value="<?= htmlspecialchars(
+                                $clienteFactura['nombre_razon_social'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Nombre de la persona o empresa"
+                            maxlength="255"
+                            required
                         >
 
                     </div>
 
-                </div>
+
+                    <div class="campo-factura">
+
+                        <label for="cliente_nif">
+                            NIF / CIF
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cliente_nif"
+                            name="cliente_nif"
+                            value="<?= htmlspecialchars(
+                                $clienteFactura['nif'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="NIF o CIF"
+                            maxlength="50"
+                        >
+
+                    </div>
 
 
-                <div
-                    id="clienteInfo"
-                    class="cliente-info"
-                >
+                    <div class="campo-factura">
 
-                    <?= htmlspecialchars(
-                        $clienteUsuario['nombre_razon_social']
-                    ) ?>
+                        <label for="cliente_email">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="cliente_email"
+                            name="cliente_email"
+                            value="<?= htmlspecialchars(
+                                $clienteFactura['email'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="cliente@ejemplo.com"
+                            maxlength="255"
+                        >
+
+                    </div>
+
+
+                    <div class="campo-factura">
+
+                        <label for="cliente_telefono">
+                            Teléfono
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cliente_telefono"
+                            name="cliente_telefono"
+                            value="<?= htmlspecialchars(
+                                $clienteFactura['telefono'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Teléfono"
+                            maxlength="50"
+                        >
+
+                    </div>
+
+
+                    <div class="campo-factura completo">
+
+                        <label for="cliente_direccion">
+                            Dirección
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cliente_direccion"
+                            name="cliente_direccion"
+                            value="<?= htmlspecialchars(
+                                $clienteFactura['direccion'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Dirección completa"
+                            maxlength="255"
+                        >
+
+                    </div>
+
+
+                    <div class="campo-factura">
+
+                        <label for="cliente_codigo_postal">
+                            Código postal
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cliente_codigo_postal"
+                            name="cliente_codigo_postal"
+                            value="<?= htmlspecialchars(
+                                $clienteFactura['codigo_postal'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Código postal"
+                            maxlength="20"
+                        >
+
+                    </div>
+
+
+                    <div class="campo-factura">
+
+                        <label for="cliente_ciudad">
+                            Ciudad
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cliente_ciudad"
+                            name="cliente_ciudad"
+                            value="<?= htmlspecialchars(
+                                $clienteFactura['ciudad'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Ciudad"
+                            maxlength="100"
+                        >
+
+                    </div>
+
+
+                    <div class="campo-factura">
+
+                        <label for="cliente_provincia">
+                            Provincia
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cliente_provincia"
+                            name="cliente_provincia"
+                            value="<?= htmlspecialchars(
+                                $clienteFactura['provincia'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Provincia"
+                            maxlength="100"
+                        >
+
+                    </div>
+
+
+                    <div class="campo-factura">
+
+                        <label for="cliente_pais">
+                            País
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cliente_pais"
+                            name="cliente_pais"
+                            value="<?= htmlspecialchars(
+                                $clienteFactura['pais'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="País"
+                            maxlength="100"
+                        >
+
+                    </div>
 
                 </div>
 
@@ -576,9 +872,14 @@ $urlVolver = 'facturas.php';
 
                 <div id="lineasFactura">
 
-                    <?php if ($modoEdicion && !empty($lineasEditar)): ?>
+                    <?php if (
+                        $modoEdicion &&
+                        !empty($lineasEditar)
+                    ): ?>
 
-                        <?php foreach ($lineasEditar as $linea): ?>
+                        <?php foreach (
+                            $lineasEditar as $linea
+                        ): ?>
 
                             <div class="linea-factura">
 
@@ -587,7 +888,9 @@ $urlVolver = 'facturas.php';
                                     name="descripcion[]"
                                     placeholder="Descripción del producto o servicio"
                                     value="<?= htmlspecialchars(
-                                        $linea['descripcion']
+                                        $linea['descripcion'] ?? '',
+                                        ENT_QUOTES,
+                                        'UTF-8'
                                     ) ?>"
                                     required
                                 >
@@ -597,7 +900,9 @@ $urlVolver = 'facturas.php';
                                     name="cantidad[]"
                                     class="cantidad"
                                     value="<?= htmlspecialchars(
-                                        $linea['cantidad']
+                                        $linea['cantidad'] ?? 1,
+                                        ENT_QUOTES,
+                                        'UTF-8'
                                     ) ?>"
                                     min="0.001"
                                     step="0.001"
@@ -609,7 +914,9 @@ $urlVolver = 'facturas.php';
                                     name="precio_unitario[]"
                                     class="precio-unitario"
                                     value="<?= htmlspecialchars(
-                                        $linea['precio_unitario']
+                                        $linea['precio_unitario'] ?? 0,
+                                        ENT_QUOTES,
+                                        'UTF-8'
                                     ) ?>"
                                     min="0"
                                     step="0.01"
@@ -621,7 +928,9 @@ $urlVolver = 'facturas.php';
                                     name="descuento[]"
                                     class="descuento"
                                     value="<?= htmlspecialchars(
-                                        $linea['descuento']
+                                        $linea['descuento'] ?? 0,
+                                        ENT_QUOTES,
+                                        'UTF-8'
                                     ) ?>"
                                     min="0"
                                     max="100"
@@ -635,7 +944,9 @@ $urlVolver = 'facturas.php';
 
                                     <option
                                         value="21"
-                                        <?= (float) $linea['tipo_iva'] === 21.0
+                                        <?= (float) (
+                                            $linea['tipo_iva'] ?? 21
+                                        ) === 21.0
                                             ? 'selected'
                                             : '' ?>
                                     >
@@ -644,7 +955,9 @@ $urlVolver = 'facturas.php';
 
                                     <option
                                         value="10"
-                                        <?= (float) $linea['tipo_iva'] === 10.0
+                                        <?= (float) (
+                                            $linea['tipo_iva'] ?? 21
+                                        ) === 10.0
                                             ? 'selected'
                                             : '' ?>
                                     >
@@ -653,7 +966,9 @@ $urlVolver = 'facturas.php';
 
                                     <option
                                         value="4"
-                                        <?= (float) $linea['tipo_iva'] === 4.0
+                                        <?= (float) (
+                                            $linea['tipo_iva'] ?? 21
+                                        ) === 4.0
                                             ? 'selected'
                                             : '' ?>
                                     >
@@ -662,7 +977,9 @@ $urlVolver = 'facturas.php';
 
                                     <option
                                         value="0"
-                                        <?= (float) $linea['tipo_iva'] === 0.0
+                                        <?= (float) (
+                                            $linea['tipo_iva'] ?? 21
+                                        ) === 0.0
                                             ? 'selected'
                                             : '' ?>
                                     >
@@ -672,12 +989,16 @@ $urlVolver = 'facturas.php';
                                 </select>
 
                                 <div class="linea-total">
+
                                     <?= number_format(
-                                        (float) $linea['total_linea'],
+                                        (float) (
+                                            $linea['total_linea'] ?? 0
+                                        ),
                                         2,
                                         ',',
                                         '.'
                                     ) ?> €
+
                                 </div>
 
                                 <button
@@ -982,7 +1303,11 @@ $urlVolver = 'facturas.php';
                         id="observaciones"
                         name="observaciones"
                         placeholder="Información adicional que quieras incluir..."
-                    ><?= htmlspecialchars($observaciones) ?></textarea>
+                    ><?= htmlspecialchars(
+                        $observaciones,
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?></textarea>
 
                 </div>
 

@@ -103,38 +103,129 @@ function volverConError($mensaje)
 
 
 /* ==========================================
-   RECIBIR DATOS
+   COMPROBAR SESIÓN
 ========================================== */
 
-/*
-|--------------------------------------------------------------------------
-| Si existe factura_id estamos editando.
-|--------------------------------------------------------------------------
-*/
+if (!isset($_SESSION['usuario_id'])) {
+
+    http_response_code(401);
+
+    volverConError(
+        'Debes iniciar sesión para crear una factura.'
+    );
+
+}
+
+
+$usuarioId =
+    (int) $_SESSION['usuario_id'];
+
+
+if ($usuarioId <= 0) {
+
+    volverConError(
+        'La sesión de usuario no es válida.'
+    );
+
+}
+
+
+/* ==========================================
+   COMPROBAR CLAVE DE CIFRADO
+========================================== */
+
+$claveCifrado =
+    $VIZIUNEAI_FACTURAS_KEY ?? '';
+
+
+if (!$claveCifrado) {
+
+    volverConError(
+        'No está configurada la clave de cifrado de las facturas.'
+    );
+
+}
+
+
+if (strlen($claveCifrado) < 32) {
+
+    volverConError(
+        'La clave de cifrado configurada no es suficientemente segura.'
+    );
+
+}
+
+
+/* ==========================================
+   RECIBIR DATOS
+========================================== */
 
 $facturaId =
     (int) ($_POST['factura_id'] ?? 0);
 
 
-$serie = trim($_POST['serie'] ?? '');
+$serie =
+    trim($_POST['serie'] ?? '');
+
 
 $fechaEmision =
     trim($_POST['fecha_emision'] ?? '');
 
+
 $fechaVencimiento =
     trim($_POST['fecha_vencimiento'] ?? '');
 
-$clienteId =
-    (int) ($_POST['cliente_id'] ?? 0);
 
 $metodoPago =
     trim($_POST['metodo_pago'] ?? '');
 
+
 $observaciones =
     trim($_POST['observaciones'] ?? '');
 
+
 $tipoIrpf =
     (float) ($_POST['tipo_irpf'] ?? 0);
+
+
+/* ==========================================
+   DATOS DEL CLIENTE DE LA FACTURA
+========================================== */
+
+$clienteNombre =
+    trim($_POST['cliente_nombre_razon_social'] ?? '');
+
+
+$clienteNif =
+    trim($_POST['cliente_nif'] ?? '');
+
+
+$clienteDireccion =
+    trim($_POST['cliente_direccion'] ?? '');
+
+
+$clienteCodigoPostal =
+    trim($_POST['cliente_codigo_postal'] ?? '');
+
+
+$clienteCiudad =
+    trim($_POST['cliente_ciudad'] ?? '');
+
+
+$clienteProvincia =
+    trim($_POST['cliente_provincia'] ?? '');
+
+
+$clientePais =
+    trim($_POST['cliente_pais'] ?? '');
+
+
+$clienteEmail =
+    trim($_POST['cliente_email'] ?? '');
+
+
+$clienteTelefono =
+    trim($_POST['cliente_telefono'] ?? '');
 
 
 /* ==========================================
@@ -144,14 +235,18 @@ $tipoIrpf =
 $descripciones =
     $_POST['descripcion'] ?? [];
 
+
 $cantidades =
     $_POST['cantidad'] ?? [];
+
 
 $precios =
     $_POST['precio_unitario'] ?? [];
 
+
 $descuentos =
     $_POST['descuento'] ?? [];
+
 
 $tiposIva =
     $_POST['tipo_iva'] ?? [];
@@ -255,125 +350,261 @@ if ($fechaVencimiento !== '') {
 
 
 /* ==========================================
-   CLIENTE
+   VALIDAR CLIENTE REAL DE LA FACTURA
+========================================== */
+
+if ($clienteNombre === '') {
+
+    volverConError(
+        'El nombre o razón social del cliente es obligatorio.'
+    );
+
+}
+
+
+if (mb_strlen($clienteNombre) > 255) {
+
+    volverConError(
+        'El nombre o razón social del cliente es demasiado largo.'
+    );
+
+}
+
+
+if (mb_strlen($clienteNif) > 50) {
+
+    volverConError(
+        'El NIF/CIF del cliente es demasiado largo.'
+    );
+
+}
+
+
+if (mb_strlen($clienteDireccion) > 255) {
+
+    volverConError(
+        'La dirección del cliente es demasiado larga.'
+    );
+
+}
+
+
+if (mb_strlen($clienteCodigoPostal) > 20) {
+
+    volverConError(
+        'El código postal del cliente no es válido.'
+    );
+
+}
+
+
+if (mb_strlen($clienteCiudad) > 100) {
+
+    volverConError(
+        'La ciudad del cliente es demasiado larga.'
+    );
+
+}
+
+
+if (mb_strlen($clienteProvincia) > 100) {
+
+    volverConError(
+        'La provincia del cliente es demasiado larga.'
+    );
+
+}
+
+
+if (mb_strlen($clientePais) > 100) {
+
+    volverConError(
+        'El país del cliente es demasiado largo.'
+    );
+
+}
+
+
+if (mb_strlen($clienteEmail) > 255) {
+
+    volverConError(
+        'El email del cliente es demasiado largo.'
+    );
+
+}
+
+
+if ($clienteEmail !== '') {
+
+    if (
+        !filter_var(
+            $clienteEmail,
+            FILTER_VALIDATE_EMAIL
+        )
+    ) {
+
+        volverConError(
+            'El email del cliente no es válido.'
+        );
+
+    }
+
+}
+
+
+if (mb_strlen($clienteTelefono) > 50) {
+
+    volverConError(
+        'El teléfono del cliente es demasiado largo.'
+    );
+
+}
+
+
+/* ==========================================
+   OBTENER / CREAR PERFIL TÉCNICO
 ========================================== */
 
 /*
 |--------------------------------------------------------------------------
-| SI HAY USUARIO CONECTADO
+| IMPORTANTE
 |--------------------------------------------------------------------------
 |
-| NO confiamos en el cliente_id enviado por el navegador.
+| Este registro NO representa al cliente de la factura.
 |
-| Buscamos el cliente directamente mediante:
+| Solo sirve para relacionar técnicamente:
 |
-| usuarios.id
-|      ↓
-| clientes.usuario_id
+| usuario → facturas
 |
+| El cliente REAL de la factura está dentro de
+| facturas_privadas y permanece cifrado.
+|--------------------------------------------------------------------------
 */
 
-if (isset($_SESSION['usuario_id'])) {
 
-    $usuarioId =
-        (int) $_SESSION['usuario_id'];
-
-
-    if ($usuarioId <= 0) {
-
-        volverConError(
-            'La sesión de usuario no es válida.'
-        );
-
-    }
+$stmtClienteTecnico =
+    $pdo->prepare("
+        SELECT
+            id
+        FROM clientes
+        WHERE usuario_id = ?
+          AND activo = 1
+        LIMIT 1
+    ");
 
 
-    $stmtClienteUsuario =
+$stmtClienteTecnico->execute([
+    $usuarioId
+]);
+
+
+$clienteTecnico =
+    $stmtClienteTecnico->fetch();
+
+
+/*
+|--------------------------------------------------------------------------
+| Si el usuario no tiene perfil técnico,
+| lo creamos automáticamente.
+|--------------------------------------------------------------------------
+*/
+
+if (!$clienteTecnico) {
+
+    $stmtUsuario =
         $pdo->prepare("
             SELECT
-                id,
-                nombre_razon_social,
-                nif
-            FROM clientes
-            WHERE usuario_id = ?
-              AND activo = 1
+                nombre,
+                email
+            FROM usuarios
+            WHERE id = ?
             LIMIT 1
         ");
 
-    $stmtClienteUsuario->execute([
+    $stmtUsuario->execute([
         $usuarioId
     ]);
 
-    $cliente =
-        $stmtClienteUsuario->fetch();
+    $usuario =
+        $stmtUsuario->fetch();
 
 
-    if (!$cliente) {
+    if (!$usuario) {
 
         volverConError(
-            'No se ha encontrado un cliente asociado a tu cuenta.'
+            'No se ha encontrado tu cuenta de usuario.'
         );
 
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | IMPORTANTE
-    |--------------------------------------------------------------------------
-    |
-    | Sobrescribimos el cliente_id enviado por POST.
-    |
-    */
+    $nombreTecnico =
+        trim($usuario['nombre'] ?? '');
+
+
+    $emailTecnico =
+        trim($usuario['email'] ?? '');
+
+
+    if ($nombreTecnico === '') {
+
+        $nombreTecnico =
+            'Usuario ' . $usuarioId;
+
+    }
+
+
+    $stmtCrearClienteTecnico =
+        $pdo->prepare("
+            INSERT INTO clientes (
+                usuario_id,
+                tipo_persona,
+                nombre_razon_social,
+                email,
+                fecha_creacion,
+                fecha_actualizacion,
+                activo
+            )
+            VALUES (
+                ?,
+                'fisica',
+                ?,
+                ?,
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP,
+                1
+            )
+        ");
+
+
+    $stmtCrearClienteTecnico->execute([
+
+        $usuarioId,
+
+        $nombreTecnico,
+
+        $emailTecnico
+
+    ]);
+
 
     $clienteId =
-        (int) $cliente['id'];
+        (int) $pdo->lastInsertId();
 
 
 } else {
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADMINISTRACIÓN
-    |--------------------------------------------------------------------------
-    */
+    $clienteId =
+        (int) $clienteTecnico['id'];
 
-    if ($clienteId <= 0) {
-
-        volverConError(
-            'Debes seleccionar un cliente.'
-        );
-
-    }
+}
 
 
-    $stmtCliente =
-        $pdo->prepare("
-            SELECT
-                id,
-                nombre_razon_social,
-                nif
-            FROM clientes
-            WHERE id = ?
-              AND activo = 1
-            LIMIT 1
-        ");
+if ($clienteId <= 0) {
 
-    $stmtCliente->execute([
-        $clienteId
-    ]);
-
-    $cliente =
-        $stmtCliente->fetch();
-
-
-    if (!$cliente) {
-
-        volverConError(
-            'El cliente seleccionado no existe o está inactivo.'
-        );
-
-    }
+    volverConError(
+        'No se pudo establecer la relación técnica con tu cuenta.'
+    );
 
 }
 
@@ -384,62 +615,26 @@ if (isset($_SESSION['usuario_id'])) {
 
 if ($facturaId > 0) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | USUARIO CONECTADO
-    |--------------------------------------------------------------------------
-    |
-    | Comprobamos que la factura pertenece al cliente
-    | del usuario conectado.
-    |--------------------------------------------------------------------------
-    */
+    $stmtFacturaEditar =
+        $pdo->prepare("
+            SELECT
+                f.id,
+                f.cliente_id,
+                f.estado
+            FROM facturas f
+            INNER JOIN clientes c
+                ON c.id = f.cliente_id
+            WHERE f.id = ?
+              AND c.usuario_id = ?
+              AND c.activo = 1
+            LIMIT 1
+        ");
 
-    if (isset($_SESSION['usuario_id'])) {
 
-        $stmtFacturaEditar =
-            $pdo->prepare("
-                SELECT
-                    f.id,
-                    f.cliente_id,
-                    f.estado
-                FROM facturas f
-                INNER JOIN clientes c
-                    ON c.id = f.cliente_id
-                WHERE f.id = ?
-                  AND c.usuario_id = ?
-                  AND c.activo = 1
-                LIMIT 1
-            ");
-
-        $stmtFacturaEditar->execute([
-            $facturaId,
-            $usuarioId
-        ]);
-
-    } else {
-
-        /*
-        |--------------------------------------------------------------------------
-        | ADMINISTRACIÓN
-        |--------------------------------------------------------------------------
-        */
-
-        $stmtFacturaEditar =
-            $pdo->prepare("
-                SELECT
-                    id,
-                    cliente_id,
-                    estado
-                FROM facturas
-                WHERE id = ?
-                LIMIT 1
-            ");
-
-        $stmtFacturaEditar->execute([
-            $facturaId
-        ]);
-
-    }
+    $stmtFacturaEditar->execute([
+        $facturaId,
+        $usuarioId
+    ]);
 
 
     $facturaEditar =
@@ -455,12 +650,6 @@ if ($facturaId > 0) {
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SOLO SE PUEDEN EDITAR BORRADORES
-    |--------------------------------------------------------------------------
-    */
-
     if ($facturaEditar['estado'] !== 'borrador') {
 
         volverConError(
@@ -470,18 +659,7 @@ if ($facturaId > 0) {
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SEGURIDAD EXTRA
-    |--------------------------------------------------------------------------
-    |
-    | Si el usuario está conectado, la factura debe seguir
-    | perteneciendo al cliente obtenido mediante la sesión.
-    |--------------------------------------------------------------------------
-    */
-
     if (
-        isset($_SESSION['usuario_id']) &&
         (int) $facturaEditar['cliente_id'] !== $clienteId
     ) {
 
@@ -536,21 +714,21 @@ if (
 }
 
 
-/* ==========================================
-   COMPROBAR MISMA CANTIDAD DE ARRAYS
-========================================== */
-
 $totalDescripciones =
     count($descripciones);
+
 
 $totalCantidades =
     count($cantidades);
 
+
 $totalPrecios =
     count($precios);
 
+
 $totalDescuentos =
     count($descuentos);
+
 
 $totalTiposIva =
     count($tiposIva);
@@ -645,10 +823,6 @@ foreach (
         );
 
 
-    /* ------------------------------------------
-       VALIDAR CANTIDAD
-    ------------------------------------------ */
-
     if ($cantidad <= 0) {
 
         volverConError(
@@ -658,10 +832,6 @@ foreach (
     }
 
 
-    /* ------------------------------------------
-       VALIDAR PRECIO
-    ------------------------------------------ */
-
     if ($precioUnitario < 0) {
 
         volverConError(
@@ -670,10 +840,6 @@ foreach (
 
     }
 
-
-    /* ------------------------------------------
-       VALIDAR DESCUENTO
-    ------------------------------------------ */
 
     if (
         $descuento < 0 ||
@@ -686,10 +852,6 @@ foreach (
 
     }
 
-
-    /* ------------------------------------------
-       VALIDAR IVA
-    ------------------------------------------ */
 
     if (
         !in_array(
@@ -706,49 +868,25 @@ foreach (
     }
 
 
-    /* ------------------------------------------
-       CALCULAR BRUTO
-    ------------------------------------------ */
-
     $bruto =
         $cantidad * $precioUnitario;
 
-
-    /* ------------------------------------------
-       CALCULAR DESCUENTO
-    ------------------------------------------ */
 
     $importeDescuento =
         $bruto * $descuento / 100;
 
 
-    /* ------------------------------------------
-       BASE DE LA LINEA
-    ------------------------------------------ */
-
     $baseLinea =
         $bruto - $importeDescuento;
 
-
-    /* ------------------------------------------
-       IVA DE LA LINEA
-    ------------------------------------------ */
 
     $cuotaIva =
         $baseLinea * $tipoIva / 100;
 
 
-    /* ------------------------------------------
-       TOTAL DE LA LINEA
-    ------------------------------------------ */
-
     $totalLinea =
         $baseLinea + $cuotaIva;
 
-
-    /* ------------------------------------------
-       REDONDEO MONETARIO
-    ------------------------------------------ */
 
     $baseLinea =
         round(
@@ -756,11 +894,13 @@ foreach (
             2
         );
 
+
     $cuotaIva =
         round(
             $cuotaIva,
             2
         );
+
 
     $totalLinea =
         round(
@@ -769,20 +909,13 @@ foreach (
         );
 
 
-    /* ------------------------------------------
-       ACUMULAR TOTALES
-    ------------------------------------------ */
-
     $baseImponible +=
         $baseLinea;
+
 
     $totalIva +=
         $cuotaIva;
 
-
-    /* ------------------------------------------
-       GUARDAR LINEA PROCESADA
-    ------------------------------------------ */
 
     $lineasProcesadas[] = [
 
@@ -828,6 +961,7 @@ $baseImponible =
         2
     );
 
+
 $totalIva =
     round(
         $totalIva,
@@ -861,14 +995,225 @@ $totalFactura =
     );
 
 
-/* ==========================================
-   COMPROBAR TOTAL
-========================================== */
-
 if ($totalFactura < 0) {
 
     volverConError(
         'El total de la factura no puede ser negativo.'
+    );
+
+}
+
+
+/* ==========================================
+   PREPARAR DATOS PRIVADOS
+========================================== */
+
+$datosFactura = [
+
+    'factura' => [
+
+        'serie' =>
+            $serie,
+
+        'numero' =>
+            null,
+
+        'fecha_emision' =>
+            $fechaEmision,
+
+        'moneda' =>
+            'EUR',
+
+        'fecha_vencimiento' =>
+            $fechaVencimiento,
+
+        'metodo_pago' =>
+            $metodoPago !== ''
+                ? $metodoPago
+                : null,
+
+        'observaciones' =>
+            $observaciones !== ''
+                ? $observaciones
+                : null,
+
+        'tipo_irpf' =>
+            round(
+                $tipoIrpf,
+                2
+            ),
+
+        'base_imponible' =>
+            $baseImponible,
+
+        'total_iva' =>
+            $totalIva,
+
+        'total_irpf' =>
+            $totalIrpf,
+
+        'total' =>
+            $totalFactura
+
+    ],
+
+    'cliente' => [
+
+        'nombre_razon_social' =>
+            $clienteNombre,
+
+        'nif' =>
+            $clienteNif,
+
+        'direccion' =>
+            $clienteDireccion,
+
+        'codigo_postal' =>
+            $clienteCodigoPostal,
+
+        'ciudad' =>
+            $clienteCiudad,
+
+        'provincia' =>
+            $clienteProvincia,
+
+        'pais' =>
+            $clientePais,
+
+        'email' =>
+            $clienteEmail,
+
+        'telefono' =>
+            $clienteTelefono
+
+    ],
+
+    'lineas' =>
+        $lineasProcesadas,
+
+    'fecha_guardado' =>
+        date('Y-m-d H:i:s')
+
+];
+
+
+/* ==========================================
+   CONVERTIR A JSON
+========================================== */
+
+try {
+
+    $jsonFactura =
+        json_encode(
+            $datosFactura,
+            JSON_UNESCAPED_UNICODE |
+            JSON_UNESCAPED_SLASHES |
+            JSON_THROW_ON_ERROR
+        );
+
+} catch (Throwable $e) {
+
+    error_log(
+        'Error convirtiendo factura a JSON: '
+        . $e->getMessage()
+    );
+
+    volverConError(
+        'No se pudieron preparar los datos de la factura.'
+    );
+
+}
+
+
+/* ==========================================
+   CIFRAR DATOS PRIVADOS CON OPENSSL
+========================================== */
+
+try {
+
+    if (
+        !function_exists('openssl_encrypt')
+    ) {
+
+        throw new Exception(
+            'La extensión OpenSSL de PHP no está disponible.'
+        );
+
+    }
+
+
+    $clave =
+        hash(
+            'sha256',
+            $claveCifrado,
+            true
+        );
+
+
+    if (
+        strlen($clave) !== 32
+    ) {
+
+        throw new Exception(
+            'La clave de cifrado no tiene una longitud válida.'
+        );
+
+    }
+
+
+    $iv =
+        random_bytes(16);
+
+
+    $datosCifrados =
+        openssl_encrypt(
+            $jsonFactura,
+            'AES-256-CBC',
+            $clave,
+            OPENSSL_RAW_DATA,
+            $iv
+        );
+
+
+    if (
+        $datosCifrados === false
+    ) {
+
+        throw new Exception(
+            'OpenSSL no pudo cifrar los datos.'
+        );
+
+    }
+
+
+    $contenidoPrivado =
+        base64_encode(
+            $iv .
+            $datosCifrados
+        );
+
+
+    if (
+        $contenidoPrivado === ''
+    ) {
+
+        throw new Exception(
+            'El resultado del cifrado está vacío.'
+        );
+
+    }
+
+
+} catch (Throwable $e) {
+
+    error_log(
+        'Error cifrando factura: '
+        . $e->getMessage()
+    );
+
+
+    volverConError(
+        'No se pudieron cifrar los datos privados de la factura.'
     );
 
 }
@@ -889,26 +1234,23 @@ try {
 
     if ($facturaId > 0) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Actualizar cabecera de la factura
-        |--------------------------------------------------------------------------
-        */
-
         $stmtFactura =
             $pdo->prepare("
                 UPDATE facturas
                 SET
                     serie = ?,
+                    numero = NULL,
                     fecha_emision = ?,
                     cliente_id = ?,
-                    base_imponible = ?,
-                    total_iva = ?,
-                    total_irpf = ?,
-                    total = ?,
-                    metodo_pago = ?,
-                    fecha_vencimiento = ?,
-                    observaciones = ?
+                    moneda = 'EUR',
+                    base_imponible = NULL,
+                    total_iva = NULL,
+                    total_irpf = NULL,
+                    total = NULL,
+                    metodo_pago = NULL,
+                    fecha_vencimiento = NULL,
+                    observaciones = NULL,
+                    updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
                   AND estado = 'borrador'
             ");
@@ -923,44 +1265,6 @@ try {
 
                 $clienteId,
 
-                number_format(
-                    $baseImponible,
-                    2,
-                    '.',
-                    ''
-                ),
-
-                number_format(
-                    $totalIva,
-                    2,
-                    '.',
-                    ''
-                ),
-
-                number_format(
-                    $totalIrpf,
-                    2,
-                    '.',
-                    ''
-                ),
-
-                number_format(
-                    $totalFactura,
-                    2,
-                    '.',
-                    ''
-                ),
-
-                $metodoPago !== ''
-                    ? $metodoPago
-                    : null,
-
-                $fechaVencimiento,
-
-                $observaciones !== ''
-                    ? $observaciones
-                    : null,
-
                 $facturaId
 
             ]);
@@ -973,23 +1277,6 @@ try {
             );
 
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Eliminar líneas anteriores
-        |--------------------------------------------------------------------------
-        */
-
-        $stmtEliminarLineas =
-            $pdo->prepare("
-                DELETE FROM factura_lineas
-                WHERE factura_id = ?
-            ");
-
-        $stmtEliminarLineas->execute([
-            $facturaId
-        ]);
 
 
     } else {
@@ -1021,13 +1308,13 @@ try {
                     ?,
                     ?,
                     'EUR',
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
                     'borrador'
                 )
             ");
@@ -1039,54 +1326,10 @@ try {
 
             $fechaEmision,
 
-            $clienteId,
-
-            number_format(
-                $baseImponible,
-                2,
-                '.',
-                ''
-            ),
-
-            number_format(
-                $totalIva,
-                2,
-                '.',
-                ''
-            ),
-
-            number_format(
-                $totalIrpf,
-                2,
-                '.',
-                ''
-            ),
-
-            number_format(
-                $totalFactura,
-                2,
-                '.',
-                ''
-            ),
-
-            $metodoPago !== ''
-                ? $metodoPago
-                : null,
-
-            $fechaVencimiento,
-
-            $observaciones !== ''
-                ? $observaciones
-                : null
+            $clienteId
 
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | ID DE LA NUEVA FACTURA
-        |--------------------------------------------------------------------------
-        */
 
         $facturaId =
             (int) $pdo->lastInsertId();
@@ -1104,106 +1347,61 @@ try {
 
 
     /* ==========================================
-       INSERTAR LINEAS
+       GUARDAR DATOS PRIVADOS CIFRADOS
     ========================================== */
 
-    $stmtLinea =
+    $stmtPrivada =
         $pdo->prepare("
-            INSERT INTO factura_lineas (
+            INSERT INTO facturas_privadas (
+                usuario_id,
                 factura_id,
-                descripcion,
-                cantidad,
-                precio_unitario,
-                descuento,
-                tipo_iva,
-                base_linea,
-                cuota_iva,
-                total_linea,
-                orden
+                datos_cifrados
             )
             VALUES (
                 ?,
                 ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
                 ?
             )
+            ON DUPLICATE KEY UPDATE
+                usuario_id = VALUES(usuario_id),
+                datos_cifrados = VALUES(datos_cifrados)
         ");
 
 
-    foreach (
-        $lineasProcesadas as $linea
-    ) {
+    $guardadaPrivada =
+        $stmtPrivada->execute([
 
-        $stmtLinea->execute([
+            $usuarioId,
 
             $facturaId,
 
-            $linea['descripcion'],
-
-            number_format(
-                $linea['cantidad'],
-                3,
-                '.',
-                ''
-            ),
-
-            number_format(
-                $linea['precio_unitario'],
-                4,
-                '.',
-                ''
-            ),
-
-            number_format(
-                $linea['descuento'],
-                2,
-                '.',
-                ''
-            ),
-
-            number_format(
-                $linea['tipo_iva'],
-                2,
-                '.',
-                ''
-            ),
-
-            number_format(
-                $linea['base_linea'],
-                2,
-                '.',
-                ''
-            ),
-
-            number_format(
-                $linea['cuota_iva'],
-                2,
-                '.',
-                ''
-            ),
-
-            number_format(
-                $linea['total_linea'],
-                2,
-                '.',
-                ''
-            ),
-
-            $linea['orden']
+            $contenidoPrivado
 
         ]);
+
+
+    if (!$guardadaPrivada) {
+
+        throw new Exception(
+            'No se pudieron guardar los datos privados de la factura.'
+        );
 
     }
 
 
     /* ==========================================
-       CONFIRMAR TRANSACCIÓN
+       NO USAR factura_lineas
+    ========================================== */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Las líneas están almacenadas dentro de datos_cifrados.
+    |--------------------------------------------------------------------------
+    */
+
+
+    /* ==========================================
+       CONFIRMAR
     ========================================== */
 
     $pdo->commit();
@@ -1224,10 +1422,6 @@ try {
 
 } catch (Throwable $e) {
 
-    /* ==========================================
-       DESHACER SI HAY ERROR
-    ========================================== */
-
     if (
         $pdo->inTransaction()
     ) {
@@ -1238,13 +1432,18 @@ try {
 
 
     error_log(
-        'Error guardando factura: ' .
-        $e->getMessage()
+        'ERROR GUARDANDO FACTURA: ' .
+        $e->getMessage() .
+        ' | FILE: ' .
+        $e->getFile() .
+        ' | LINE: ' .
+        $e->getLine()
     );
 
 
     volverConError(
-        'Se produjo un error al guardar la factura. Revisa la configuración de la base de datos.'
+        'ERROR REAL: ' .
+        $e->getMessage()
     );
 
 }
