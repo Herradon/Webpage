@@ -1,0 +1,391 @@
+
+/* ==========================================================================
+   VIZIUNEAI - SEGURIDAD DE LA CUENTA
+   ========================================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    background: #07111f;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    padding-top: 4%;
+    min-height: 100vh;
+    background: #07111f;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* ==========================================================================
+   CONTENEDOR
+   ========================================================================== */
+
+.security-container {
+    width: min(700px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 70px 0 80px;
+}
+
+
+/* ==========================================================================
+   TARJETA PRINCIPAL
+   ========================================================================== */
+
+.security-card {
+    padding: 36px;
+    background: #0d1a29;
+    border: 1px solid #1c3045;
+    border-radius: 12px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.22);
+}
+
+
+/* ==========================================================================
+   CABECERA
+   ========================================================================== */
+
+.security-header {
+    margin-bottom: 28px;
+}
+
+.security-kicker {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #00cfe0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.7px;
+}
+
+.security-header h1 {
+    margin: 0 0 10px;
+    color: #ffffff;
+    font-size: 29px;
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+.security-header p {
+    margin: 0;
+    color: #9fb1c1;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   MENSAJES
+   ========================================================================== */
+
+.security-success,
+.security-error {
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.security-success {
+    border: 1px solid #245b46;
+    background: #123329;
+    color: #8de0b4;
+}
+
+.security-error {
+    border: 1px solid #7f3030;
+    background: #28141a;
+    color: #ffb4b4;
+}
+
+
+/* ==========================================================================
+   FORMULARIO
+   ========================================================================== */
+
+.password-form {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #7f94a7;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* ==========================================================================
+   CAMPOS DE CONTRASEÑA
+   ========================================================================== */
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.form-group input {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid #263d52;
+    border-radius: 7px;
+    outline: none;
+    background: #07111f;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* Espacio para el botón circular */
+
+.password-wrapper input {
+    padding-right: 52px;
+}
+
+
+.form-group input::placeholder {
+    color: #607386;
+}
+
+.form-group input:hover {
+    border-color: #31536b;
+}
+
+.form-group input:focus {
+    border-color: #00cfe0;
+    background: #0e2030;
+    box-shadow: 0 0 0 2px rgba(0, 207, 224, 0.08);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 7px;
+    color: #6f8294;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+
+/* ==========================================================================
+   BOTÓN CIRCULAR MOSTRAR / OCULTAR CONTRASEÑA
+   ========================================================================== */
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    transform: translateY(-50%);
+
+    border:none;
+
+    outline: none;
+
+    background: transparent;
+    color: #7f94a7;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.toggle-password:hover {
+    border-color: #00cfe0;
+    background: rgba(0, 207, 224, 0.08);
+    color: #00cfe0;
+}
+
+.toggle-password:active {
+    background: rgba(0, 207, 224, 0.14);
+}
+
+.toggle-password:focus-visible {
+    border-color: #00cfe0;
+    box-shadow: 0 0 0 2px rgba(0, 207, 224, 0.15);
+}
+
+
+/* ==========================================================================
+   BOTÓN CAMBIAR CONTRASEÑA
+   ========================================================================== */
+
+.change-password-button {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 5px;
+    padding: 13px 20px;
+
+    border: 1px solid #00cfe0;
+    border-radius: 8px;
+
+    outline: none;
+
+    background: #00cfe0;
+    color: #06121d;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.change-password-button:hover {
+    background: #18ddec;
+    border-color: #18ddec;
+    transform: translateY(-1px);
+    box-shadow: 0 7px 20px rgba(0, 207, 224, 0.16);
+}
+
+.change-password-button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.change-password-button:focus-visible {
+    box-shadow: 0 0 0 3px rgba(0, 207, 224, 0.18);
+}
+
+
+/* ==========================================================================
+   PIE
+   ========================================================================== */
+
+.security-footer {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #1c3045;
+    text-align: center;
+}
+
+.security-footer a {
+    color: #00cfe0;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.security-footer a:hover {
+    color: #18ddec;
+}
+
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 700px) {
+
+    .security-container {
+        width: min(100% - 24px, 700px);
+        padding-top: 40px;
+        padding-bottom: 50px;
+    }
+
+    .security-card {
+        padding: 27px 24px;
+    }
+
+    .security-header h1 {
+        font-size: 26px;
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    body {
+        padding-top: 7%;
+    }
+
+    .security-container {
+        width: calc(100% - 20px);
+        padding-top: 25px;
+    }
+
+    .security-card {
+        padding: 24px 20px;
+    }
+
+    .security-header {
+        margin-bottom: 24px;
+    }
+
+    .security-header h1 {
+        font-size: 23px;
+    }
+
+    .security-header p {
+        font-size: 13px;
+    }
+
+    .form-group input {
+        height: 48px;
+    }
+
+    .change-password-button {
+        min-height: 50px;
+    }
+
+}
+
+
+@media (max-width: 380px) {
+
+    .security-card {
+        padding: 21px 17px;
+    }
+
+    .security-header h1 {
+        font-size: 21px;
+    }
+
+    .form-group input {
+        font-size: 13px;
+    }
+
+}

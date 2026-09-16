@@ -595,8 +595,11 @@ if ($porcentajePerfil >= 100) {
                     </a>
 
 
-                    <div class="quick-card">
-
+                    
+                        
+                        <a
+                        href="seguridad.php"
+                        class="quick-card">
                         <div class="quick-icon">
                             🛡️
                         </div>
@@ -618,8 +621,8 @@ if ($porcentajePerfil >= 100) {
 
                         </div>
 
-                    </div>
-
+                    
+                    </a>
 
                 </div>
 

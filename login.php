@@ -1,3 +1,4 @@
+
 <?php
 
 session_start();
@@ -185,6 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <title>Iniciar sesión | ViziuneAI</title>
 
+    <!-- CSS DEL LOGIN -->
     <link
         rel="stylesheet"
         href="css/login.css"
@@ -237,6 +239,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 method="POST"
             >
 
+                <!-- CORREO -->
+
                 <div class="form-group">
 
                     <label for="email">
@@ -256,23 +260,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
 
+                <!-- CONTRASEÑA -->
+
                 <div class="form-group">
 
                     <label for="password">
                         Contraseña
                     </label>
 
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Tu contraseña"
-                        autocomplete="current-password"
-                        required
-                    >
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Tu contraseña"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <!-- OJO DENTRO DEL CAMPO -->
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            data-target="password"
+                            aria-label="Mostrar contraseña"
+                            title="Mostrar contraseña"
+                        >()</button>
+
+                    </div>
 
                 </div>
 
+
+                <!-- BOTÓN LOGIN -->
 
                 <button
                     type="submit"
@@ -309,8 +331,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 
 
+    <!-- JAVASCRIPT DEL LOGIN -->
     <script src="js/login.js"></script>
 
 </body>
 
 </html>
+
