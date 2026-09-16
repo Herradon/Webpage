@@ -23,81 +23,16 @@ $usuarioId = (int) $_SESSION['usuario_id'];
 
 /*
 |--------------------------------------------------------------------------
-| Comprobar suscripción activa
+| Acceso gratuito
 |--------------------------------------------------------------------------
+|
+| La plataforma ya no requiere suscripción.
+| Mantenemos esta variable de sesión por compatibilidad
+| con otras partes antiguas del sistema.
+|
 */
 
-$stmtSuscripcion = $pdo->prepare("
-    SELECT
-        suscripcion_activa,
-        suscripcion_fin
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-");
-
-$stmtSuscripcion->execute([$usuarioId]);
-
-$datosSuscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
-
-$suscripcionActiva = false;
-
-if (
-    $datosSuscripcion &&
-    (int) $datosSuscripcion['suscripcion_activa'] === 1
-) {
-
-    $suscripcionActiva = true;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Comprobar fecha de finalización
-    |--------------------------------------------------------------------------
-    */
-
-    if (!empty($datosSuscripcion['suscripcion_fin'])) {
-
-        try {
-
-            $fechaFin = new DateTime(
-                $datosSuscripcion['suscripcion_fin']
-            );
-
-            $ahora = new DateTime();
-
-            if ($fechaFin < $ahora) {
-
-                $pdo->prepare("
-                    UPDATE usuarios
-                    SET suscripcion_activa = 0
-                    WHERE id = ?
-                ")->execute([$usuarioId]);
-
-                $suscripcionActiva = false;
-
-                $_SESSION['suscripcion_activa'] = 0;
-            }
-
-        } catch (Exception $e) {
-
-            $suscripcionActiva = false;
-        }
-    }
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Si no tiene suscripción, bloquear acceso
-|--------------------------------------------------------------------------
-*/
-
-if (!$suscripcionActiva) {
-
-    header('Location: suscripcion.php');
-    exit;
-}
+$_SESSION['suscripcion_activa'] = 1;
 
 
 $usuarioNombre = $_SESSION['usuario_nombre'] ?? '';
@@ -142,7 +77,6 @@ $cliente = $stmtCliente->fetch(PDO::FETCH_ASSOC);
 if (!$cliente) {
 
     $error = 'No se ha encontrado tu perfil de cliente.';
-    $facturas = [];
 
 } else {
 
@@ -154,62 +88,89 @@ if (!$cliente) {
 
     $_SESSION['cliente_id'] = (int) $cliente['id'];
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Buscar SOLO las facturas de este cliente
-    |--------------------------------------------------------------------------
-    */
-
-    $stmtFacturas = $pdo->prepare("
-        SELECT
-            id,
-            serie,
-            numero,
-            fecha_emision,
-            base_imponible,
-            total_iva,
-            total_irpf,
-            total,
-            estado
-        FROM facturas
-        WHERE cliente_id = ?
-        ORDER BY fecha_emision DESC, id DESC
-    ");
-
-    $stmtFacturas->execute([
-        $cliente['id']
-    ]);
-
-    $facturas = $stmtFacturas->fetchAll(PDO::FETCH_ASSOC);
-
     $error = '';
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| Calcular estadísticas
+| Preparar información visual
 |--------------------------------------------------------------------------
 */
 
-$totalFacturas = count($facturas);
+$nombreMostrar = '';
 
-$totalEmitidas = 0;
-$totalBorradores = 0;
-$totalImporte = 0;
+if ($cliente && !empty($cliente['nombre_razon_social'])) {
 
-foreach ($facturas as $factura) {
+    $nombreMostrar = $cliente['nombre_razon_social'];
 
-    if ($factura['estado'] === 'emitida') {
-        $totalEmitidas++;
+} elseif (!empty($usuarioNombre)) {
+
+    $nombreMostrar = $usuarioNombre;
+
+} else {
+
+    $nombreMostrar = 'Cliente';
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Calcular porcentaje de datos completados
+|--------------------------------------------------------------------------
+*/
+
+$camposPerfil = [
+    'nombre_razon_social',
+    'nif',
+    'email',
+    'telefono',
+    'direccion',
+    'codigo_postal',
+    'ciudad',
+    'provincia'
+];
+
+$camposCompletados = 0;
+
+if ($cliente) {
+
+    foreach ($camposPerfil as $campo) {
+
+        if (!empty(trim((string) ($cliente[$campo] ?? '')))) {
+            $camposCompletados++;
+        }
+
     }
 
-    if ($factura['estado'] === 'borrador') {
-        $totalBorradores++;
-    }
+}
 
-    $totalImporte += (float) $factura['total'];
+$totalCampos = count($camposPerfil);
+
+$porcentajePerfil = $totalCampos > 0
+    ? round(($camposCompletados / $totalCampos) * 100)
+    : 0;
+
+
+/*
+|--------------------------------------------------------------------------
+| Texto del estado del perfil
+|--------------------------------------------------------------------------
+*/
+
+if ($porcentajePerfil >= 100) {
+
+    $estadoPerfil = 'Perfil completo';
+
+} elseif ($porcentajePerfil >= 70) {
+
+    $estadoPerfil = 'Perfil casi completo';
+
+} else {
+
+    $estadoPerfil = 'Perfil pendiente de completar';
+
 }
 
 ?>
@@ -237,503 +198,518 @@ foreach ($facturas as $factura) {
 <body>
 
 
-<header class="topbar">
+    <header class="header" style="position:fixed;">
 
-    <div class="logo">
-        VIZIUNE<span>AI</span>
-    </div>
+        <?php include 'menu.php'; ?>
 
-    <div class="user-area">
-
-        <span>
-            Hola, <?= htmlspecialchars($usuarioNombre) ?>
-        </span>
-
-        <a href="logout.php" class="logout-button">
-            Cerrar sesión
-        </a>
-
-    </div>
-
-</header>
+    </header>
 
 
-<main class="account-container">
+    <main class="account-container">
 
 
-    <!-- CABECERA -->
+        <!-- =========================================================
+             CABECERA
+        ========================================================== -->
 
-    <section class="welcome-section">
+        <section class="welcome-section">
 
-        <div>
+            <div class="welcome-content">
 
-            <h1>Mi cuenta</h1>
+                <span class="welcome-label">
+                    ÁREA DE CLIENTE
+                </span>
 
-            <p>
-                Gestiona tus datos y tus facturas desde tu área privada.
-            </p>
-
-        </div>
-
-        <a
-            href="crear_factura.php"
-            class="primary-button"
-        >
-            + Nueva factura
-        </a>
-
-    </section>
-
-
-    <?php if (!empty($error)): ?>
-
-        <div class="alert-error">
-            <?= htmlspecialchars($error) ?>
-        </div>
-
-    <?php endif; ?>
-
-
-    <!-- ESTADÍSTICAS -->
-
-    <section class="stats-grid">
-
-        <div class="stat-card">
-
-            <span class="stat-label">
-                Total facturas
-            </span>
-
-            <strong>
-                <?= $totalFacturas ?>
-            </strong>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <span class="stat-label">
-                Emitidas
-            </span>
-
-            <strong>
-                <?= $totalEmitidas ?>
-            </strong>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <span class="stat-label">
-                Borradores
-            </span>
-
-            <strong>
-                <?= $totalBorradores ?>
-            </strong>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <span class="stat-label">
-                Importe total
-            </span>
-
-            <strong>
-                <?= number_format($totalImporte, 2, ',', '.') ?> €
-            </strong>
-
-        </div>
-
-    </section>
-
-
-    <!-- DATOS DEL CLIENTE -->
-
-    <section class="account-section">
-
-        <div class="section-header">
-
-            <div>
-
-                <h2>Mis datos</h2>
+                <h1>
+                    Hola, <?= htmlspecialchars($nombreMostrar) ?>
+                </h1>
 
                 <p>
-                    Datos asociados a tu cuenta.
+                    Gestiona tu cuenta, consulta tus datos y accede
+                    rápidamente a los servicios de ViziuneAI.
                 </p>
 
             </div>
 
-        </div>
+        </section>
+
+
+        <?php if (!empty($error)): ?>
+
+            <div class="alert-error">
+
+                <?= htmlspecialchars($error) ?>
+
+            </div>
+
+        <?php endif; ?>
 
 
         <?php if ($cliente): ?>
 
-            <div class="client-data">
 
-                <div class="data-item">
+            <!-- =====================================================
+                 ESTADÍSTICAS
+            ====================================================== -->
 
-                    <span>Nombre / Razón social</span>
-
-                    <strong>
-                        <?= htmlspecialchars(
-                            $cliente['nombre_razon_social'] ?? ''
-                        ) ?>
-                    </strong>
-
-                </div>
+            <section class="stats-grid">
 
 
-                <div class="data-item">
+                <div class="stat-card">
 
-                    <span>NIF / DNI</span>
+                    <div class="stat-icon">
+                        👤
+                    </div>
 
-                    <strong>
-                        <?= htmlspecialchars(
-                            $cliente['nif'] ?: 'No indicado'
-                        ) ?>
-                    </strong>
+                    <div class="stat-content">
 
-                </div>
+                        <span class="stat-label">
+                            Estado de la cuenta
+                        </span>
 
+                        <strong>
+                            Activa
+                        </strong>
 
-                <div class="data-item">
-
-                    <span>Email</span>
-
-                    <strong>
-                        <?= htmlspecialchars(
-                            $cliente['email'] ?: $usuarioEmail
-                        ) ?>
-                    </strong>
+                    </div>
 
                 </div>
 
 
-                <div class="data-item">
+                <div class="stat-card">
 
-                    <span>Teléfono</span>
+                    <div class="stat-icon">
+                        ✓
+                    </div>
 
-                    <strong>
-                        <?= htmlspecialchars(
-                            $cliente['telefono'] ?: 'No indicado'
-                        ) ?>
-                    </strong>
+                    <div class="stat-content">
 
-                </div>
+                        <span class="stat-label">
+                            Perfil
+                        </span>
 
+                        <strong>
+                            <?= $porcentajePerfil ?>%
+                        </strong>
 
-                <div class="data-item">
-
-                    <span>Dirección</span>
-
-                    <strong>
-                        <?= htmlspecialchars(
-                            $cliente['direccion'] ?: 'No indicada'
-                        ) ?>
-                    </strong>
+                    </div>
 
                 </div>
 
 
-                <div class="data-item">
+                <div class="stat-card">
 
-                    <span>Localidad</span>
+                    <div class="stat-icon">
+                        📄
+                    </div>
 
-                    <strong>
+                    <div class="stat-content">
 
-                        <?php
+                        <span class="stat-label">
+                            Facturación
+                        </span>
 
-                        $localidad = [];
+                        <strong>
+                            Disponible
+                        </strong>
 
-                        if (!empty($cliente['codigo_postal'])) {
-                            $localidad[] = $cliente['codigo_postal'];
-                        }
-
-                        if (!empty($cliente['ciudad'])) {
-                            $localidad[] = $cliente['ciudad'];
-                        }
-
-                        if (!empty($cliente['provincia'])) {
-                            $localidad[] = $cliente['provincia'];
-                        }
-
-                        echo htmlspecialchars(
-                            !empty($localidad)
-                                ? implode(', ', $localidad)
-                                : 'No indicada'
-                        );
-
-                        ?>
-
-                    </strong>
+                    </div>
 
                 </div>
 
-            </div>
 
-        <?php endif; ?>
+                <div class="stat-card">
 
-    </section>
+                    <div class="stat-icon">
+                        🔒
+                    </div>
 
+                    <div class="stat-content">
 
-    <!-- FACTURAS -->
+                        <span class="stat-label">
+                            Acceso
+                        </span>
 
-    <section class="account-section">
+                        <strong>
+                            Seguro
+                        </strong>
 
-        <div class="section-header">
+                    </div>
 
-            <div>
-
-                <h2>Mis facturas</h2>
-
-                <p>
-                    Consulta y gestiona tus facturas.
-                </p>
-
-            </div>
-
-            <a
-                href="crear_factura.php"
-                class="secondary-button"
-            >
-                + Crear factura
-            </a>
-
-        </div>
-
-
-        <?php if (empty($facturas)): ?>
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    📄
                 </div>
 
-                <h3>Todavía no tienes facturas</h3>
 
-                <p>
-                    Puedes crear tu primera factura desde aquí.
-                </p>
-
-                <a
-                    href="crear_factura.php"
-                    class="primary-button"
-                >
-                    Crear mi primera factura
-                </a>
-
-            </div>
-
-        <?php else: ?>
+            </section>
 
 
-            <div class="table-wrapper">
+            <!-- =====================================================
+                 ACCESOS RÁPIDOS
+            ====================================================== -->
 
-                <table class="invoice-table">
+            <section class="quick-section">
 
-                    <thead>
+                <div class="section-header">
 
-                        <tr>
+                    <div>
 
-                            <th>
-                                Factura
-                            </th>
+                        <h2>
+                            Accesos rápidos
+                        </h2>
 
-                            <th>
-                                Fecha
-                            </th>
+                        <p>
+                            Accede directamente a las principales
+                            funciones de tu área de cliente.
+                        </p>
 
-                            <th>
-                                Base
-                            </th>
+                    </div>
 
-                            <th>
-                                IVA
-                            </th>
-
-                            <th>
-                                Total
-                            </th>
-
-                            <th>
-                                Estado
-                            </th>
-
-                            <th>
-                                Acciones
-                            </th>
-
-                        </tr>
-
-                    </thead>
+                </div>
 
 
-                    <tbody>
+                <div class="quick-grid">
 
-                        <?php foreach ($facturas as $factura): ?>
+
+                    <a
+                        href="facturas.php"
+                        class="quick-card"
+                    >
+
+                        <div class="quick-icon">
+                            📄
+                        </div>
+
+                        <div class="quick-content">
+
+                            <h3>
+                                Mis facturas
+                            </h3>
+
+                            <p>
+                                Consulta y gestiona tus facturas
+                                desde la plataforma.
+                            </p>
+
+                            <span class="quick-link">
+                                Ver facturas →
+                            </span>
+
+                        </div>
+
+                    </a>
+
+
+                    
+
+                         <a
+                        href="calendario.php"
+                        class="quick-card">
+                        
+
+                        <div class="quick-icon">
+                            📅
+                        </div>
+
+                        <div class="quick-content">
+
+                            <h3>
+                                Mis facturas
+                            </h3>
+
+                            <p>
+                                Consulta y gestiona tus facturas
+                                desde la plataforma.
+                            </p>
+
+                            <span class="quick-link">
+                                Ver facturas →
+                            </span>
+
+                        </div>
+                        </a>
+
+                    
+
+
+                    <div class="quick-card">
+
+                        <div class="quick-icon">
+                            🛡️
+                        </div>
+
+                        <div class="quick-content">
+
+                            <h3>
+                                Seguridad
+                            </h3>
+
+                            <p>
+                                Mantén protegida tu cuenta y tus
+                                datos de acceso.
+                            </p>
+
+                            <span class="quick-link muted">
+                                Gestión de cuenta
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =====================================================
+                 DATOS DEL CLIENTE
+            ====================================================== -->
+
+            <section class="account-section">
+
+                <div class="section-header">
+
+                    <div>
+
+                        <span class="section-kicker">
+                            INFORMACIÓN
+                        </span>
+
+                        <h2>
+                            Mis datos
+                        </h2>
+
+                        <p>
+                            Datos asociados actualmente a tu cuenta
+                            de cliente.
+                        </p>
+
+                    </div>
+
+
+                    <div class="profile-status">
+
+                        <span class="status-dot"></span>
+
+                        <?= htmlspecialchars($estadoPerfil) ?>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PROGRESO DEL PERFIL -->
+
+                <div class="profile-progress">
+
+                    <div class="progress-header">
+
+                        <span>
+                            Compleción del perfil
+                        </span>
+
+                        <strong>
+                            <?= $porcentajePerfil ?>%
+                        </strong>
+
+                    </div>
+
+                    <div class="progress-bar">
+
+                        <div
+                            class="progress-fill"
+                            style="width: <?= $porcentajePerfil ?>%;"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DATOS -->
+
+                <div class="client-data">
+
+
+                    <div class="data-item">
+
+                        <span>
+                            Nombre / Razón social
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars(
+                                $cliente['nombre_razon_social'] ?? ''
+                            ) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="data-item">
+
+                        <span>
+                            NIF / DNI
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars(
+                                $cliente['nif'] ?: 'No indicado'
+                            ) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="data-item">
+
+                        <span>
+                            Email
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars(
+                                $cliente['email'] ?: $usuarioEmail
+                            ) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="data-item">
+
+                        <span>
+                            Teléfono
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars(
+                                $cliente['telefono'] ?: 'No indicado'
+                            ) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="data-item">
+
+                        <span>
+                            Dirección
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars(
+                                $cliente['direccion'] ?: 'No indicada'
+                            ) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="data-item">
+
+                        <span>
+                            Localidad
+                        </span>
+
+                        <strong>
 
                             <?php
 
-                            $numeroFactura = $factura['numero']
-                                ? $factura['serie'] . '-' . $factura['numero']
-                                : 'Borrador #' . $factura['id'];
+                            $localidad = [];
 
-                            $estado = $factura['estado'];
+                            if (!empty($cliente['codigo_postal'])) {
+                                $localidad[] = $cliente['codigo_postal'];
+                            }
+
+                            if (!empty($cliente['ciudad'])) {
+                                $localidad[] = $cliente['ciudad'];
+                            }
+
+                            if (!empty($cliente['provincia'])) {
+                                $localidad[] = $cliente['provincia'];
+                            }
+
+                            echo htmlspecialchars(
+                                !empty($localidad)
+                                    ? implode(', ', $localidad)
+                                    : 'No indicada'
+                            );
 
                             ?>
 
-                            <tr>
+                        </strong>
 
-                                <td data-label="Factura">
-
-                                    <strong>
-                                        <?= htmlspecialchars(
-                                            $numeroFactura
-                                        ) ?>
-                                    </strong>
-
-                                </td>
+                    </div>
 
 
-                                <td data-label="Fecha">
+                    <div class="data-item">
 
-                                    <?= date(
-                                        'd/m/Y',
-                                        strtotime(
-                                            $factura['fecha_emision']
-                                        )
-                                    ) ?>
+                        <span>
+                            País
+                        </span>
 
-                                </td>
+                        <strong>
+                            <?= htmlspecialchars(
+                                $cliente['pais'] ?: 'No indicado'
+                            ) ?>
+                        </strong>
 
-
-                                <td data-label="Base">
-
-                                    <?= number_format(
-                                        (float) $factura['base_imponible'],
-                                        2,
-                                        ',',
-                                        '.'
-                                    ) ?> €
-
-                                </td>
+                    </div>
 
 
-                                <td data-label="IVA">
+                    <div class="data-item">
 
-                                    <?= number_format(
-                                        (float) $factura['total_iva'],
-                                        2,
-                                        ',',
-                                        '.'
-                                    ) ?> €
+                        <span>
+                            Estado
+                        </span>
 
-                                </td>
+                        <strong class="active-value">
+                            ● Cuenta activa
+                        </strong>
 
-
-                                <td data-label="Total">
-
-                                    <strong>
-                                        <?= number_format(
-                                            (float) $factura['total'],
-                                            2,
-                                            ',',
-                                            '.'
-                                        ) ?> €
-                                    </strong>
-
-                                </td>
+                    </div>
 
 
-                                <td data-label="Estado">
+                </div>
 
-                                    <?php if ($estado === 'emitida'): ?>
-
-                                        <span class="status status-issued">
-                                            Emitida
-                                        </span>
-
-                                    <?php elseif ($estado === 'borrador'): ?>
-
-                                        <span class="status status-draft">
-                                            Borrador
-                                        </span>
-
-                                    <?php else: ?>
-
-                                        <span class="status">
-                                            <?= htmlspecialchars(
-                                                $estado
-                                            ) ?>
-                                        </span>
-
-                                    <?php endif; ?>
-
-                                </td>
+            </section>
 
 
-                                <td data-label="Acciones">
+            <!-- =====================================================
+                 INFORMACIÓN FINAL
+            ====================================================== -->
 
-                                    <div class="actions">
+            <section class="account-info">
 
-                                        <a
-                                            href="ver_factura.php?id=<?= (int) $factura['id'] ?>"
-                                            class="action-button"
-                                        >
-                                            Ver
-                                        </a>
+                <div class="account-info-icon">
+                    ✓
+                </div>
 
+                <div>
 
-                                        <?php if ($estado === 'borrador'): ?>
+                    <h3>
+                        Tu cuenta está activa
+                    </h3>
 
-                                            <a
-                                                href="crear_factura.php?id=<?= (int) $factura['id'] ?>"
-                                                class="action-button"
-                                            >
-                                                Editar
-                                            </a>
+                    <p>
+                        Desde esta área podrás gestionar progresivamente
+                        tus servicios, facturas, reuniones y demás
+                        información relacionada con ViziuneAI.
+                    </p>
 
-                                        <?php else: ?>
+                </div>
 
-                                            <a
-                                                href="generar_pdf.php?id=<?= (int) $factura['id'] ?>"
-                                                class="action-button"
-                                                target="_blank"
-                                            >
-                                                PDF
-                                            </a>
+            </section>
 
-                                        <?php endif; ?>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                        <?php endforeach; ?>
-
-                    </tbody>
-
-                </table>
-
-            </div>
 
         <?php endif; ?>
 
-    </section>
+
+    </main>
 
 
-</main>
-
-
-<script src="js/mi-cuenta.js"></script>
+    <script src="js/mi-cuenta.js"></script>
 
 </body>
 

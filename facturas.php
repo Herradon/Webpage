@@ -544,6 +544,10 @@ try {
 
     <header class="facturacion-header">
 
+    <?php include 'menu.php'; ?>
+
+
+
         <div class="cabecera-contenido">
 
             <div>
@@ -560,13 +564,6 @@ try {
 
 
             <div class="cabecera-acciones">
-
-                <a
-                    href="index.php"
-                    class="boton-secundario"
-                >
-                    ← Volver
-                </a>
 
 
                 <a

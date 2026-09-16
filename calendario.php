@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -21,109 +20,18 @@ $usuarioId = (int) $_SESSION['usuario_id'];
 
 
 /* ==========================================
-   COMPROBAR SUSCRIPCIÓN
+   ACCESO GRATUITO
 ========================================== */
 
 /*
 |--------------------------------------------------------------------------
-| ViziuneSL - usuario ID 8
+| Todos los usuarios con una cuenta activa
+| pueden utilizar el calendario gratuitamente.
 |--------------------------------------------------------------------------
 |
-| Esta cuenta tiene acceso gratuito y no necesita
-| tener una suscripción activa.
+| La suscripción ya no es necesaria para acceder.
 |--------------------------------------------------------------------------
 */
-
-if ($usuarioId === 8) {
-
-    $suscripcionActiva = true;
-
-} else {
-
-    $stmtSuscripcion = $pdo->prepare("
-        SELECT
-            suscripcion_activa,
-            suscripcion_fin
-        FROM usuarios
-        WHERE id = ?
-        LIMIT 1
-    ");
-
-    $stmtSuscripcion->execute([
-        $usuarioId
-    ]);
-
-    $datosSuscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
-
-    $suscripcionActiva = false;
-
-
-    if (
-        $datosSuscripcion &&
-        (int) $datosSuscripcion['suscripcion_activa'] === 1
-    ) {
-
-        $suscripcionActiva = true;
-
-
-        /* ==========================================
-           COMPROBAR FECHA DE FINALIZACIÓN
-        ========================================== */
-
-        if (!empty($datosSuscripcion['suscripcion_fin'])) {
-
-            try {
-
-                $fechaFin = new DateTime(
-                    $datosSuscripcion['suscripcion_fin']
-                );
-
-                $ahora = new DateTime();
-
-
-                if ($fechaFin < $ahora) {
-
-                    $pdo->prepare("
-                        UPDATE usuarios
-                        SET suscripcion_activa = 0
-                        WHERE id = ?
-                    ")->execute([
-                        $usuarioId
-                    ]);
-
-
-                    $suscripcionActiva = false;
-
-                    $_SESSION['suscripcion_activa'] = 0;
-
-                }
-
-            } catch (Exception $e) {
-
-                $suscripcionActiva = false;
-
-            }
-
-        }
-
-    }
-
-}
-
-
-/* ==========================================
-   BLOQUEAR CALENDARIO SIN SUSCRIPCIÓN
-========================================== */
-
-if (!$suscripcionActiva) {
-
-    $_SESSION['suscripcion_activa'] = 0;
-
-    header('Location: suscripcion.php');
-
-    exit;
-}
-
 
 $_SESSION['suscripcion_activa'] = 1;
 

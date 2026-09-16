@@ -1243,13 +1243,13 @@ try {
                     fecha_emision = ?,
                     cliente_id = ?,
                     moneda = 'EUR',
-                    base_imponible = NULL,
-                    total_iva = NULL,
-                    total_irpf = NULL,
-                    total = NULL,
-                    metodo_pago = NULL,
-                    fecha_vencimiento = NULL,
-                    observaciones = NULL,
+                    base_imponible = ?,
+                    total_iva = ?,
+                    total_irpf = ?,
+                    total = ?,
+                    metodo_pago = ?,
+                    fecha_vencimiento = ?,
+                    observaciones = ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
                   AND estado = 'borrador'
@@ -1264,6 +1264,24 @@ try {
                 $fechaEmision,
 
                 $clienteId,
+
+                $baseImponible,
+
+                $totalIva,
+
+                $totalIrpf,
+
+                $totalFactura,
+
+                $metodoPago !== ''
+                    ? $metodoPago
+                    : null,
+
+                $fechaVencimiento,
+
+                $observaciones !== ''
+                    ? $observaciones
+                    : null,
 
                 $facturaId
 
@@ -1308,13 +1326,13 @@ try {
                     ?,
                     ?,
                     'EUR',
-                    NULL,
-                    NULL,
-                    NULL,
-                    NULL,
-                    NULL,
-                    NULL,
-                    NULL,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
                     'borrador'
                 )
             ");
@@ -1326,7 +1344,25 @@ try {
 
             $fechaEmision,
 
-            $clienteId
+            $clienteId,
+
+            $baseImponible,
+
+            $totalIva,
+
+            $totalIrpf,
+
+            $totalFactura,
+
+            $metodoPago !== ''
+                ? $metodoPago
+                : null,
+
+            $fechaVencimiento,
+
+            $observaciones !== ''
+                ? $observaciones
+                : null
 
         ]);
 

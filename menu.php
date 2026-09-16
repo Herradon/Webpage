@@ -68,7 +68,7 @@
                     Facturación
                 </a>
 
-                <a href="cuenta_personal.php">
+                <a href="mi_cuenta.php">
                     Mi cuenta
                 </a>
 

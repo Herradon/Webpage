@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -58,10 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 nombre,
                 email,
                 password,
-                activo,
-                suscripcion_activa,
-                suscripcion_inicio,
-                suscripcion_fin
+                activo
             FROM usuarios
             WHERE email = ?
             LIMIT 1
@@ -145,93 +141,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             /*
             |--------------------------------------------------------------------------
-            | COMPROBAR SUSCRIPCIÓN
+            | ACCESO GRATUITO
             |--------------------------------------------------------------------------
             |
-            | La cuenta de ViziuneSL (usuario ID 8) tiene
-            | acceso gratuito.
+            | Todos los usuarios con una cuenta activa pueden
+            | acceder al área privada.
             |
-            | Todos los demás usuarios necesitan una
-            | suscripción activa.
+            | Ya no se requiere una suscripción para acceder.
+            |
+            | La contratación y el pago se realizarán únicamente
+            | cuando el cliente contrate un servicio.
             |--------------------------------------------------------------------------
             */
 
-            if ((int) $usuario['id'] === 8) {
-
-                /*
-                | Cuenta oficial de ViziuneSL:
-                | acceso gratuito.
-                */
-
-                $suscripcionActiva = true;
-
-            } else {
-
-                /*
-                | Resto de usuarios:
-                | comprobar su suscripción.
-                */
-
-                $suscripcionActiva =
-                    (int) $usuario['suscripcion_activa'] === 1;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Comprobar fecha de finalización
-                |--------------------------------------------------------------------------
-                */
-
-                if (
-                    $suscripcionActiva &&
-                    !empty($usuario['suscripcion_fin'])
-                ) {
-
-                    $fechaFin =
-                        new DateTime(
-                            $usuario['suscripcion_fin']
-                        );
-
-                    $ahora =
-                        new DateTime();
-
-
-                    /*
-                    | Si la suscripción ha caducado,
-                    | la desactivamos.
-                    */
-
-                    if ($fechaFin < $ahora) {
-
-                        $suscripcionActiva = false;
-
-
-                        $stmtActualizar =
-                            $pdo->prepare("
-                                UPDATE usuarios
-                                SET suscripcion_activa = 0
-                                WHERE id = ?
-                            ");
-
-                        $stmtActualizar->execute([
-                            $usuario['id']
-                        ]);
-
-                    }
-
-                }
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Guardar estado de suscripción en sesión
-            |--------------------------------------------------------------------------
-            */
-
-            $_SESSION['suscripcion_activa'] =
-                $suscripcionActiva ? 1 : 0;
+            $_SESSION['suscripcion_activa'] = 1;
 
 
             /*
@@ -240,27 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             |--------------------------------------------------------------------------
             */
 
-            if ($suscripcionActiva) {
-
-                /*
-                | Usuario con suscripción o cuenta ViziuneSL:
-                | entra normalmente a la web.
-                */
-
-                header('Location: index.php');
-                exit;
-
-            } else {
-
-                /*
-                | Usuario sin suscripción:
-                | va a la página de suscripción.
-                */
-
-                header('Location: suscripcion.php');
-                exit;
-
-            }
+            header('Location: index.php');
+            exit;
 
         }
     }

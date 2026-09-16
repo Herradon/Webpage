@@ -38,113 +38,17 @@ $usuarioId = (int) $_SESSION["usuario_id"];
 
 
 /* ==========================================================
-   COMPROBAR SUSCRIPCIÓN
+   FORZAR PDO CON EXCEPCIONES
 ========================================================== */
 
-/*
-   ViziuneSL (usuario ID 8) tiene acceso gratuito
-   únicamente para esta cuenta.
-*/
-
-if ($usuarioId === 8) {
-
-    $suscripcionActiva = true;
-
-} else {
-
-    $stmtSuscripcion = $pdo->prepare("
-        SELECT
-            suscripcion_activa,
-            suscripcion_fin
-        FROM usuarios
-        WHERE id = ?
-        LIMIT 1
-    ");
-
-    $stmtSuscripcion->execute([$usuarioId]);
-
-    $suscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
-
-    $suscripcionActiva = false;
-
-
-    if ($suscripcion) {
-
-        $suscripcionActiva =
-            (int) $suscripcion["suscripcion_activa"] === 1;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Comprobar fecha de finalización
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $suscripcionActiva &&
-            !empty($suscripcion["suscripcion_fin"])
-        ) {
-
-            try {
-
-                $fechaFin = new DateTime(
-                    $suscripcion["suscripcion_fin"]
-                );
-
-                $ahora = new DateTime();
-
-
-                if ($fechaFin < $ahora) {
-
-                    $suscripcionActiva = false;
-
-
-                    $stmtActualizar = $pdo->prepare("
-                        UPDATE usuarios
-                        SET suscripcion_activa = 0
-                        WHERE id = ?
-                    ");
-
-                    $stmtActualizar->execute([$usuarioId]);
-
-                }
-
-            } catch (Exception $e) {
-
-                $suscripcionActiva = false;
-
-            }
-
-        }
-
-    }
-
-}
+$pdo->setAttribute(
+    PDO::ATTR_ERRMODE,
+    PDO::ERRMODE_EXCEPTION
+);
 
 
 /* ==========================================================
-   USUARIO SIN SUSCRIPCIÓN
-========================================================== */
-
-if (!$suscripcionActiva) {
-
-    http_response_code(403);
-
-    echo json_encode(
-        [
-            "success" => false,
-            "error" =>
-                "Necesitas una suscripción activa para utilizar el asistente."
-        ],
-        JSON_UNESCAPED_UNICODE
-    );
-
-    exit;
-}
-
-
-/* ==========================================================
-   MARCAR SUSCRIPCIÓN COMO ACTIVA EN LA SESIÓN
+   ACCESO GRATUITO
 ========================================================== */
 
 $_SESSION["suscripcion_activa"] = 1;
@@ -171,13 +75,12 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 
 /* ==========================================================
-   COMPROBAR ACTION
+   ACTION FORMULARIO
 ========================================================== */
 
-$action =
-    trim(
-        $_POST["action"] ?? ""
-    );
+$action = trim(
+    $_POST["action"] ?? ""
+);
 
 
 /* ==========================================================
@@ -191,56 +94,39 @@ if ($action === "email") {
        DATOS
     ====================================================== */
 
-    $conversacion =
-        trim(
-            $_POST["conversacion"] ?? ""
-        );
+    $conversacion = trim(
+        $_POST["conversacion"] ?? ""
+    );
 
+    $nombre = trim(
+        $_POST["nombre"] ?? ""
+    );
 
-    $nombre =
-        trim(
-            $_POST["nombre"] ?? ""
-        );
+    $email = trim(
+        $_POST["email"] ?? ""
+    );
 
-
-    $email =
-        trim(
-            $_POST["email"] ?? ""
-        );
-
-
-    $agent =
-        trim(
-            $_POST["agent"] ??
-            "diseño y desarrollo web"
-        );
+    $agent = trim(
+        $_POST["agent"] ??
+        "diseño y desarrollo web"
+    );
 
 
     /* ======================================================
        REUNIÓN
-
-       Estos nombres coinciden con app.js:
-
-       fecha_reunion
-       hora_reunion
     ====================================================== */
 
-    $quiereCita =
-        trim(
-            $_POST["quiereCita"] ?? "0"
-        );
+    $quiereCita = trim(
+        $_POST["quiereCita"] ?? "0"
+    );
 
+    $fechaReunion = trim(
+        $_POST["fecha_reunion"] ?? ""
+    );
 
-    $fechaReunion =
-        trim(
-            $_POST["fecha_reunion"] ?? ""
-        );
-
-
-    $horaReunion =
-        trim(
-            $_POST["hora_reunion"] ?? ""
-        );
+    $horaReunion = trim(
+        $_POST["hora_reunion"] ?? ""
+    );
 
 
     /* ======================================================
@@ -323,7 +209,6 @@ if ($action === "email") {
 
     if ($reunionSolicitada) {
 
-
         if (
             $fechaReunion === "" ||
             $horaReunion === ""
@@ -341,10 +226,6 @@ if ($action === "email") {
             exit;
         }
 
-
-        /* ================================================
-           FECHA
-        ================================================= */
 
         $fechaValida =
             DateTime::createFromFormat(
@@ -371,10 +252,6 @@ if ($action === "email") {
             exit;
         }
 
-
-        /* ================================================
-           HORA
-        ================================================= */
 
         $horaValida =
             DateTime::createFromFormat(
@@ -464,28 +341,22 @@ if ($action === "email") {
         $informacionReunion =
 
             "\n\n" .
-
             "========================================\n" .
-
             "REUNIÓN SOLICITADA\n" .
-
             "========================================\n\n" .
-
             "Fecha de la reunión: " .
             $fechaFormateada .
             "\n\n" .
-
             "Hora de la reunión: " .
             $horaReunion .
             "\n\n" .
-
             "Duración máxima: 120 minutos\n\n";
 
     }
 
 
     /* ======================================================
-       MYSQL
+       GUARDAR CONVERSACIÓN EN MYSQL
     ====================================================== */
 
     try {
@@ -496,15 +367,16 @@ if ($action === "email") {
                 INSERT INTO conversaciones
                 (
                     conversacion_id,
+                    usuario_id,
                     nombre,
                     email,
                     usuario,
                     respuesta
                 )
-
                 VALUES
                 (
                     :conversacion_id,
+                    :usuario_id,
                     :nombre,
                     :email,
                     :usuario,
@@ -522,7 +394,6 @@ if ($action === "email") {
         if ($reunionSolicitada) {
 
             $respuestaBase .=
-
                 " | REUNIÓN: " .
                 $fechaReunion .
                 " " .
@@ -536,6 +407,9 @@ if ($action === "email") {
 
                 ":conversacion_id" =>
                     $conversacionId,
+
+                ":usuario_id" =>
+                    $usuarioId,
 
                 ":nombre" =>
                     $nombre,
@@ -556,7 +430,7 @@ if ($action === "email") {
     } catch (PDOException $e) {
 
         error_log(
-            "Error MySQL: " .
+            "Error MySQL guardando conversación enviada: " .
             $e->getMessage()
         );
 
@@ -565,7 +439,9 @@ if ($action === "email") {
             [
                 "success" => false,
                 "error" =>
-                    "No se pudo guardar la conversación."
+                    "No se pudo guardar la conversación.",
+                "detalle" =>
+                    $e->getMessage()
             ],
             JSON_UNESCAPED_UNICODE
         );
@@ -575,11 +451,7 @@ if ($action === "email") {
 
 
     /* ======================================================
-       GUARDAR REUNIÓN EN MYSQL
-
-       IMPORTANTE:
-       Este bloque pertenece únicamente al flujo EMAIL,
-       porque aquí existen las variables de la reunión.
+       GUARDAR REUNIÓN
     ====================================================== */
 
     if ($reunionSolicitada) {
@@ -599,7 +471,6 @@ if ($action === "email") {
                         hora,
                         duracion
                     )
-
                     VALUES
                     (
                         :conversacion_id,
@@ -654,7 +525,9 @@ if ($action === "email") {
                 [
                     "success" => false,
                     "error" =>
-                        "No se pudo guardar la reunión."
+                        "No se pudo guardar la reunión.",
+                    "detalle" =>
+                        $e->getMessage()
                 ],
                 JSON_UNESCAPED_UNICODE
             );
@@ -714,7 +587,7 @@ if ($action === "email") {
 
 
     /* ======================================================
-       CREAR PHPMailer
+       PHPMailer
     ====================================================== */
 
     $mail =
@@ -723,45 +596,32 @@ if ($action === "email") {
 
     try {
 
-
-        /* ==================================================
-           SMTP
-        ================================================== */
-
         $mail->isSMTP();
-
 
         $mail->Host =
             $SMTP_HOST;
 
-
         $mail->SMTPAuth =
             true;
-
 
         $mail->Username =
             $SMTP_USERNAME;
 
-
+        /*
+         * MANTÉN AQUÍ TU CONTRASEÑA ACTUAL
+         */
         $mail->Password =
             $SMTP_PASSWORD;
-
 
         $mail->SMTPSecure =
             PHPMailer::ENCRYPTION_STARTTLS;
 
-
         $mail->Port =
             $SMTP_PORT;
-
 
         $mail->CharSet =
             "UTF-8";
 
-
-        /* ==================================================
-           REMITENTE
-        ================================================== */
 
         $mail->setFrom(
             $SMTP_FROM,
@@ -769,19 +629,11 @@ if ($action === "email") {
         );
 
 
-        /* ==================================================
-           DESTINATARIO
-        ================================================== */
-
         $mail->addAddress(
             $SMTP_TO,
             "Alejandro Herradón"
         );
 
-
-        /* ==================================================
-           RESPONDER AL CLIENTE
-        ================================================== */
 
         $mail->addReplyTo(
             $email,
@@ -789,16 +641,10 @@ if ($action === "email") {
         );
 
 
-        /* ==================================================
-           CONTENIDO
-        ================================================== */
-
         $mail->isHTML(false);
-
 
         $mail->Subject =
             $asunto;
-
 
         $mail->Body =
             $textoEmail;
@@ -814,11 +660,6 @@ if ($action === "email") {
                 UPLOAD_ERR_NO_FILE
         ) {
 
-
-            /* ==============================================
-               ERROR DE SUBIDA
-            ============================================== */
-
             if (
                 $_FILES["chatFile"]["error"] !==
                     UPLOAD_ERR_OK
@@ -831,10 +672,6 @@ if ($action === "email") {
             }
 
 
-            /* ==============================================
-               DATOS
-            ============================================== */
-
             $archivoTmp =
                 $_FILES["chatFile"]["tmp_name"];
 
@@ -846,10 +683,6 @@ if ($action === "email") {
             $tamanoArchivo =
                 $_FILES["chatFile"]["size"];
 
-
-            /* ==============================================
-               COMPROBAR SUBIDA
-            ============================================== */
 
             if (
                 !is_uploaded_file(
@@ -864,10 +697,6 @@ if ($action === "email") {
             }
 
 
-            /* ==============================================
-               LÍMITE 10 MB
-            ============================================== */
-
             if (
                 $tamanoArchivo >
                 10 * 1024 * 1024
@@ -879,10 +708,6 @@ if ($action === "email") {
 
             }
 
-
-            /* ==============================================
-               DETECTAR MIME REAL
-            ============================================== */
 
             $finfo =
                 finfo_open(
@@ -906,21 +731,15 @@ if ($action === "email") {
                 );
 
 
+            finfo_close($finfo);
 
-            /* ==============================================
-               TIPOS PERMITIDOS
-            ============================================== */
 
             $tiposPermitidos = [
 
                 "application/pdf",
-
                 "image/jpeg",
-
                 "image/png",
-
                 "image/gif",
-
                 "image/webp"
 
             ];
@@ -941,19 +760,11 @@ if ($action === "email") {
             }
 
 
-            /* ==============================================
-               LIMPIAR NOMBRE
-            ============================================== */
-
             $nombreArchivo =
                 basename(
                     $nombreArchivo
                 );
 
-
-            /* ==============================================
-               ADJUNTAR
-            ============================================== */
 
             $mail->addAttachment(
                 $archivoTmp,
@@ -969,10 +780,6 @@ if ($action === "email") {
 
         $mail->send();
 
-
-        /* ==================================================
-           RESPUESTA CORRECTA
-        ================================================== */
 
         echo json_encode(
             [
@@ -1038,8 +845,6 @@ if ($action === "email") {
 /* ==========================================================
    CHAT NORMAL
    KIMI / MOONSHOT
-
-   ESTA PARTE RECIBE JSON
 ========================================================== */
 
 
@@ -1082,12 +887,6 @@ if (!is_array($data)) {
 /* ==========================================================
    DATOS
 ========================================================== */
-
-$action =
-    trim(
-        $data["action"] ?? ""
-    );
-
 
 $message =
     trim(
@@ -1234,7 +1033,7 @@ if ($message === "") {
 
 
 /* ==========================================================
-   COMPROBAR API KEY KIMI
+   COMPROBAR API KEY
 ========================================================== */
 
 if (
@@ -1258,14 +1057,6 @@ if (
 
     exit;
 }
-
-
-/* ==========================================================
-   URL KIMI
-========================================================== */
-
-$url =
-    $KIMI_API_URL;
 
 
 /* ==========================================================
@@ -1307,18 +1098,16 @@ $payload = [
 ];
 
 
-$jsonPayload =
-    json_encode(
-        $payload,
-        JSON_UNESCAPED_UNICODE
-    );
+try {
 
+    $jsonPayload =
+        json_encode(
+            $payload,
+            JSON_UNESCAPED_UNICODE |
+            JSON_THROW_ON_ERROR
+        );
 
-/* ==========================================================
-   COMPROBAR JSON PAYLOAD
-========================================================== */
-
-if ($jsonPayload === false) {
+} catch (JsonException $e) {
 
     echo json_encode(
         [
@@ -1343,7 +1132,7 @@ if ($jsonPayload === false) {
 
 $ch =
     curl_init(
-        $url
+        $KIMI_API_URL
     );
 
 
@@ -1396,10 +1185,7 @@ $curlError =
     );
 
 
-/* ==========================================================
-   CERRAR CURL
-========================================================== */
-
+curl_close($ch);
 
 
 /* ==========================================================
@@ -1438,10 +1224,6 @@ $result =
         true
     );
 
-
-/* ==========================================================
-   ERROR RESPUESTA JSON
-========================================================== */
 
 if (!is_array($result)) {
 
@@ -1495,7 +1277,7 @@ if (
 
 
 /* ==========================================================
-   OBTENER RESPUESTA KIMI
+   OBTENER RESPUESTA
 ========================================================== */
 
 $answer =
@@ -1503,10 +1285,6 @@ $answer =
     ??
     null;
 
-
-/* ==========================================================
-   COMPROBAR RESPUESTA
-========================================================== */
 
 if (
     !is_string($answer) ||
@@ -1531,10 +1309,118 @@ if (
 
 
 /* ==========================================================
-   GUARDAR CHAT EN MYSQL
+   GUARDAR CHAT AUTOMÁTICAMENTE
 ========================================================== */
 
 try {
+
+
+    /* ======================================================
+       OBTENER USUARIO
+    ====================================================== */
+
+    $stmtUsuario =
+        $pdo->prepare(
+            "
+            SELECT
+                nombre,
+                email
+            FROM usuarios
+            WHERE id = ?
+            LIMIT 1
+            "
+        );
+
+
+    $stmtUsuario->execute(
+        [
+            $usuarioId
+        ]
+    );
+
+
+    $datosUsuario =
+        $stmtUsuario->fetch(
+            PDO::FETCH_ASSOC
+        );
+
+
+    if (!$datosUsuario) {
+
+        throw new PDOException(
+            "No se encontraron los datos del usuario con ID " .
+            $usuarioId
+        );
+
+    }
+
+
+    /* ======================================================
+       DATOS USUARIO
+    ====================================================== */
+
+    $nombreUsuario =
+        trim(
+            $datosUsuario["nombre"] ?? ""
+        );
+
+
+    $emailUsuario =
+        trim(
+            $datosUsuario["email"] ?? ""
+        );
+
+
+    if ($nombreUsuario === "") {
+
+        throw new PDOException(
+            "El usuario no tiene nombre registrado."
+        );
+
+    }
+
+
+    if ($emailUsuario === "") {
+
+        throw new PDOException(
+            "El usuario no tiene email registrado."
+        );
+
+    }
+
+
+    /* ======================================================
+       CREAR ID DE CONVERSACIÓN
+    ====================================================== */
+
+    if (
+        empty(
+            $_SESSION["conversacion_id"]
+        )
+    ) {
+
+        $_SESSION["conversacion_id"] =
+            "CHAT-" .
+            strtoupper(
+                substr(
+                    bin2hex(
+                        random_bytes(6)
+                    ),
+                    0,
+                    8
+                )
+            );
+
+    }
+
+
+    $conversacionId =
+        $_SESSION["conversacion_id"];
+
+
+    /* ======================================================
+       INSERTAR MENSAJE
+    ====================================================== */
 
     $stmt =
         $pdo->prepare(
@@ -1542,15 +1428,16 @@ try {
             INSERT INTO conversaciones
             (
                 conversacion_id,
+                usuario_id,
                 nombre,
                 email,
                 usuario,
                 respuesta
             )
-
             VALUES
             (
                 :conversacion_id,
+                :usuario_id,
                 :nombre,
                 :email,
                 :usuario,
@@ -1564,14 +1451,16 @@ try {
         [
 
             ":conversacion_id" =>
-                "CHAT-" .
-                session_id(),
+                $conversacionId,
+
+            ":usuario_id" =>
+                $usuarioId,
 
             ":nombre" =>
-                null,
+                $nombreUsuario,
 
             ":email" =>
-                null,
+                $emailUsuario,
 
             ":usuario" =>
                 $message,
@@ -1583,13 +1472,90 @@ try {
     );
 
 
+    /* ======================================================
+       COMPROBAR QUE MYSQL HA INSERTADO EL REGISTRO
+    ====================================================== */
+
+    $idInsertado =
+        (int) $pdo->lastInsertId();
+
+
+    if ($idInsertado <= 0) {
+
+        throw new PDOException(
+            "MySQL no devolvió un ID válido después de guardar la conversación."
+        );
+
+    }
+
+
+    /* ======================================================
+       VERIFICAR REGISTRO
+    ====================================================== */
+
+    $stmtVerificacion =
+        $pdo->prepare(
+            "
+            SELECT
+                id
+            FROM conversaciones
+            WHERE id = ?
+            AND usuario_id = ?
+            LIMIT 1
+            "
+        );
+
+
+    $stmtVerificacion->execute(
+        [
+            $idInsertado,
+            $usuarioId
+        ]
+    );
+
+
+    $registroGuardado =
+        $stmtVerificacion->fetch(
+            PDO::FETCH_ASSOC
+        );
+
+
+    if (!$registroGuardado) {
+
+        throw new PDOException(
+            "El registro se insertó pero no pudo ser verificado."
+        );
+
+    }
+
+
 } catch (PDOException $e) {
 
     error_log(
-        "Error guardando chat: " .
+        "ERROR GUARDANDO CHAT | Usuario: " .
+        $usuarioId .
+        " | " .
         $e->getMessage()
     );
 
+
+    echo json_encode(
+        [
+
+            "success" =>
+                false,
+
+            "error" =>
+                "No se pudo guardar el historial de la conversación.",
+
+            "detalle" =>
+                $e->getMessage()
+
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
+
+    exit;
 }
 
 
@@ -1607,10 +1573,21 @@ echo json_encode(
             $answer,
 
         "agent" =>
-            $agent
+            $agent,
+
+        "conversacion_id" =>
+            $conversacionId,
+
+        "guardado" =>
+            true,
+
+        "registro_id" =>
+            $idInsertado
 
     ],
     JSON_UNESCAPED_UNICODE
 );
+
+exit;
 
 ?>

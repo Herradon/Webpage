@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -23,101 +22,18 @@ $usuarioId = (int) $_SESSION['usuario_id'];
 
 /*
 |--------------------------------------------------------------------------
-| Comprobar suscripción
+| ACCESO GRATUITO
 |--------------------------------------------------------------------------
 |
-| La cuenta oficial de ViziuneSL (usuario ID 8)
-| tiene acceso gratuito.
+| Todos los usuarios que hayan iniciado sesión pueden
+| acceder al área privada.
 |
-| Todos los demás usuarios necesitan una
-| suscripción activa.
+| Ya no se requiere una suscripción para acceder.
+|
+| La contratación y el pago se realizarán únicamente
+| cuando el cliente contrate un servicio.
 |--------------------------------------------------------------------------
 */
-
-if ($usuarioId === 8) {
-
-    /*
-    | Cuenta oficial de ViziuneSL:
-    | acceso gratuito.
-    */
-
-    $suscripcionActiva = true;
-
-} else {
-
-    $stmtSuscripcion = $pdo->prepare("
-        SELECT
-            suscripcion_activa,
-            suscripcion_fin
-        FROM usuarios
-        WHERE id = ?
-        LIMIT 1
-    ");
-
-    $stmtSuscripcion->execute([$usuarioId]);
-
-    $suscripcion = $stmtSuscripcion->fetch(PDO::FETCH_ASSOC);
-
-    $suscripcionActiva = false;
-
-    if ($suscripcion) {
-
-        $suscripcionActiva =
-            (int) $suscripcion['suscripcion_activa'] === 1;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Comprobar fecha de finalización
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $suscripcionActiva &&
-            !empty($suscripcion['suscripcion_fin'])
-        ) {
-
-            try {
-
-                $fechaFin = new DateTime(
-                    $suscripcion['suscripcion_fin']
-                );
-
-                $ahora = new DateTime();
-
-                if ($fechaFin < $ahora) {
-
-                    $suscripcionActiva = false;
-
-                    $stmtActualizar = $pdo->prepare("
-                        UPDATE usuarios
-                        SET suscripcion_activa = 0
-                        WHERE id = ?
-                    ");
-
-                    $stmtActualizar->execute([$usuarioId]);
-                }
-
-            } catch (Exception $e) {
-
-                $suscripcionActiva = false;
-            }
-        }
-    }
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Si no tiene suscripción, enviar a suscripción
-|--------------------------------------------------------------------------
-*/
-
-if (!$suscripcionActiva) {
-    header('Location: suscripcion.php');
-    exit;
-}
-
 
 $_SESSION['suscripcion_activa'] = 1;
 
@@ -128,7 +44,6 @@ $_SESSION['suscripcion_activa'] = 1;
 
 <head>
 
-
 <script
     id="Cookiebot"
     src="https://consent.cookiebot.com/uc.js"
@@ -137,22 +52,17 @@ $_SESSION['suscripcion_activa'] = 1;
     type="text/javascript">
 </script>
 
-
 <meta charset="UTF-8">
-
 
 <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0">
 
-
 <title>ViziuneAI</title>
-
 
 <link
     rel="stylesheet"
     href="css/style.css">
-
 
 </head>
 
@@ -164,14 +74,9 @@ $_SESSION['suscripcion_activa'] = 1;
      HEADER
 ========================================== -->
 
-
 <header class="header" style="position:fixed;">
 
-    
-
-        <?php include 'menu.php'; ?>
-       
-
+    <?php include 'menu.php'; ?>
 
 </header>
 
@@ -183,52 +88,46 @@ $_SESSION['suscripcion_activa'] = 1;
      HERO
 ========================================== -->
 
-
 <section
     id="inicio"
     class="hero">
 
+    <canvas id="neural-canvas"></canvas>
 
-<canvas id="neural-canvas"></canvas>
+    <div class="container hero-content">
 
+        <h1>
 
-<div class="container hero-content">
+            la red neuronal de tus futuros
 
+            <br>
 
-    <h1>
+            <span>agentes de confianza</span>
 
-        la red neuronal de tus futuros
-
-        <br>
-
-        <span>agentes de confianza</span>
-
-    </h1>
+        </h1>
 
 
-    <p>
+        <p>
 
-        Transformamos la forma en la que trabajan usando
-        agentes de inteligencia artificial capaces de atender,
-        responder y automatizar tareas de forma inteligente.
+            Transformamos la forma en la que trabajan usando
+            agentes de inteligencia artificial capaces de atender,
+            responder y automatizar tareas de forma inteligente.
 
-        Nuestros agentes pueden interactuar con clientes,
-        resolver consultas, gestionar solicitudes, recopilar
-        información y asistir en diferentes procesos del negocio
-        durante las 24 horas del día.
+            Nuestros agentes pueden interactuar con clientes,
+            resolver consultas, gestionar solicitudes, recopilar
+            información y asistir en diferentes procesos del negocio
+            durante las 24 horas del día.
 
-        <br><br>
+            <br><br>
 
-        Creamos agentes adaptados a las necesidades de cada
-        negocio para aplicarlos en una página web, aportando
-        soluciones integradas con WhatsApp, correo electrónico
-        y otros servicios.
+            Creamos agentes adaptados a las necesidades de cada
+            negocio para aplicarlos en una página web, aportando
+            soluciones integradas con WhatsApp, correo electrónico
+            y otros servicios.
 
-    </p>
+        </p>
 
-
-</div>
-
+    </div>
 
 </section>
 
@@ -237,105 +136,92 @@ $_SESSION['suscripcion_activa'] = 1;
      ESPECIALIDADES
 ========================================== -->
 
-
 <section>
 
+    <div class="text-intro">
 
-<div class="text-intro">
+        <div class="d1">
 
+            <img
+                src="img/desarrollo.png"
+                alt="">
 
-    <div class="d1">
+            <h1>
+                Desarrollo
+            </h1>
 
-        <img
-            src="img/desarrollo.png"
-            alt="">
+            <p>
 
+                Creamos, Informamos y asesoramos sobre desarrollo web,
+                programación, funcionalidades, tecnología y
+                creación de páginas web.
 
-        <h1>
-            Desarrollo
-        </h1>
+            </p>
 
-
-        <p>
-
-            Creamos, Informamos y asesoramos sobre desarrollo web,
-            programación, funcionalidades, tecnología y
-            creación de páginas web.
-
-        </p>
-
-    </div>
+        </div>
 
 
-    <div class="d2">
+        <div class="d2">
 
-        <img
-            src="img/ecomerce.png"
-            alt="">
+            <img
+                src="img/ecomerce.png"
+                alt="">
 
+            <h1>
+                Ventas
+            </h1>
 
-        <h1>
-            Ventas
-        </h1>
+            <p>
 
+                Orientamos al cliente sobre servicios, estructura,
+                necesidades, presupuestos, contratación y posibles
+                soluciones.
 
-        <p>
+            </p>
 
-            Orientamos al cliente sobre servicios, estructura,
-            necesidades, presupuestos, contratación y posibles
-            soluciones.
-
-        </p>
-
-    </div>
+        </div>
 
 
-    <div class="d3">
+        <div class="d3">
 
-        <img
-            src="img/seosem.png"
-            alt="">
+            <img
+                src="img/seosem.png"
+                alt="">
 
+            <h1>
+                Análisis
+            </h1>
 
-        <h1>
-            Análisis
-        </h1>
+            <p>
 
+                Analizamos la situación del cliente, detectamos
+                problemas, necesidades y oportunidades de mejora.
 
-        <p>
+            </p>
 
-            Analizamos la situación del cliente, detectamos
-            problemas, necesidades y oportunidades de mejora.
-
-        </p>
-
-    </div>
+        </div>
 
 
-    <div class="d4">
+        <div class="d4">
 
-        <img
-            src="img/asesor.png"
-            alt="">
+            <img
+                src="img/asesor.png"
+                alt="">
 
+            <h1>
+                Asesoramiento
+            </h1>
 
-        <h1>
-            Asesoramiento
-        </h1>
+            <p>
 
+                Ofrecemos orientación general y ayudamos al cliente
+                a determinar qué solución puede necesitar.
 
-        <p>
+            </p>
 
-            Ofrecemos orientación general y ayudamos al cliente
-            a determinar qué solución puede necesitar.
-
-        </p>
+        </div>
 
     </div>
-
-
-</div>
-
 
 </section>
 
@@ -344,409 +230,351 @@ $_SESSION['suscripcion_activa'] = 1;
      CHAT
 ========================================== -->
 
-
 <section
     id="chat"
     class="chat-section">
 
-
-<div class="container">
+    <div class="container">
 
 
 <!-- ======================================
      TÍTULO
 ======================================= -->
 
+        <div class="section-title">
 
-<div class="section-title">
+            <h1>
 
+                De nuestro asistente
 
-    <h1>
+                <span>
+                    al correo
+                </span>
 
-        De nuestro asistente
+            </h1>
 
-        <span>
-            al correo
-        </span>
+            <p>
 
-    </h1>
+                A partir de aquí es donde toda la conversación
+                con nuestro asistente pasa a otro nivel. Puedes
+                elegir qué especialista quieres consultar y,
+                cuando termines, enviar toda la conversación
+                a nuestro equipo.
 
+            </p>
 
-    <p>
-
-        A partir de aquí es donde toda la conversación
-        con nuestro asistente pasa a otro nivel. Puedes
-        elegir qué especialista quieres consultar y,
-        cuando termines, enviar toda la conversación
-        a nuestro equipo.
-
-    </p>
-
-
-</div>
+        </div>
 
 
 <!-- ======================================
      SELECTOR
 ======================================= -->
 
+        <div class="agent-selector">
 
-<div class="agent-selector">
+            <h3>
+                ¿Qué necesitas?
+            </h3>
 
+            <p class="agent-selector-description">
 
-    <h3>
-        ¿Qué necesitas?
-    </h3>
+                Selecciona el área que mejor se adapte
+                a lo que necesitas.
 
-
-    <p class="agent-selector-description">
-
-        Selecciona el área que mejor se adapte
-        a lo que necesitas.
-
-    </p>
+            </p>
 
 
 <!-- ==================================
      CHAT BOX
 ================================== -->
 
-
-    <div class="chat-box">
+            <div class="chat-box">
 
 
 <!-- ==================================
      CABECERA
 ================================== -->
 
+                <div class="chat-header">
 
-        <div class="chat-header">
-
-
-            <div class="chat-intro">
+                    <div class="chat-intro">
 
 
 <!-- AVATAR -->
 
+                        <div class="assistant-avatar">
 
-                <div class="assistant-avatar">
+                            <img
+                                src="img/asesoramiento.png"
+                                alt="Asistente de Diseño y Desarrollo Web">
 
-
-                    <img
-                        src="img/asesoramiento.png"
-                        alt="Asistente de Diseño y Desarrollo Web">
-
-
-                </div>
+                        </div>
 
 
 <!-- INFORMACIÓN -->
 
+                        <div class="chat-intro-info">
 
-                <div class="chat-intro-info">
+                            <strong id="assistantName">
 
+                                Diseño y Desarrollo Web
 
-                    <strong id="assistantName">
-
-                        Diseño y Desarrollo Web
-
-                    </strong>
+                            </strong>
 
 
-                    <!--<small id="assistantDescription">
+<!--
+                            <small id="assistantDescription">
 
-                        ● Diseño y desarrollo de páginas web
-                        profesionales, modernas y adaptadas
-                        a las necesidades de tu negocio.
+                                ● Diseño y desarrollo de páginas web
+                                profesionales, modernas y adaptadas
+                                a las necesidades de tu negocio.
 
-                    </small>-->
+                            </small>
+-->
 
-
-                </div>
+                        </div>
 
 
 <!-- REINICIAR -->
 
+                        <button
+                            type="button"
+                            id="resetChat"
+                            class="reset-chat"
+                            title="Reiniciar chat">
 
-                <button
-                    type="button"
-                    id="resetChat"
-                    class="reset-chat"
-                    title="Reiniciar chat">
+                            <img
+                                src="img/reload.svg"
+                                alt="Reiniciar chat">
 
+                        </button>
 
-                    <img
-                        src="img/reload.svg"
-                        alt="Reiniciar chat">
-
-
-                </button>
-
-
-            </div>
+                    </div>
 
 
 <!-- ==================================
      BOTONES DE AGENTE
 ================================== -->
 
+                    <div class="agent-buttons">
 
-            <div class="agent-buttons">
+                        <button
+                            type="button"
+                            class="agent-button active"
+                            data-agent="diseño y desarrollo web">
 
+                            Diseño y desarrollo web
 
-                <button
-                    type="button"
-                    class="agent-button active"
-                    data-agent="diseño y desarrollo web">
-
-                    Diseño y desarrollo web
-
-                </button>
+                        </button>
 
 
-                <button
-                    type="button"
-                    class="agent-button"
-                    data-agent="tiendas online">
+                        <button
+                            type="button"
+                            class="agent-button"
+                            data-agent="tiendas online">
 
-                    Tiendas online
+                            Tiendas online
 
-                </button>
-
-
-                <button
-                    type="button"
-                    class="agent-button"
-                    data-agent="asesor seo y sem">
-
-                    Asesor SEO y SEM
-
-                </button>
+                        </button>
 
 
-                <button
-                    type="button"
-                    class="agent-button"
-                    data-agent="asesoramiento web">
+                        <button
+                            type="button"
+                            class="agent-button"
+                            data-agent="asesor seo y sem">
 
-                    Asesoramiento web
+                            Asesor SEO y SEM
 
-                </button>
-
-
-            </div>
+                        </button>
 
 
-        </div>
+                        <button
+                            type="button"
+                            class="agent-button"
+                            data-agent="asesoramiento web">
+
+                            Asesoramiento web
+
+                        </button>
+
+                    </div>
+
+                </div>
 
 
 <!-- ==================================
      MENSAJES
 ================================== -->
 
-
-        <div
-            id="chatMessages"
-            class="chat-messages">
-        </div>
+                <div
+                    id="chatMessages"
+                    class="chat-messages">
+                </div>
 
 
 <!-- ==================================
      FORMULARIO CHAT
 ================================== -->
 
+                <form
+                    id="chatForm"
+                    class="chat-input">
 
-        <form
-            id="chatForm"
-            class="chat-input">
-
-
-            <input
-                type="text"
-                id="message"
-                name="message"
-                placeholder="Escribe tu mensaje..."
-                autocomplete="off"
-                required>
+                    <input
+                        type="text"
+                        id="message"
+                        name="message"
+                        placeholder="Escribe tu mensaje..."
+                        autocomplete="off"
+                        required>
 
 
 <!-- ==================================
      SOLICITAR REUNIÓN
 ================================== -->
 
+                    <label class="reunion-check">
 
-            <label class="reunion-check">
+                        <input
+                            type="checkbox"
+                            id="chatReunion">
 
+                        <h3>
+                            Solicitar reunión
+                        </h3>
 
-                <input
-                    type="checkbox"
-                    id="chatReunion">
-
-
-                <h3>
-                    Solicitar reunión
-                </h3>
-
-
-            </label>
+                    </label>
 
 
 <!-- ==================================
      BOTÓN ENVIAR
 ================================== -->
 
+                    <button
+                        type="submit"
+                        title="Enviar mensaje">
 
-            <button
-                type="submit"
-                title="Enviar mensaje">
+                        <img
+                            id="arrow"
+                            src="img/arrow.svg"
+                            alt="Enviar">
 
+                    </button>
 
-                <img
-                    id="arrow"
-                    src="img/arrow.svg"
-                    alt="Enviar">
+                </form>
 
+            </div>
 
-            </button>
-
-
-        </form>
-
-
-    </div>
-
-
-</div>
+        </div>
 
 
 <!-- ==========================================
      ENVÍO CONVERSACIÓN
 =========================================== -->
 
+        <div class="whatsapp-tittle">
 
-<div class="whatsapp-tittle">
+            <div class="chat-whatsapp-container">
 
+                <button
+                    type="button"
+                    id="sendChatEmail"
+                    hidden>
 
-    <div class="chat-whatsapp-container">
+                    Enviar conversación por correo
 
+                </button>
 
-        <button
-            type="button"
-            id="sendChatEmail"
-            hidden>
-
-            Enviar conversación por correo
-
-        </button>
-
-
-    </div>
+            </div>
 
 
 <!-- ======================================
      DATOS CLIENTE
 ======================================= -->
 
+            <div
+                id="chatEmailForm"
+                class="chat-email-form"
+                hidden>
 
-    <div
-        id="chatEmailForm"
-        class="chat-email-form"
-        hidden>
+                <p>
 
+                    Para poder enviar la conversación
+                    a nuestro equipo y que podamos
+                    contactar contigo, introduce tus datos:
 
-        <p>
-
-            Para poder enviar la conversación
-            a nuestro equipo y que podamos
-            contactar contigo, introduce tus datos:
-
-        </p>
+                </p>
 
 
 <!-- NOMBRE -->
 
+                <div class="form-group">
 
-        <div class="form-group">
+                    <input
+                        type="text"
+                        id="chatNombre"
+                        name="chatNombre"
+                        placeholder="Tu nombre"
+                        autocomplete="name">
 
-
-            <input
-                type="text"
-                id="chatNombre"
-                name="chatNombre"
-                placeholder="Tu nombre"
-                autocomplete="name">
-
-
-        </div>
+                </div>
 
 
 <!-- EMAIL -->
 
+                <div class="form-group">
 
-        <div class="form-group">
+                    <input
+                        type="email"
+                        id="chatEmail"
+                        name="chatEmail"
+                        placeholder="Tu correo electrónico"
+                        autocomplete="email">
 
-
-            <input
-                type="email"
-                id="chatEmail"
-                name="chatEmail"
-                placeholder="Tu correo electrónico"
-                autocomplete="email">
-
-
-        </div>
+                </div>
 
 
 <!-- ARCHIVO -->
 
+                <div class="form-group">
 
-        <div class="form-group">
+                    <input
+                        type="file"
+                        id="chatFile"
+                        name="chatFile"
+                        accept="image/*,.pdf">
 
-
-            <input
-                type="file"
-                id="chatFile"
-                name="chatFile"
-                accept="image/*,.pdf">
-
-
-        </div>
+                </div>
 
 
 <!-- CONFIRMAR -->
 
+                <button
+                    type="button"
+                    id="confirmSendChatEmail">
 
-        <button
-            type="button"
-            id="confirmSendChatEmail">
+                    Enviar conversación
 
-            Enviar conversación
+                </button>
 
-        </button>
-
-
-    </div>
+            </div>
 
 
 <!-- TEXTO -->
 
+            <p>
 
-    <p>
+                Si durante la conversación necesitas
+                contactar directamente con nuestro equipo,
+                puedes enviar la conversación por correo
+                electrónico y nos pondremos en contacto
+                contigo.
 
-        Si durante la conversación necesitas
-        contactar directamente con nuestro equipo,
-        puedes enviar la conversación por correo
-        electrónico y nos pondremos en contacto
-        contigo.
+            </p>
 
-    </p>
+        </div>
 
-
-</div>
-
-
-</div>
-
+    </div>
 
 </section>
 
@@ -755,139 +583,112 @@ $_SESSION['suscripcion_activa'] = 1;
      CONTACTO
 ========================================== -->
 
-
 <section
     id="contacto"
     class="contact-section">
 
+    <div class="container">
 
-<div class="container">
+        <div class="section-title">
 
+            <h1>
+                CONTACTO
+            </h1>
 
-    <div class="section-title">
+            <h2>
+                ¿Quieres hablar con nosotros?
+            </h2>
 
+            <p>
 
-        <h1>
-            CONTACTO
-        </h1>
+                Rellena el formulario y nos pondremos
+                en contacto contigo.
 
+            </p>
 
-        <h2>
-            ¿Quieres hablar con nosotros?
-        </h2>
-
-
-        <p>
-
-            Rellena el formulario y nos pondremos
-            en contacto contigo.
-
-        </p>
+        </div>
 
 
-    </div>
+        <div class="contact-card">
 
+            <form id="contactForm">
 
-    <div class="contact-card">
-
-
-        <form id="contactForm">
-
-
-            <div class="form-grid">
+                <div class="form-grid">
 
 
 <!-- NOMBRE -->
 
+                    <div class="form-group">
 
-                <div class="form-group">
+                        <input
+                            type="text"
+                            name="nombre"
+                            required
+                            placeholder="Tu nombre">
 
-
-                    <input
-                        type="text"
-                        name="nombre"
-                        required
-                        placeholder="Tu nombre">
-
-
-                </div>
+                    </div>
 
 
 <!-- EMPRESA -->
 
+                    <div class="form-group">
 
-                <div class="form-group">
+                        <input
+                            type="text"
+                            name="Empresa"
+                            required
+                            placeholder="Nombre de la empresa u organización">
 
-
-                    <input
-                        type="text"
-                        name="Empresa"
-                        required
-                        placeholder="Nombre de la empresa u organización">
-
-
-                </div>
+                    </div>
 
 
 <!-- EMAIL -->
 
+                    <div class="form-group full">
 
-                <div class="form-group full">
+                        <input
+                            type="email"
+                            name="email"
+                            required
+                            placeholder="Correo electrónico de contacto">
 
-
-                    <input
-                        type="email"
-                        name="email"
-                        required
-                        placeholder="Correo electrónico de contacto">
-
-
-                </div>
+                    </div>
 
 
 <!-- MENSAJE -->
 
+                    <div class="form-group full">
 
-                <div class="form-group full">
+                        <textarea
+                            name="mensaje"
+                            rows="5"
+                            required
+                            placeholder="Cuéntanos qué necesitas..."
+                        ></textarea>
 
-
-                    <textarea
-                        name="mensaje"
-                        rows="5"
-                        required
-                        placeholder="Cuéntanos qué necesitas..."
-                    ></textarea>
-
+                    </div>
 
                 </div>
 
 
-            </div>
+                <button
+                    type="submit"
+                    class="whatsapp-button">
+
+                    Contactar por WhatsApp
+
+                </button>
 
 
-            <button
-                type="submit"
-                class="whatsapp-button">
+                <div id="formResult"></div>
 
-                Contactar por WhatsApp
+            </form>
 
-            </button>
-
-
-            <div id="formResult"></div>
-
-
-        </form>
-
+        </div>
 
     </div>
 
-
-</div>
-
-
 </section>
-
 
 </main>
 
@@ -896,12 +697,10 @@ $_SESSION['suscripcion_activa'] = 1;
      MODAL SOLICITAR REUNIÓN
 ========================================== -->
 
-
 <div
     id="reunionModal"
     class="reunion-modal"
     aria-hidden="true">
-
 
     <div
         class="reunion-modal-overlay"
@@ -918,22 +717,17 @@ $_SESSION['suscripcion_activa'] = 1;
 
 <!-- CABECERA -->
 
-
         <div class="reunion-modal-header">
 
-
             <div>
-
 
                 <span class="reunion-modal-label">
                     REUNIÓN
                 </span>
 
-
                 <h2 id="reunionModalTitle">
                     Solicitar una reunión
                 </h2>
-
 
             </div>
 
@@ -948,15 +742,12 @@ $_SESSION['suscripcion_activa'] = 1;
 
             </button>
 
-
         </div>
 
 
 <!-- CONTENIDO -->
 
-
         <div class="reunion-modal-body">
-
 
             <p>
 
@@ -970,9 +761,7 @@ $_SESSION['suscripcion_activa'] = 1;
      CALENDARIO
 ======================================= -->
 
-
             <div class="form-group">
-
 
                 <label>
                     Fecha de la reunión
@@ -984,9 +773,7 @@ $_SESSION['suscripcion_activa'] = 1;
 
 <!-- CABECERA CALENDARIO -->
 
-
                     <div class="calendar-header">
-
 
                         <button
                             type="button"
@@ -1014,15 +801,12 @@ $_SESSION['suscripcion_activa'] = 1;
 
                         </button>
 
-
                     </div>
 
 
 <!-- DÍAS DE LA SEMANA -->
 
-
                     <div class="calendar-weekdays">
-
 
                         <span>L</span>
                         <span>M</span>
@@ -1032,18 +816,15 @@ $_SESSION['suscripcion_activa'] = 1;
                         <span>S</span>
                         <span>D</span>
 
-
                     </div>
 
 
 <!-- DÍAS -->
 
-
                     <div
                         id="calendarDays"
                         class="calendar-days">
                     </div>
-
 
                 </div>
 
@@ -1051,7 +832,6 @@ $_SESSION['suscripcion_activa'] = 1;
 <!-- ==================================
      CAMPO OCULTO
 ================================== -->
-
 
                 <input
                     type="hidden"
@@ -1061,7 +841,6 @@ $_SESSION['suscripcion_activa'] = 1;
 
 <!-- FECHA SELECCIONADA -->
 
-
                 <p
                     id="selectedDate"
                     class="selected-date">
@@ -1070,7 +849,6 @@ $_SESSION['suscripcion_activa'] = 1;
 
                 </p>
 
-
             </div>
 
 
@@ -1078,20 +856,16 @@ $_SESSION['suscripcion_activa'] = 1;
      HORA
 ======================================= -->
 
-
             <div class="form-group">
-
 
                 <label for="chatHoraReunion">
                     Hora de la reunión
                 </label>
 
-
                 <input
                     type="time"
                     id="chatHoraReunion"
                     name="chatHoraReunion">
-
 
             </div>
 
@@ -1099,7 +873,6 @@ $_SESSION['suscripcion_activa'] = 1;
 <!-- ======================================
      CONFIRMAR
 ======================================= -->
-
 
             <button
                 type="button"
@@ -1110,12 +883,9 @@ $_SESSION['suscripcion_activa'] = 1;
 
             </button>
 
-
         </div>
 
-
     </div>
-
 
 </div>
 
@@ -1124,23 +894,18 @@ $_SESSION['suscripcion_activa'] = 1;
      FOOTER
 ========================================== -->
 
-
 <footer>
 
+    <div class="container">
 
-<div class="container">
+        <p>
 
+            © <?php echo date("Y"); ?>
+            ViziuneAI
 
-    <p>
+        </p>
 
-        © <?php echo date("Y"); ?>
-        ViziuneAI
-
-    </p>
-
-
-</div>
-
+    </div>
 
 </footer>
 
@@ -1149,9 +914,7 @@ $_SESSION['suscripcion_activa'] = 1;
      JAVASCRIPT
 ========================================== -->
 
-
 <script src="js/app.js"></script>
-
 
 </body>
 
