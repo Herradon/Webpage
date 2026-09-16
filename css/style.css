@@ -1,3205 +1,1837 @@
 
+/* =========================================================
+   VIZIUNEAI
+   ESTILO PRINCIPAL
+   ========================================================= */
+
 * {
-
     margin: 0;
-
     padding: 0;
-
     box-sizing: border-box;
-
 }
 
 html {
-
     scroll-behavior: smooth;
-
     width: 100%;
-
     overflow-x: hidden;
-
 }
 
 body {
-
     width: 100%;
-
     min-width: 320px;
-
     font-family: Arial, Helvetica, sans-serif;
-
-    background: none;
-
     background: #07111f;
-
+    color: #ffffff;
     line-height: 1.6;
-
     overflow-x: hidden;
-
-    z-index: -1;
-
 }
 
 img {
-
     max-width: 100%;
-
 }
 
 button,
-
 input,
-
 textarea {
-
     font-family: inherit;
+}
 
+button {
+    cursor: pointer;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 
-
-/* ==========================================
-
-   CONTAINER
-
-========================================== */
-
-
-
-
-/* ==========================================
-
+/* =========================================================
    HEADER
+   ========================================================= */
 
-========================================== */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
 
 
-
-
-
-/* ==========================================
-
+/* =========================================================
    NEURONAS
-
-========================================== */
+   IMPORTANTE: NO SE MODIFICA LA ANIMACIÓN
+   ========================================================= */
 
 #neural-canvas {
-
     position: absolute;
-
     top: 0;
-
     left: 0;
-
     width: 100%;
-
     height: 100%;
-
-    z-index: -1;
-
+    z-index: 0;
     pointer-events: none;
-
 }
 
 
-
-/* ==========================================
-
+/* =========================================================
    HERO
-
-========================================== */
+   ========================================================= */
 
 .hero {
-
+    position: relative;
     width: 100%;
-
-    height: 100vh;
-
+    min-height: 100vh;
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
+    background: #07111f;
+    overflow: hidden;
+}
 
-    background: none;
-
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 17, 31, 0.28);
+    pointer-events: none;
+    z-index: 0;
 }
 
 .hero-content {
-
-    max-width: 100%;
-
-    height: 100%;
-
-    backdrop-filter: blur(5px);
-
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1200px;
+    min-height: 100vh;
+    padding: 120px 40px 80px;
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
-
 }
 
 .hero h1 {
-
-    color: #ffffff;
-
-    width: 50%;
-
-    font-size: 35px;
-
-    line-height: 1.1;
-
+    width: 75%;
+    max-width: 900px;
     margin-bottom: 25px;
-
-    text-align: lefft;
-
+    color: #ffffff;
+    font-size: 42px;
+    line-height: 1.1;
+    text-align: left;
+    font-weight: 700;
 }
 
 .hero h1 span {
-
     color: #00cfe0;
-
 }
 
 .hero p {
-
-    width: 50%;
-
-    font-size: 15px;
-
-    color: #b7c5d3;
-
+    width: 75%;
+    max-width: 900px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: #9fb1c1;
     text-align: justify;
-
 }
 
 
-
-/* ==========================================
-
-   INTRO INFORMATIVO
-
-========================================== */
+/* =========================================================
+   INTRO / ESPECIALIDADES
+   ========================================================= */
 
 .text-intro {
-
-    display: flex;
-
-    justify-content: space-around;
-
-    align-items: center;
-
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 70px 30px;
     background: #0d1a29;
-
-    margin-top: 20px;
-
+    border-top: 1px solid #1c3045;
+    border-bottom: 1px solid #1c3045;
 }
 
 .text-intro .d1,
-
 .text-intro .d2,
-
 .text-intro .d3,
-
 .text-intro .d4 {
-
-    width: 476px;
-
-    margin: 2%;
-
-    padding: 20px;
-
+    width: 100%;
+    min-width: 0;
+    padding: 25px 20px;
     text-align: center;
-
-    justify-items: center;
-
-    backdrop-filter: blur(3px);
-
+    border: 1px solid #1c3045;
+    border-radius: 12px;
+    background: #07111f;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
-.text-intro .d1 h1,
-
-.text-intro .d2 h1,
-
-.text-intro .d3 h1,
-
-.text-intro .d4 h1 {
-
-    text-align: center;
-
-    width: 100%;
-
-    font-size: 35px;
-
-    color: #ffffff;
-
-}
-
-.text-intro .d1 p,
-
-.text-intro .d2 p,
-
-.text-intro .d3 p,
-
-.text-intro .d4 p {
-
-    text-align: justify;
-
-    font-size: 15px;
-
-    width: 100%;
-
-    color: #b7c5d3;
-
+.text-intro .d1:hover,
+.text-intro .d2:hover,
+.text-intro .d3:hover,
+.text-intro .d4:hover {
+    transform: translateY(-4px);
+    border-color: #1c6673;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
 }
 
 .text-intro .d1 img,
-
 .text-intro .d2 img,
-
 .text-intro .d3 img,
-
 .text-intro .d4 img {
+    width: 100%;
+    max-width: 180px;
+    height: 140px;
+    object-fit: cover;
+    border: 1px solid #1c3045;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
 
-    border-style: solid;
+.text-intro .d1 h1,
+.text-intro .d2 h1,
+.text-intro .d3 h1,
+.text-intro .d4 h1 {
+    width: 100%;
+    margin-bottom: 12px;
+    color: #ffffff;
+    font-size: 24px;
+    line-height: 1.2;
+    text-align: center;
+}
 
-    border-color: #1c3045;
-
-    border-radius: 40px;
-
+.text-intro .d1 p,
+.text-intro .d2 p,
+.text-intro .d3 p,
+.text-intro .d4 p {
+    width: 100%;
+    color: #9fb1c1;
+    font-size: 14px;
+    line-height: 1.65;
+    text-align: justify;
 }
 
 
-
-/* ==========================================
-
-   SECTION TITLES
-
-========================================== */
+/* =========================================================
+   TÍTULOS DE SECCIÓN
+   ========================================================= */
 
 .section-title {
-
     width: 100%;
-
     text-align: center;
-
     margin-bottom: 45px;
-
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
 }
 
 .section-title h1 {
-
-    font-size: 35px;
-
-    line-height: 1.1;
-
-    margin-bottom: 25px;
-
+    width: 100%;
+    margin-bottom: 12px;
     color: #ffffff;
-
+    font-size: 35px;
+    line-height: 1.2;
+    text-align: center;
 }
 
 .section-title h1 span {
-
     color: #00cfe0;
-
-}
-
-.section-title p {
-
-    max-width: 850px;
-
-    color: #8fa3b8;
-
-    font-size: 15px;
-
-    text-align: justify;
-
-}
-
-
-
-/* ==========================================
-
-   CHAT SECTION
-
-========================================== */
-
-.chat-section {
-
-    width: 100%;
-
-    padding: 100px 20px;
-
-    background: #07111f;
-
-}
-
-.chat-section > .container {
-
-    width: 100%;
-
-}
-
-
-
-/* ==========================================
-
-   SELECTOR
-
-========================================== */
-
-.agent-selector {
-
-    width: 100%;
-
-    margin: 0 auto 35px;
-
-    text-align: center;
-
-}
-
-.agent-selector h3 {
-
-    font-size: 24px;
-
-    margin-bottom: 5px;
-
-    color: #ffffff;
-
-}
-
-.agent-selector-description {
-
-    color: #8fa3b8;
-
-    margin-bottom: 20px;
-
-    font-size: 15px;
-
-}
-
-
-
-/* ==========================================
-
-   CHAT BOX
-
-========================================== */
-
-.chat-box {
-
-    width: 100%;
-
-    max-width: 1100px;
-
-    margin: 0 auto;
-
-    border-radius: 20px;
-
-    overflow: hidden;
-
-    background: #0d1a29;
-
-    box-shadow:
-
-        0 20px 50px rgba(0, 0, 0, 0.35);
-
-    border: 1px solid #1c3045;
-
-}
-
-
-
-/* ==========================================
-
-   CHAT HEADER
-
-========================================== */
-
-.chat-header {
-
-    width: 100%;
-
-    background: #0d1a29;
-
-}
-
-.chat-intro {
-
-    width: 100%;
-
-    padding: 15px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 12px;
-
-    color: #ffffff;
-
-    border-bottom: 1px solid #1c3045;
-
-}
-
-.chat-intro a {
-
-    color: #ffffff;
-
-    text-decoration: none;
-
-}
-
-.assistant-avatar {
-
-    width: 90px;
-
-    height: 90px;
-
-    min-width: 90px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    overflow: hidden;
-
-    flex-shrink: 0;
-
-}
-
-.assistant-avatar img {
-
-    width: 80%;
-
-    height: 80%;
-
-    object-fit: cover;
-
-    display: block;
-
-}
-
-.chat-intro-info {
-
-    flex: 1;
-
-    min-width: 0;
-
-}
-
-.chat-intro strong {
-
-    display: block;
-
-    line-height: 1.3;
-
-    overflow-wrap: break-word;
-
-}
-
-.chat-intro small {
-
-    display: block;
-
-    color: #86efac;
-
-    line-height: 1.3;
-
-}
-
-
-
-/* ==========================================
-
-   RESET CHAT
-
-========================================== */
-
-.reset-chat {
-
-    width: 45px;
-
-    height: 45px;
-
-    min-width: 45px;
-
-    max-width: 45px;
-
-    flex-shrink: 0;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: none;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 5px;
-
-    cursor: pointer;
-
-}
-
-.reset-chat img {
-
-    width: 30px;
-
-    height: 30px;
-
-    object-fit: contain;
-
-    transition: transform 0.2s ease;
-
-}
-
-.reset-chat img:hover {
-
-    transform: rotate(90deg);
-
-}
-
-
-
-/* ==========================================
-
-   AGENT BUTTONS
-
-========================================== */
-
-.agent-buttons {
-
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns: repeat(4, 1fr);
-
-    justify-items: center;
-
-    gap: 10px;
-
-    padding: 15px;
-
-}
-
-.agent-buttons button {
-
-    width: 100%;
-
-    max-width: 180px;
-
-    min-height: 45px;
-
-    font-size: 15px;
-
-    border: none;
-
-    background: none;
-
-    color: #b7c5d3;
-
-    cursor: pointer;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    text-align: center;
-
-    padding: 8px;
-
-    transition:
-
-        transform 0.2s ease,
-
-        box-shadow 0.2s ease;
-
-}
-
-.agent-button:hover {
-
-    transform: translateY(-2px);
-
-}
-
-.agent-button.active {
-
-    color: #00cfe0;
-
-}
-
-.agent-button-icon {
-
-    font-size: 30px;
-
-    flex-shrink: 0;
-
-}
-
-.agent-button small {
-
-    display: block;
-
-    color: #8fa3b8;
-
-    font-size: 12px;
-
-}
-
-.agent-button h1 {
-
-    font-size: 15px;
-
-    color: #00cfe0;
-
-}
-
-
-
-/* ==========================================
-
-   MENSAJES
-
-========================================== */
-
-.chat-messages {
-
-    width: 100%;
-
-    height: 450px;
-
-    overflow-y: auto;
-
-    overflow-x: hidden;
-
-    padding: 25px;
-
-    background: #07111f;
-
-}
-
-.message {
-
-    width: 100%;
-
-    display: flex;
-
-    gap: 10px;
-
-    margin-bottom: 20px;
-
-    min-width: 0;
-
-}
-
-.message.user {
-
-    flex-direction: row-reverse;
-
-}
-
-.avatar {
-
-    width: 35px;
-
-    height: 35px;
-
-    min-width: 35px;
-
-    border-radius: 50%;
-
-    background: none;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    overflow: hidden;
-
-}
-
-.avatar img {
-
-    width: 35px;
-
-    height: 35px;
-
-    min-width: 35px;
-
-    border-radius: 50%;
-
-    object-fit: cover;
-
-    display: block;
-
-}
-
-.bubble {
-
-    max-width: 70%;
-
-    padding: 13px 17px;
-
-    border-radius: 15px;
-
-    background: #0d1a29;
-
-    color: #ffffff;
-
-    box-shadow:
-
-        0 2px 5px rgba(0, 0, 0, 0.25);
-
-    overflow-wrap: break-word;
-
-    word-break: break-word;
-
-    border: 1px solid #1c3045;
-
-}
-
-.message.user .bubble {
-
-    background: #00cfe0;
-
-    color: #031017;
-
-}
-
-
-
-/* ==========================================
-
-   FLECHA
-
-========================================== */
-
-#arrow {
-
-    width: 30px;
-
-    height: 30px;
-
-    transform: rotate(-90deg);
-
-    object-fit: contain;
-
-    transition: transform 0.5s ease;
-
-}
-
-#arrow:hover {
-
-    transform: rotate(360deg);
-
-}
-
-
-
-/* ==========================================
-
-   INPUT CHAT
-
-========================================== */
-
-.chat-input {
-
-    width: 100%;
-
-    display: flex;
-
-    align-items: center;
-
-    padding: 15px;
-
-    border-top: 1px solid #1c3045;
-
-    background: #0d1a29;
-
-}
-
-.chat-input input {
-
-    flex: 1;
-
-    min-width: 0;
-
-    width: 100%;
-
-    border: none;
-
-    outline: none;
-
-    font-size: 16px;
-
-    padding: 12px;
-
-    background: #0d1a29;
-
-    color: #ffffff;
-
-}
-
-.chat-input input::placeholder {
-
-    color: #6f8498;
-
-}
-
-.chat-input button {
-
-    width: 50px;
-
-    height: 50px;
-
-    min-width: 50px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: none;
-
-    color: #00cfe0;
-
-    cursor: pointer;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-}
-
-
-
-/* ==========================================
-
-   EMAIL
-
-========================================== */
-
-.whatsapp-tittle {
-
-    width: 100%;
-
-    margin-top: 25px;
-
-    margin-bottom: 25px;
-
-    text-align: center;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-}
-
-.whatsapp-tittle > p {
-
-    width: 100%;
-
-    max-width: 850px;
-
-    font-size: 15px;
-
-    color: #8fa3b8;
-
-    text-align: justify;
-
-}
-
-.chat-whatsapp-container {
-
-    width: 100%;
-
-    min-height: 150px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    padding: 20px;
-
-}
-
-.chat-whatsapp-container button {
-
-    max-width: 100%;
-
-    padding: 14px 20px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: #00cfe0;
-
-    color: #031017;
-
-    font-size: 15px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-}
-
-.chat-whatsapp-container button:hover {
-
-    background: #00aebe;
-
-}
-
-
-
-/* ==========================================
-
-   MODAL SOLICITAR REUNIÓN
-
-========================================== */
-
-.reunion-modal {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 99999;
-
-    display: none;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 20px;
-
-}
-
-.reunion-modal.active {
-
-    display: flex;
-
-}
-
-.reunion-modal-overlay {
-
-    position: absolute;
-
-    inset: 0;
-
-    background: rgba(0, 0, 0, 0.75);
-
-    backdrop-filter: blur(6px);
-
-    -webkit-backdrop-filter: blur(6px);
-
-}
-
-.reunion-modal-content {
-
-    position: relative;
-
-    z-index: 2;
-
-    width: 100%;
-
-    max-width: 500px;
-
-    max-height: 90vh;
-
-    overflow-y: auto;
-
-    padding: 30px;
-
-    background: #0d1a29;
-
-    border-radius: 20px;
-
-    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
-
-    border: 1px solid #1c3045;
-
-    animation: reunionModalOpen 0.25s ease;
-
-}
-
-@keyframes reunionModalOpen {
-
-    from {
-
-        opacity: 0;
-
-        transform: translateY(20px) scale(0.96);
-
-    }
-
-    to {
-
-        opacity: 1;
-
-        transform: translateY(0) scale(1);
-
-    }
-
-}
-
-
-
-/* ==========================================
-
-   CABECERA MODAL
-
-========================================== */
-
-.reunion-modal-header {
-
-    display: flex;
-
-    align-items: flex-start;
-
-    justify-content: space-between;
-
-    gap: 20px;
-
-    margin-bottom: 20px;
-
-}
-
-.reunion-modal-label {
-
-    display: block;
-
-    margin-bottom: 6px;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    letter-spacing: 2px;
-
-    color: #00cfe0;
-
-}
-
-.reunion-modal-header h2 {
-
-    margin: 0;
-
-    font-size: 28px;
-
-    color: #ffffff;
-
-}
-
-
-
-/* ==========================================
-
-   BOTÓN CERRAR
-
-========================================== */
-
-.reunion-modal-close {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    width: 38px;
-
-    height: 38px;
-
-    padding: 0;
-
-    border: none;
-
-    border-radius: 50%;
-
-    background: #1c3045;
-
-    color: #ffffff;
-
-    font-size: 28px;
-
-    line-height: 1;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-
-}
-
-.reunion-modal-close:hover {
-
-    transform: rotate(90deg);
-
-    background: #263e55;
-
-}
-
-
-
-/* ==========================================
-
-   CUERPO MODAL
-
-========================================== */
-
-.reunion-modal-body p {
-
-    margin-top: 0;
-
-    margin-bottom: 25px;
-
-    line-height: 1.6;
-
-    color: #b7c5d3;
-
-}
-
-
-
-/* ==========================================
-
-   CAMPOS MODAL
-
-========================================== */
-
-.reunion-modal-body .form-group {
-
-    display: flex;
-
-    flex-direction: column;
-
-    margin-bottom: 18px;
-
-}
-
-.reunion-modal-body label {
-
-    margin-bottom: 8px;
-
-    font-weight: 600;
-
-    color: #ffffff;
-
-}
-
-.reunion-modal-body input {
-
-    width: 100%;
-
-    padding: 13px 15px;
-
-    border: 1px solid #1c3045;
-
-    border-radius: 10px;
-
-    font-size: 16px;
-
-    box-sizing: border-box;
-
-    background: #07111f;
-
-    color: #ffffff;
-
-}
-
-.reunion-modal-body input:focus {
-
-    outline: none;
-
-    border-color: #00cfe0;
-
-    box-shadow: 0 0 0 3px rgba(0, 207, 224, 0.10);
-
-}
-
-
-
-/* ==========================================
-
-   CALENDARIO DE REUNIONES
-
-========================================== */
-
-.reunion-check {
-
-display: flex;
-
-justify-content: space-around;
-
-width: 16%;
-
-}
-
-.reunion-check input {
-
-max-width: 20px;
-
-}
-
-
-
-.reunion-check h3{
-
-    font-size: 15px;
-
-    margin: 0%;
-
-    color: #ffffff;
-
-}
-
-.reunion-calendar {
-
-    width: 100%;
-
-    margin-top: 10px;
-
-    padding: 18px;
-
-    background: #07111f;
-
-    border: 1px solid #1c3045;
-
-    border-radius: 16px;
-
-    box-shadow:
-
-        0 5px 20px rgba(0, 0, 0, 0.30);
-
-}
-
-
-
-/* CABECERA DEL CALENDARIO */
-
-.calendar-header {
-
-    width: 100%;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    margin-bottom: 18px;
-
-}
-
-.calendar-header h3 {
-
-    margin: 0;
-
-    font-size: 18px;
-
-    font-weight: 700;
-
-    text-transform: capitalize;
-
-    color: #ffffff;
-
-}
-
-.calendar-nav {
-
-    width: 36px;
-
-    height: 36px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border: none;
-
-    border-radius: 9px;
-
-    background: #0d1a29;
-
-    color: #b7c5d3;
-
-    font-size: 20px;
-
-    cursor: pointer;
-
-    border: 1px solid #1c3045;
-
-    transition:
-
-        background 0.2s ease,
-
-        transform 0.2s ease;
-
-}
-
-.calendar-nav:hover {
-
-    background: #00cfe0;
-
-    color: #031017;
-
-    transform: translateY(-1px);
-
-}
-
-
-
-/* DÍAS DE LA SEMANA */
-
-.calendar-weekdays {
-
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns: repeat(7, 1fr);
-
-    gap: 5px;
-
-    margin-bottom: 5px;
-
-}
-
-.calendar-weekdays div {
-
-    text-align: center;
-
-    font-size: 11px;
-
-    font-weight: 700;
-
-    color: #8fa3b8;
-
-    padding: 6px 0;
-
-}
-
-
-
-/* DÍAS */
-
-.calendar-days {
-
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns: repeat(7, 1fr);
-
-    gap: 5px;
-
-}
-
-.calendar-day {
-
-    width: 100%;
-
-    aspect-ratio: 1 / 1;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border: none;
-
-    border-radius: 9px;
-
-    background: #0d1a29;
-
-    color: #ffffff;
-
-    font-size: 14px;
-
-    cursor: pointer;
-
-    border: 1px solid transparent;
-
-    transition:
-
-        background 0.2s ease,
-
-        color 0.2s ease,
-
-        transform 0.2s ease,
-
-        border-color 0.2s ease;
-
-}
-
-
-
-/* DÍA VACÍO */
-
-.calendar-day.empty {
-
-    background: transparent;
-
-    border: none;
-
-    cursor: default;
-
-}
-
-
-
-/* DÍA NO DISPONIBLE */
-
-.calendar-day.disabled {
-
-    background: #142334;
-
-    color: #52677b;
-
-    cursor: not-allowed;
-
-    text-decoration: line-through;
-
-}
-
-
-
-/* DÍA DISPONIBLE */
-
-.calendar-day.available:hover {
-
-    background: #123b4a;
-
-    border-color: #00cfe0;
-
-    transform: translateY(-1px);
-
-}
-
-
-
-/* DÍA SELECCIONADO */
-
-.calendar-day.selected {
-
-    background: #00cfe0;
-
-    color: #031017;
-
-    border-color: #00cfe0;
-
-    font-weight: 700;
-
-}
-
-
-
-/* DÍA ACTUAL */
-
-.calendar-day.today {
-
-    border-color: #00cfe0;
-
-    font-weight: 700;
-
-}
-
-
-
-/* ==========================================
-
-   HORAS DISPONIBLES
-
-========================================== */
-
-.calendar-times {
-
-    width: 100%;
-
-    margin-top: 20px;
-
-    padding-top: 18px;
-
-    border-top: 1px solid #1c3045;
-
-}
-
-.calendar-times-title {
-
-    margin-bottom: 12px;
-
-    font-size: 14px;
-
-    font-weight: 700;
-
-    color: #ffffff;
-
-}
-
-.calendar-time-list {
-
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 8px;
-
-}
-
-.calendar-time {
-
-    width: 100%;
-
-    padding: 10px 8px;
-
-    border: 1px solid #1c3045;
-
-    border-radius: 9px;
-
-    background: #0d1a29;
-
-    color: #b7c5d3;
-
-    font-size: 14px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition:
-
-        background 0.2s ease,
-
-        color 0.2s ease,
-
-        border-color 0.2s ease;
-
-}
-
-.calendar-time:hover {
-
-    background: #123b4a;
-
-    border-color: #00cfe0;
-
-}
-
-.calendar-time.selected {
-
-    background: #00cfe0;
-
-    color: #031017;
-
-    border-color: #00cfe0;
-
-}
-
-
-
-/* HORAS NO DISPONIBLES */
-
-.calendar-time.disabled {
-
-    background: #142334;
-
-    color: #52677b;
-
-    cursor: not-allowed;
-
-    text-decoration: line-through;
-
-}
-
-
-
-/* MENSAJE CALENDARIO */
-
-.calendar-message {
-
-    width: 100%;
-
-    padding: 12px;
-
-    text-align: center;
-
-    color: #8fa3b8;
-
-    font-size: 14px;
-
-    background: #0d1a29;
-
-    border-radius: 10px;
-
-}
-
-
-
-/* ==========================================
-
-   RESUMEN DE REUNIÓN
-
-========================================== */
-
-.reunion-selection {
-
-    width: 100%;
-
-    margin-top: 18px;
-
-    padding: 14px;
-
-    background: #0d2633;
-
-    border: 1px solid #1c6673;
-
-    border-radius: 10px;
-
-    color: #b7eaf0;
-
-    font-size: 14px;
-
-    display: none;
-
-}
-
-.reunion-selection.active {
-
-    display: block;
-
-}
-
-.reunion-selection strong {
-
-    display: block;
-
-    margin-bottom: 3px;
-
-}
-
-
-
-/* ==========================================
-
-   CONFIRMAR
-
-========================================== */
-
-.reunion-confirm-button {
-
-    width: 100%;
-
-    margin-top: 20px;
-
-    padding: 14px 20px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: #00cfe0;
-
-    color: #031017;
-
-    font-size: 16px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-
-}
-
-.reunion-confirm-button:hover {
-
-    transform: translateY(-1px);
-
-    opacity: 0.9;
-
-}
-
-.reunion-confirm-button:disabled {
-
-    opacity: 0.5;
-
-    cursor: not-allowed;
-
-    transform: none;
-
-}
-
-
-
-/* ==========================================
-
-   FORMULARIO EMAIL
-
-========================================== */
-
-.chat-email-form {
-
-    width: 100%;
-
-    max-width: 600px;
-
-    margin: 0 auto 30px;
-
-    padding: 25px;
-
-    background: #0d1a29;
-
-    border: 1px solid #1c3045;
-
-    border-radius: 15px;
-
-}
-
-.chat-email-form > p {
-
-    margin-bottom: 20px;
-
-    color: #8fa3b8;
-
-}
-
-.chat-email-form .form-group {
-
-    margin: 15px 0;
-
-}
-
-.chat-email-form input {
-
-    width: 100%;
-
-    background: #07111f;
-
-    border: 1px solid #1c3045;
-
-    border-radius: 10px;
-
-    padding: 14px;
-
-    font-size: 15px;
-
-    outline: none;
-
-    color: #ffffff;
-
-}
-
-.chat-email-form input::placeholder {
-
-    color: #6f8498;
-
-}
-
-.chat-email-form input:focus {
-
-    border-color: #00cfe0;
-
-}
-
-.chat-email-form button {
-
-    width: 100%;
-
-    margin-top: 10px;
-
-    padding: 16px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: #00cfe0;
-
-    color: #031017;
-
-    font-size: 16px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-}
-
-
-
-/* ==========================================
-
-   CONTACTO
-
-========================================== */
-
-.contact-section {
-
-    width: 100%;
-
-    padding: 100px 20px;
-
-    background: #07111f;
-
-    display: flex;
-
-    justify-content: center;
-
-}
-
-.section-title {
-
-    width: 100%;
-
-    text-align: center;
-
-    margin-bottom: 45px;
-
-    display: flex;
-
-    flex-direction: column;
-
-}
-
-.section-title h1 {
-
-margin: 0%;
-
-width: 100%;
-
-height: 50px;
-
-font-size: 30px;
-
-color: #ffffff;
-
 }
 
 .section-title h2 {
-
-font-size: 20px;
-
-color: #ffffff;
-
+    margin-bottom: 15px;
+    color: #ffffff;
+    font-size: 21px;
+    font-weight: 500;
 }
 
 .section-title p {
-
-font-size: 15px;
-
-color: #8fa3b8;
-
+    width: 100%;
+    max-width: 850px;
+    color: #9fb1c1;
+    font-size: 15px;
+    line-height: 1.7;
+    text-align: justify;
 }
 
 
+/* =========================================================
+   CHAT
+   ========================================================= */
+
+.chat-section {
+    width: 100%;
+    padding: 100px 25px;
+    background: #07111f;
+}
+
+.chat-section > .container {
+    width: 100%;
+    max-width: 1200px;
+}
 
 
+/* =========================================================
+   SELECTOR DE AGENTE
+   ========================================================= */
+
+.agent-selector {
+    width: 100%;
+    margin: 0 auto 35px;
+    text-align: center;
+}
+
+.agent-selector h3 {
+    margin-bottom: 5px;
+    color: #ffffff;
+    font-size: 24px;
+}
+
+.agent-selector-description {
+    margin-bottom: 25px;
+    color: #7f94a7;
+    font-size: 15px;
+}
 
 
+/* =========================================================
+   CHAT BOX
+   ========================================================= */
+
+.chat-box {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    overflow: hidden;
+    background: #0d1a29;
+    border: 1px solid #1c3045;
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================================
+   CABECERA CHAT
+   ========================================================= */
+
+.chat-header {
+    width: 100%;
+    background: #0d1a29;
+}
+
+.chat-intro {
+    width: 100%;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #ffffff;
+    border-bottom: 1px solid #1c3045;
+}
+
+.chat-intro a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.assistant-avatar {
+    width: 75px;
+    height: 75px;
+    min-width: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-radius: 12px;
+    border: 1px solid #1c3045;
+    background: #07111f;
+}
+
+.assistant-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.chat-intro-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.chat-intro strong {
+    display: block;
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1.35;
+    overflow-wrap: break-word;
+}
+
+.chat-intro small {
+    display: block;
+    margin-top: 5px;
+    color: #00cfe0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   REINICIAR CHAT
+   ========================================================= */
+
+.reset-chat {
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    max-width: 45px;
+    flex-shrink: 0;
+    padding: 5px;
+    border: 1px solid #1c3045;
+    border-radius: 10px;
+    background: #07111f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.reset-chat:hover {
+    border-color: #00cfe0;
+    background: #0d2633;
+}
+
+.reset-chat img {
+    width: 27px;
+    height: 27px;
+    object-fit: contain;
+    transition: transform 0.25s ease;
+}
+
+.reset-chat:hover img {
+    transform: rotate(90deg);
+}
+
+
+/* =========================================================
+   BOTONES AGENTES
+   ========================================================= */
+
+.agent-buttons {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 18px;
+}
+
+.agent-buttons button {
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 1px solid #1c3045;
+    border-radius: 9px;
+    background: #07111f;
+    color: #9fb1c1;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.agent-buttons button:hover {
+    transform: translateY(-2px);
+    border-color: #1c6673;
+    background: #0d2633;
+    color: #ffffff;
+}
+
+.agent-button.active {
+    color: #00cfe0;
+    border-color: #00cfe0;
+    background: #0d2633;
+}
+
+.agent-button-icon {
+    font-size: 30px;
+    flex-shrink: 0;
+}
+
+.agent-button small {
+    display: block;
+    color: #7f94a7;
+    font-size: 12px;
+}
+
+.agent-button h1 {
+    font-size: 15px;
+    color: #00cfe0;
+}
+
+
+/* =========================================================
+   MENSAJES
+   ========================================================= */
+
+.chat-messages {
+    width: 100%;
+    height: 450px;
+    padding: 25px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #07111f;
+    border-top: 1px solid #1c3045;
+    border-bottom: 1px solid #1c3045;
+}
+
+.message {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.message.user {
+    flex-direction: row-reverse;
+}
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    min-width: 35px;
+    border-radius: 50%;
+    background: #0d1a29;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid #1c3045;
+}
+
+.avatar img {
+    width: 35px;
+    height: 35px;
+    min-width: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.bubble {
+    max-width: 70%;
+    padding: 13px 17px;
+    border-radius: 12px;
+    background: #0d1a29;
+    color: #ffffff;
+    border: 1px solid #1c3045;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.message.user .bubble {
+    background: #00cfe0;
+    color: #031017;
+    border-color: #00cfe0;
+}
+
+
+/* =========================================================
+   INPUT CHAT
+   ========================================================= */
+
+.chat-input {
+    width: 100%;
+    min-width: 0;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #0d1a29;
+}
+
+.chat-input input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #1c3045;
+    border-radius: 9px;
+    outline: none;
+    background: #07111f;
+    color: #ffffff;
+    font-size: 16px;
+    transition: border-color 0.2s ease;
+}
+
+.chat-input input:focus {
+    border-color: #00cfe0;
+}
+
+.chat-input input::placeholder {
+    color: #6f8498;
+}
+
+.chat-input button {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    border: 1px solid #1c3045;
+    border-radius: 10px;
+    background: #07111f;
+    color: #00cfe0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.chat-input button:hover {
+    border-color: #00cfe0;
+    background: #0d2633;
+}
+
+
+/* =========================================================
+   FLECHA
+   ========================================================= */
+
+#arrow {
+    width: 30px;
+    height: 30px;
+    transform: rotate(-90deg);
+    object-fit: contain;
+    transition: transform 0.5s ease;
+}
+
+#arrow:hover {
+    transform: rotate(360deg);
+}
+
+
+/* =========================================================
+   CHECK REUNIÓN
+   ========================================================= */
+
+.reunion-check {
+    width: auto;
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.reunion-check input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: #00cfe0;
+    cursor: pointer;
+}
+
+.reunion-check h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   ENVÍO POR EMAIL
+   ========================================================= */
+
+.whatsapp-tittle {
+    width: 100%;
+    margin-top: 30px;
+    margin-bottom: 25px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.whatsapp-tittle > p {
+    width: 100%;
+    max-width: 850px;
+    color: #9fb1c1;
+    font-size: 15px;
+    line-height: 1.7;
+    text-align: justify;
+}
+
+.chat-whatsapp-container {
+    width: 100%;
+    min-height: 120px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-whatsapp-container button {
+    max-width: 100%;
+    padding: 14px 22px;
+    border: 1px solid #00cfe0;
+    border-radius: 9px;
+    background: #00cfe0;
+    color: #031017;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.chat-whatsapp-container button:hover {
+    background: #00aebe;
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   FORMULARIO EMAIL
+   ========================================================= */
+
+.chat-email-form {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    padding: 25px;
+    background: #0d1a29;
+    border: 1px solid #1c3045;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.chat-email-form > p {
+    margin-bottom: 20px;
+    color: #9fb1c1;
+    text-align: left;
+}
+
+.chat-email-form .form-group {
+    margin: 15px 0;
+}
+
+.chat-email-form input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #1c3045;
+    border-radius: 9px;
+    outline: none;
+    background: #07111f;
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.chat-email-form input::placeholder {
+    color: #6f8498;
+}
+
+.chat-email-form input:focus {
+    border-color: #00cfe0;
+}
+
+.chat-email-form button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 15px;
+    border: none;
+    border-radius: 9px;
+    background: #00cfe0;
+    color: #031017;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   MODAL REUNIÓN
+   ========================================================= */
+
+.reunion-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.reunion-modal.active {
+    display: flex;
+}
+
+.reunion-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.reunion-modal-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 30px;
+    background: #0d1a29;
+    border: 1px solid #1c3045;
+    border-radius: 12px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    animation: reunionModalOpen 0.25s ease;
+}
+
+@keyframes reunionModalOpen {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   CABECERA MODAL
+   ========================================================= */
+
+.reunion-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.reunion-modal-label {
+    display: block;
+    margin-bottom: 6px;
+    color: #00cfe0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.reunion-modal-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 28px;
+}
+
+
+/* =========================================================
+   CERRAR MODAL
+   ========================================================= */
+
+.reunion-modal-close {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid #1c3045;
+    border-radius: 50%;
+    background: #07111f;
+    color: #ffffff;
+    font-size: 28px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.reunion-modal-close:hover {
+    transform: rotate(90deg);
+    border-color: #00cfe0;
+    background: #0d2633;
+}
+
+
+/* =========================================================
+   CUERPO MODAL
+   ========================================================= */
+
+.reunion-modal-body p {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #9fb1c1;
+    line-height: 1.6;
+}
+
+.reunion-modal-body .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.reunion-modal-body label {
+    margin-bottom: 8px;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.reunion-modal-body input {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid #1c3045;
+    border-radius: 9px;
+    box-sizing: border-box;
+    outline: none;
+    background: #07111f;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.reunion-modal-body input:focus {
+    border-color: #00cfe0;
+    box-shadow: 0 0 0 3px rgba(0, 207, 224, 0.10);
+}
+
+
+/* =========================================================
+   CALENDARIO
+   ========================================================= */
+
+.reunion-calendar,
+.calendar-container {
+    width: 100%;
+    margin-top: 10px;
+    padding: 18px;
+    background: #07111f;
+    border: 1px solid #1c3045;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.30);
+}
+
+.calendar-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.calendar-header h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.calendar-nav {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #1c3045;
+    border-radius: 9px;
+    background: #0d1a29;
+    color: #b7c5d3;
+    font-size: 20px;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.calendar-nav:hover {
+    background: #00cfe0;
+    border-color: #00cfe0;
+    color: #031017;
+    transform: translateY(-1px);
+}
+
+.calendar-weekdays {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.calendar-weekdays span,
+.calendar-weekdays div {
+    padding: 6px 0;
+    color: #7f94a7;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.calendar-days {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: #0d1a29;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.calendar-day.empty {
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+
+.calendar-day.disabled {
+    background: #142334;
+    color: #52677b;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.calendar-day.available:hover {
+    background: #123b4a;
+    border-color: #00cfe0;
+    transform: translateY(-1px);
+}
+
+.calendar-day.selected {
+    background: #00cfe0;
+    color: #031017;
+    border-color: #00cfe0;
+    font-weight: 700;
+}
+
+.calendar-day.today {
+    border-color: #00cfe0;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   HORAS
+   ========================================================= */
+
+.calendar-times {
+    width: 100%;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid #1c3045;
+}
+
+.calendar-times-title {
+    margin-bottom: 12px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.calendar-time-list {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.calendar-time {
+    width: 100%;
+    padding: 10px 8px;
+    border: 1px solid #1c3045;
+    border-radius: 9px;
+    background: #0d1a29;
+    color: #b7c5d3;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.calendar-time:hover {
+    background: #123b4a;
+    border-color: #00cfe0;
+}
+
+.calendar-time.selected {
+    background: #00cfe0;
+    color: #031017;
+    border-color: #00cfe0;
+}
+
+.calendar-time.disabled {
+    background: #142334;
+    color: #52677b;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.calendar-message {
+    width: 100%;
+    padding: 12px;
+    text-align: center;
+    color: #7f94a7;
+    font-size: 14px;
+    background: #0d1a29;
+    border-radius: 9px;
+}
+
+
+/* =========================================================
+   RESUMEN REUNIÓN
+   ========================================================= */
+
+.reunion-selection {
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px;
+    display: none;
+    background: #0d2633;
+    border: 1px solid #1c6673;
+    border-radius: 10px;
+    color: #b7eaf0;
+    font-size: 14px;
+}
+
+.reunion-selection.active {
+    display: block;
+}
+
+.reunion-selection strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+
+/* =========================================================
+   CONFIRMAR REUNIÓN
+   ========================================================= */
+
+.reunion-confirm-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 9px;
+    background: #00cfe0;
+    color: #031017;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.reunion-confirm-button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.reunion-confirm-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* =========================================================
+   CONTACTO
+   ========================================================= */
+
+.contact-section {
+    width: 100%;
+    padding: 100px 25px;
+    background: #0d1a29;
+    border-top: 1px solid #1c3045;
+}
 
 .contact-section .container {
-
     width: 100%;
-
     max-width: 1100px;
-
+    margin: 0 auto;
 }
 
 .contact-card {
-
     width: 100%;
-
     padding: 40px;
-
-    background: #0d1a29;
-
-    border-radius: 18px;
-
-    box-shadow:
-
-        0 15px 40px rgba(0, 0, 0, 0.35);
-
+    background: #07111f;
     border: 1px solid #1c3045;
-
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
 }
 
 .form-grid {
-
     width: 100%;
-
     display: grid;
-
     grid-template-columns: 1fr 1fr;
-
+    gap: 5px;
 }
 
 .form-group {
-
     min-width: 0;
-
     display: flex;
-
     flex-direction: column;
-
-    margin: 15px;
-
+    margin: 10px;
 }
 
 .form-group.full {
-
     grid-column: 1 / -1;
-
 }
 
 .form-group input,
-
 .form-group textarea {
-
     width: 100%;
-
     max-width: 100%;
-
-    border: 1px solid #1c3045;
-
-    border-radius: 8px;
-
     padding: 13px;
-
-    font-family: inherit;
-
-    font-size: 15px;
-
+    border: 1px solid #1c3045;
+    border-radius: 9px;
     outline: none;
-
     resize: vertical;
-
-    background: #07111f;
-
+    background: #0d1a29;
     color: #ffffff;
-
-}
-
-.form-group input::placeholder,
-
-.form-group textarea::placeholder {
-
-    color: #6f8498;
-
+    font-family: inherit;
+    font-size: 15px;
+    transition: border-color 0.2s ease;
 }
 
 .form-group input:focus,
-
 .form-group textarea:focus {
-
     border-color: #00cfe0;
+}
 
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #6f8498;
 }
 
 .whatsapp-button {
-
     width: 100%;
-
     margin-top: 25px;
-
     padding: 16px;
-
     border: none;
-
-    border-radius: 10px;
-
+    border-radius: 9px;
     background: #00cfe0;
-
     color: #031017;
-
     font-size: 16px;
-
     font-weight: bold;
-
     cursor: pointer;
-
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 .whatsapp-button:hover {
-
     background: #00aebe;
-
+    transform: translateY(-1px);
 }
 
 .whatsapp-button:disabled {
-
     opacity: 0.6;
-
     cursor: not-allowed;
-
 }
 
 
-
-/* ==========================================
-
+/* =========================================================
    FOOTER
-
-========================================== */
+   ========================================================= */
 
 footer {
-
     width: 100%;
-
     padding: 30px 20px;
-
     text-align: center;
-
-    background: #0d1a29;
-
-    color: #ffffff;
-
+    background: #07111f;
+    color: #9fb1c1;
     border-top: 1px solid #1c3045;
+}
 
+footer p {
+    margin: 0;
 }
 
 
+/* =========================================================
+   TABLET / PORTÁTIL
+   ========================================================= */
 
-/* ==========================================
-
-   PANTALLA PORTÁTIL
-
-========================================== */
-
-@media (max-width: 1800px) {
+@media (max-width: 1100px) {
 
     .text-intro {
-
-        display: flex;
-
-        justify-content: center;
-
-        align-items: center;
-
-        justify-content: space-around;
-
-        margin-top: 20px;
-
+        grid-template-columns: repeat(2, 1fr);
+        padding: 60px 25px;
     }
 
-    .text-intro .d1,
-
-    .text-intro .d2,
-
-    .text-intro .d3,
-
-    .text-intro .d4 {
-
-        width: 350px;
-
-        margin: 2%;
-
-        padding: 10px;
-
-        text-align: center;
-
-        justify-items: center;
-
-        backdrop-filter: blur(3px);
-
-    }
-
-}
-
-
-
-/* ==========================================
-
-   TABLET
-
-========================================== */
-
-@media (max-width: 956px) {
-
-
-
-    .hero-content {
-
-    max-width: 100%;
-
-    height: 100vh;
-
-    backdrop-filter: blur(5px);
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-}
-
-    .hero {
-
-        min-height: auto;
-
-        padding: 80px 20px;
-
-    }
-
-    .hero h1 {
-
-        width: 90%;
-
-        font-size: 45px;
-
-        text-align: center;
-
-    }
-
+    .hero h1,
     .hero p {
-
-        width: 90%;
-
-    }
-
-    .section-title p {
-
-        max-width: 85%;
-
+        width: 85%;
     }
 
     .agent-buttons {
-
-        grid-template-columns: 1fr 1fr;
-
+        grid-template-columns: repeat(2, 1fr);
     }
-
-    .whatsapp-tittle > p {
-
-        max-width: 85%;
-
-    }
-
-    .text-intro {
-
-        display: flex;
-
-        flex-direction: column;
-
-        justify-content: center;
-
-        align-items: center;
-
-        margin-top: 20px;
-
-    }
-
-    .text-intro .d1,
-
-    .text-intro .d2,
-
-    .text-intro .d3,
-
-    .text-intro .d4 {
-
-        width: 350px;
-
-        margin: 2%;
-
-        padding: 10px;
-
-        text-align: center;
-
-        justify-items: center;
-
-        backdrop-filter: blur(3px);
-
-    }
-
 }
 
 
-
-/* ==========================================
-
-   TABLET PEQUEÑA
-
-========================================== */
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 768px) {
 
-    .hero-content {
-
-    max-width: 100%;
-
-    height: 100vh;
-
-    backdrop-filter: blur(5px);
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-}
-
-
-
-    .nav {
-
-        min-height: 65px;
-
-        padding: 0 20px;
-
-    }
-
-    nav {
-
-        display: none;
-
-    }
-
-    .logo-v,
-
-    .logo-text {
-
-        font-size: 22px;
-
-    }
-
-
-
-    /* HERO */
-
     .hero {
+        min-height: 100vh;
+    }
 
-        padding: 70px 20px;
-
+    .hero-content {
+        min-height: 100vh;
+        padding: 100px 25px 60px;
     }
 
     .hero h1 {
-
         width: 100%;
-
-        font-size: 42px;
-
+        font-size: 36px;
         text-align: center;
-
     }
 
     .hero p {
-
         width: 100%;
-
-        font-size: 17px;
-
+        font-size: 15px;
         text-align: justify;
-
     }
 
-
-
-    /* INTRO */
-
     .text-intro {
-
-        display: flex;
-
-        flex-direction: column;
-
-        justify-content: center;
-
-        align-items: center;
-
-        margin-top: 20px;
-
+        grid-template-columns: 1fr;
+        padding: 50px 20px;
+        gap: 15px;
     }
 
     .text-intro .d1,
-
     .text-intro .d2,
-
     .text-intro .d3,
-
     .text-intro .d4 {
-
-        width: 350px;
-
-        margin: 2%;
-
-        padding: 10px;
-
-        text-align: center;
-
-        justify-items: center;
-
-        backdrop-filter: blur(3px);
-
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
     }
 
-
-
-    /* TITULOS */
-
     .section-title {
-
         margin-bottom: 35px;
-
     }
 
     .section-title h1 {
-
-        font-size: 28px;
-
+        font-size: 29px;
     }
 
     .section-title p {
-
         max-width: 100%;
-
-        font-size: 18px;
-
+        font-size: 15px;
     }
 
-
-
-    /* CHAT */
-
     .chat-section {
-
         padding: 70px 15px;
-
     }
 
     .chat-box {
-
-        width: 100%;
-
-        max-width: 100%;
-
-        border-radius: 15px;
-
+        border-radius: 12px;
     }
 
     .chat-messages {
-
         height: 400px;
-
         padding: 18px;
-
     }
 
     .bubble {
-
         max-width: 85%;
-
     }
 
     .assistant-avatar {
-
         width: 65px;
-
         height: 65px;
-
         min-width: 65px;
-
     }
-
-
-
-    /* CALENDARIO */
-
-    .reunion-calendar {
-
-        padding: 14px;
-
-    }
-
-    .calendar-days {
-
-        gap: 4px;
-
-    }
-
-    .calendar-weekdays {
-
-        gap: 4px;
-
-    }
-
-    .calendar-day {
-
-        font-size: 13px;
-
-    }
-
-    .calendar-time-list {
-
-        grid-template-columns: repeat(2, 1fr);
-
-    }
-
-
-
-    /* CONTACTO */
 
     .contact-section {
-
         padding: 70px 15px;
-
     }
 
     .contact-card {
-
         padding: 25px 20px;
-
     }
 
     .form-grid {
-
         grid-template-columns: 1fr;
-
     }
 
     .form-group.full {
-
         grid-column: auto;
-
     }
 
     .form-group {
-
-        margin: 10px 0;
-
+        margin: 8px 0;
     }
 
-
-
+    .reunion-modal-content {
+        max-width: 95%;
+    }
 }
 
 
-
-/* ==========================================
-
+/* =========================================================
    MÓVIL
-
-========================================== */
+   ========================================================= */
 
 @media (max-width: 550px) {
 
-    .nav {
-
-        padding: 0 15px;
-
+    .hero-content {
+        padding: 90px 18px 50px;
     }
 
-    * {
-
-    margin: 0;
-
-    padding: 0;
-
-}
-
-
-
-    /* HERO */
-
-    .hero-content {
-
-    max-width: 100%;
-
-    height: 100vh;
-
-    backdrop-filter: blur(5px);
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-}
-
-#neural-canvas {
-
-    position: absolute;
-
-    top: 0;
-
-    left: 0;
-
-    width: 100%;
-
-    height: 100vh;
-
-    z-index: -1;
-
-    pointer-events: none;
-
-}
-
     .hero h1 {
-
         width: 100%;
-
-        font-size: 34px;
-
+        font-size: 31px;
         line-height: 1.15;
-
+        text-align: center;
     }
 
     .hero p {
-
         width: 100%;
-
-        font-size: 16px;
-
+        font-size: 15px;
         line-height: 1.6;
-
     }
 
-
-
-    /* INTRO */
-
     .text-intro {
-
-        display: flex;
-
-        flex-direction: column;
-
-        justify-content: center;
-
-        align-items: center;
-
-        margin-top: 20px;
-
+        padding: 40px 15px;
     }
 
     .text-intro .d1,
-
     .text-intro .d2,
-
     .text-intro .d3,
-
     .text-intro .d4 {
-
-        width: 350px;
-
-        max-width: calc(100% - 20px);
-
-        margin: 2%;
-
-        padding: 10px;
-
-        text-align: center;
-
-        justify-items: center;
-
-        backdrop-filter: blur(3px);
-
+        max-width: 100%;
+        padding: 20px 16px;
     }
 
+    .text-intro .d1 img,
+    .text-intro .d2 img,
+    .text-intro .d3 img,
+    .text-intro .d4 img {
+        max-width: 160px;
+        height: 120px;
+    }
 
+    .text-intro .d1 h1,
+    .text-intro .d2 h1,
+    .text-intro .d3 h1,
+    .text-intro .d4 h1 {
+        font-size: 22px;
+    }
 
-    /* TITULOS */
+    .text-intro .d1 p,
+    .text-intro .d2 p,
+    .text-intro .d3 p,
+    .text-intro .d4 p {
+        font-size: 14px;
+    }
 
     .section-title {
-
-        padding: 0 5px;
-
+        padding: 0;
     }
 
     .section-title h1 {
-
         font-size: 25px;
-
         line-height: 1.2;
+    }
 
+    .section-title h2 {
+        font-size: 18px;
     }
 
     .section-title p {
-
-        font-size: 17px;
-
+        font-size: 15px;
         line-height: 1.6;
-
     }
 
-
-
-    /* CHAT INTRO */
-
-    .chat-intro {
-
-        padding: 12px;
-
-        gap: 9px;
-
+    .chat-section {
+        padding: 60px 10px;
     }
 
-    .assistant-avatar {
-
-        width: 50px;
-
-        height: 50px;
-
-        min-width: 50px;
-
+    .agent-selector h3 {
+        font-size: 21px;
     }
 
-    .chat-intro-info {
-
-        flex: 1;
-
-        min-width: 0;
-
+    .agent-selector-description {
+        font-size: 14px;
     }
-
-    .chat-intro strong {
-
-        font-size: 13px;
-
-        line-height: 1.25;
-
-    }
-
-    .chat-intro small {
-
-        font-size: 10px;
-
-        line-height: 1.25;
-
-    }
-
-
-
-    /* RESET */
-
-    .reset-chat {
-
-        width: 40px;
-
-        height: 40px;
-
-        min-width: 40px;
-
-        max-width: 40px;
-
-    }
-
-    .reset-chat img {
-
-        width: 27px;
-
-        height: 27px;
-
-    }
-
-
-
-    /* AGENTES */
 
     .agent-buttons {
-
         grid-template-columns: 1fr;
-
-        gap: 5px;
-
-        padding: 12px 10px;
-
+        gap: 7px;
+        padding: 12px;
     }
 
     .agent-buttons button {
-
-        width: 100%;
-
         max-width: 100%;
-
-        min-height: 42px;
-
+        min-height: 44px;
     }
 
-
-
-    /* MENSAJES */
-
-    .chat-messages {
-
-        height: 380px;
-
-        padding: 15px;
-
-    }
-
-    .message {
-
-        gap: 7px;
-
-    }
-
-    .avatar {
-
-        width: 30px;
-
-        height: 30px;
-
-        min-width: 30px;
-
-    }
-
-    .avatar img {
-
-        width: 30px;
-
-        height: 30px;
-
-        min-width: 30px;
-
-    }
-
-    .bubble {
-
-        max-width: calc(100% - 37px);
-
-        padding: 10px 12px;
-
-        font-size: 14px;
-
-    }
-
-
-
-    /* ==================================
-
-       MODAL
-
-    ================================== */
-
-    .reunion-modal {
-
-        padding: 15px;
-
-    }
-
-    .reunion-modal-content {
-
-        padding: 22px;
-
-        border-radius: 16px;
-
-        max-height: 92vh;
-
-    }
-
-    .reunion-modal-header h2 {
-
-        font-size: 23px;
-
-    }
-
-
-
-    /* ==================================
-
-       CALENDARIO MÓVIL
-
-    ================================== */
-
-    .reunion-calendar {
-
+    .chat-intro {
         padding: 12px;
-
-        border-radius: 13px;
-
-    }
-
-    .calendar-header {
-
-        margin-bottom: 12px;
-
-    }
-
-    .calendar-header h3 {
-
-        font-size: 16px;
-
-    }
-
-    .calendar-nav {
-
-        width: 34px;
-
-        height: 34px;
-
-        font-size: 18px;
-
-    }
-
-    .calendar-weekdays {
-
-        gap: 3px;
-
-    }
-
-    .calendar-weekdays div {
-
-        font-size: 9px;
-
-        padding: 5px 0;
-
-    }
-
-    .calendar-days {
-
-        gap: 3px;
-
-    }
-
-    .calendar-day {
-
-        border-radius: 7px;
-
-        font-size: 12px;
-
-    }
-
-    .calendar-times {
-
-        margin-top: 15px;
-
-        padding-top: 15px;
-
-    }
-
-    .calendar-time-list {
-
-        grid-template-columns: 1fr 1fr;
-
-        gap: 7px;
-
-    }
-
-    .calendar-time {
-
-        padding: 9px 5px;
-
-        font-size: 13px;
-
-    }
-
-
-
-    /* ==================================
-
-       INPUT
-
-    ================================== */
-
-    .chat-input {
-
-        padding: 10px;
-
-    }
-
-    .chat-input input {
-
-        font-size: 15px;
-
-        padding: 10px;
-
-    }
-
-    .chat-input button {
-
-        width: 45px;
-
-        height: 45px;
-
-        min-width: 45px;
-
-    }
-
-    #arrow {
-
-        width: 27px;
-
-        height: 27px;
-
-    }
-
-
-
-    /* ==================================
-
-       EMAIL
-
-    ================================== */
-
-    .whatsapp-tittle {
-
-        padding: 0 5px;
-
-    }
-
-    .whatsapp-tittle > p {
-
-        width: 100%;
-
-        max-width: 100%;
-
-        font-size: 17px;
-
-    }
-
-    .chat-whatsapp-container {
-
-        min-height: 120px;
-
-        padding: 15px 5px;
-
-    }
-
-    .chat-whatsapp-container button {
-
-        width: 100%;
-
-        max-width: 350px;
-
-        font-size: 14px;
-
-    }
-
-    .chat-email-form {
-
-        width: 100%;
-
-        padding: 18px 15px;
-
-    }
-
-
-
-    /* ==================================
-
-       CONTACTO
-
-    ================================== */
-
-    .contact-section {
-
-        padding: 70px 15px;
-
-    }
-
-    .contact-card {
-
-        padding: 20px 15px;
-
-        border-radius: 15px;
-
-    }
-
-    .form-group {
-
-        margin: 10px 0;
-
-    }
-
-    .form-group input,
-
-    .form-group textarea {
-
-        font-size: 16px;
-
-        padding: 12px;
-
-    }
-
-    .whatsapp-button {
-
-        font-size: 15px;
-
-        padding: 15px 10px;
-
-    }
-
-
-
-    /* ==================================
-
-       FOOTER
-
-    ================================== */
-
-    footer {
-
-        padding: 25px 15px;
-
-        font-size: 14px;
-
-    }
-
-}
-
-
-
-/* ==========================================
-
-   MÓVILES PEQUEÑOS
-
-========================================== */
-
-@media (max-width: 390px) {
-
-    .hero h1 {
-
-        font-size: 30px;
-
-    }
-
-    .hero p {
-
-        font-size: 15px;
-
-    }
-
-    .section-title h1 {
-
-        font-size: 23px;
-
-    }
-
-    .section-title p {
-
-        font-size: 16px;
-
+        gap: 9px;
     }
 
     .assistant-avatar {
-
-        width: 45px;
-
-        height: 45px;
-
-        min-width: 45px;
-
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
     }
 
     .chat-intro strong {
-
-        font-size: 12px;
-
+        font-size: 13px;
+        line-height: 1.25;
     }
 
     .chat-intro small {
-
-        font-size: 9px;
-
+        font-size: 10px;
+        line-height: 1.25;
     }
 
     .reset-chat {
-
-        width: 36px;
-
-        height: 36px;
-
-        min-width: 36px;
-
-        max-width: 36px;
-
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        max-width: 40px;
     }
 
     .reset-chat img {
-
-        width: 24px;
-
-        height: 24px;
-
+        width: 25px;
+        height: 25px;
     }
 
     .chat-messages {
+        height: 380px;
+        padding: 15px;
+    }
 
-        height: 360px;
+    .message {
+        gap: 7px;
+        margin-bottom: 15px;
+    }
 
-        padding: 12px;
+    .avatar {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+    }
 
+    .avatar img {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
     }
 
     .bubble {
-
-        max-width: calc(100% - 35px);
-
-        font-size: 13px;
-
+        max-width: calc(100% - 37px);
+        padding: 10px 12px;
+        font-size: 14px;
     }
 
+    .chat-input {
+        padding: 10px;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
 
+    .chat-input input {
+        order: 1;
+        flex: 1 1 100%;
+        font-size: 15px;
+        padding: 11px;
+    }
 
-    /* CALENDARIO */
+    .reunion-check {
+        order: 2;
+        min-width: auto;
+        flex: 1;
+        justify-content: flex-start;
+        padding-left: 5px;
+    }
+
+    .chat-input button {
+        order: 2;
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+    }
+
+    #arrow {
+        width: 27px;
+        height: 27px;
+    }
+
+    .whatsapp-tittle {
+        padding: 0;
+    }
+
+    .whatsapp-tittle > p {
+        width: 100%;
+        font-size: 15px;
+    }
+
+    .chat-whatsapp-container {
+        min-height: 100px;
+        padding: 15px 5px;
+    }
+
+    .chat-whatsapp-container button {
+        width: 100%;
+        max-width: 350px;
+        font-size: 14px;
+    }
+
+    .chat-email-form {
+        width: 100%;
+        padding: 18px 15px;
+    }
+
+    .reunion-modal {
+        padding: 12px;
+    }
 
     .reunion-modal-content {
-
-        padding: 18px;
-
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+        border-radius: 12px;
+        max-height: 94vh;
     }
 
+    .reunion-modal-header {
+        gap: 10px;
+    }
+
+    .reunion-modal-header h2 {
+        font-size: 22px;
+    }
+
+    .reunion-calendar,
+    .calendar-container {
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .calendar-header {
+        margin-bottom: 12px;
+    }
+
+    .calendar-header h3 {
+        font-size: 16px;
+    }
+
+    .calendar-nav {
+        width: 34px;
+        height: 34px;
+        font-size: 18px;
+    }
+
+    .calendar-weekdays {
+        gap: 3px;
+    }
+
+    .calendar-weekdays span,
     .calendar-weekdays div {
+        font-size: 9px;
+        padding: 5px 0;
+    }
 
-        font-size: 8px;
-
+    .calendar-days {
+        gap: 3px;
     }
 
     .calendar-day {
+        border-radius: 7px;
+        font-size: 12px;
+    }
 
-        font-size: 11px;
-
+    .calendar-time-list {
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
     }
 
     .calendar-time {
-
-        font-size: 12px;
-
-        padding: 8px 4px;
-
+        padding: 9px 5px;
+        font-size: 13px;
     }
 
+    .contact-section {
+        padding: 60px 10px;
+    }
+
+    .contact-card {
+        padding: 20px 15px;
+        border-radius: 12px;
+    }
+
+    .form-group {
+        margin: 8px 0;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .whatsapp-button {
+        font-size: 15px;
+        padding: 15px 10px;
+    }
+
+    footer {
+        padding: 25px 15px;
+        font-size: 14px;
+    }
 }
+
+
+/* =========================================================
+   MÓVILES PEQUEÑOS
+   ========================================================= */
+
+@media (max-width: 390px) {
+
+    .hero-content {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+    }
+
+    .hero p {
+        font-size: 14px;
+    }
+
+    .section-title h1 {
+        font-size: 23px;
+    }
+
+    .section-title p {
+        font-size: 14px;
+    }
+
+    .assistant-avatar {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+    }
+
+    .chat-intro strong {
+        font-size: 12px;
+    }
+
+    .chat-intro small {
+        font-size: 9px;
+    }
+
+    .reset-chat {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        max-width: 36px;
+    }
+
+    .reset-chat img {
+        width: 23px;
+        height: 23px;
+    }
+
+    .chat-messages {
+        height: 360px;
+        padding: 12px;
+    }
+
+    .bubble {
+        max-width: calc(100% - 35px);
+        font-size: 13px;
+    }
+
+    .reunion-modal-content {
+        padding: 17px;
+    }
+
+    .calendar-weekdays span,
+    .calendar-weekdays div {
+        font-size: 8px;
+    }
+
+    .calendar-day {
+        font-size: 11px;
+    }
+
+    .calendar-time {
+        font-size: 12px;
+        padding: 8px 4px;
+    }
+}
+
+
+#neural-canvas {
+    z-index: 0;
+}
+
+
+
+.hero-content {
+    z-index: 1;
+}
+

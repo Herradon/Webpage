@@ -25,11 +25,6 @@ $usuarioId = (int) $_SESSION['usuario_id'];
 |--------------------------------------------------------------------------
 | Acceso gratuito
 |--------------------------------------------------------------------------
-|
-| La plataforma ya no requiere suscripción.
-| Mantenemos esta variable de sesión por compatibilidad
-| con otras partes antiguas del sistema.
-|
 */
 
 $_SESSION['suscripcion_activa'] = 1;
@@ -37,6 +32,9 @@ $_SESSION['suscripcion_activa'] = 1;
 
 $usuarioNombre = $_SESSION['usuario_nombre'] ?? '';
 $usuarioEmail = $_SESSION['usuario_email'] ?? '';
+
+$error = '';
+$mensaje = '';
 
 
 /*
@@ -48,7 +46,12 @@ $usuarioEmail = $_SESSION['usuario_email'] ?? '';
 $stmtCliente = $pdo->prepare("
     SELECT
         id,
+        usuario_id,
+        tipo_persona,
+        nombre,
+        apellidos,
         nombre_razon_social,
+        nombre_comercial,
         nif,
         direccion,
         codigo_postal,
@@ -56,7 +59,9 @@ $stmtCliente = $pdo->prepare("
         provincia,
         pais,
         email,
-        telefono
+        telefono,
+        web,
+        sector_actividad
     FROM clientes
     WHERE usuario_id = ?
       AND activo = 1
@@ -80,15 +85,151 @@ if (!$cliente) {
 
 } else {
 
+    $_SESSION['cliente_id'] = (int) $cliente['id'];
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Guardar cambios del perfil
+|--------------------------------------------------------------------------
+*/
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $cliente) {
+
+    $tipoPersona = trim($_POST['tipo_persona'] ?? '');
+    $nombre = trim($_POST['nombre'] ?? '');
+    $apellidos = trim($_POST['apellidos'] ?? '');
+    $nombreRazonSocial = trim($_POST['nombre_razon_social'] ?? '');
+    $nombreComercial = trim($_POST['nombre_comercial'] ?? '');
+    $nif = trim($_POST['nif'] ?? '');
+    $direccion = trim($_POST['direccion'] ?? '');
+    $codigoPostal = trim($_POST['codigo_postal'] ?? '');
+    $ciudad = trim($_POST['ciudad'] ?? '');
+    $provincia = trim($_POST['provincia'] ?? '');
+    $pais = trim($_POST['pais'] ?? '');
+    $telefono = trim($_POST['telefono'] ?? '');
+    $web = trim($_POST['web'] ?? '');
+    $sectorActividad = trim($_POST['sector_actividad'] ?? '');
+
+
     /*
     |--------------------------------------------------------------------------
-    | Guardar cliente en sesión
+    | Validar tipo de persona
     |--------------------------------------------------------------------------
     */
 
-    $_SESSION['cliente_id'] = (int) $cliente['id'];
+    $tiposPermitidos = [
+        'empresa',
+        'autonomo',
+        'particular'
+    ];
 
-    $error = '';
+    if (!in_array($tipoPersona, $tiposPermitidos, true)) {
+
+        $error = 'El tipo de persona seleccionado no es válido.';
+
+    } elseif ($nombreRazonSocial === '') {
+
+        $error = 'Introduce tu nombre o razón social.';
+
+    } elseif ($nif === '') {
+
+        $error = 'Introduce tu NIF/CIF.';
+
+    } elseif ($pais === '') {
+
+        $error = 'Introduce tu país.';
+
+    } else {
+
+        try {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Actualizar cliente
+            |--------------------------------------------------------------------------
+            */
+
+            $stmtUpdate = $pdo->prepare("
+                UPDATE clientes
+                SET
+                    tipo_persona = ?,
+                    nombre = ?,
+                    apellidos = ?,
+                    nombre_razon_social = ?,
+                    nombre_comercial = ?,
+                    nif = ?,
+                    direccion = ?,
+                    codigo_postal = ?,
+                    ciudad = ?,
+                    provincia = ?,
+                    pais = ?,
+                    telefono = ?,
+                    web = ?,
+                    sector_actividad = ?
+                WHERE id = ?
+                  AND usuario_id = ?
+            ");
+
+            $stmtUpdate->execute([
+                $tipoPersona,
+                $nombre !== '' ? $nombre : null,
+                $apellidos !== '' ? $apellidos : null,
+                $nombreRazonSocial,
+                $nombreComercial !== '' ? $nombreComercial : null,
+                $nif,
+                $direccion !== '' ? $direccion : null,
+                $codigoPostal !== '' ? $codigoPostal : null,
+                $ciudad !== '' ? $ciudad : null,
+                $provincia !== '' ? $provincia : null,
+                $pais,
+                $telefono !== '' ? $telefono : null,
+                $web !== '' ? $web : null,
+                $sectorActividad !== '' ? $sectorActividad : null,
+                $cliente['id'],
+                $usuarioId
+            ]);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Actualizar nombre de sesión
+            |--------------------------------------------------------------------------
+            */
+
+            $_SESSION['usuario_nombre'] = $nombreRazonSocial;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mensaje de éxito
+            |--------------------------------------------------------------------------
+            */
+
+            $mensaje = 'Tus datos se han actualizado correctamente.';
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Volver a cargar los datos actualizados
+            |--------------------------------------------------------------------------
+            */
+
+            $stmtCliente->execute([$usuarioId]);
+
+            $cliente = $stmtCliente->fetch(PDO::FETCH_ASSOC);
+
+
+        } catch (Throwable $e) {
+
+            $error = 'No se han podido guardar los cambios.';
+
+
+        }
+
+    }
+
 }
 
 
@@ -119,34 +260,50 @@ if ($cliente && !empty($cliente['nombre_razon_social'])) {
 |--------------------------------------------------------------------------
 | Calcular porcentaje de datos completados
 |--------------------------------------------------------------------------
+|
+| Cada uno de los 15 campos vale lo mismo.
+|
 */
 
 $camposPerfil = [
+    'tipo_persona',
+    'nombre',
+    'apellidos',
     'nombre_razon_social',
+    'nombre_comercial',
     'nif',
-    'email',
-    'telefono',
     'direccion',
     'codigo_postal',
     'ciudad',
-    'provincia'
+    'provincia',
+    'pais',
+    'email',
+    'telefono',
+    'web',
+    'sector_actividad'
 ];
 
+
 $camposCompletados = 0;
+
 
 if ($cliente) {
 
     foreach ($camposPerfil as $campo) {
 
         if (!empty(trim((string) ($cliente[$campo] ?? '')))) {
+
             $camposCompletados++;
+
         }
 
     }
 
 }
 
+
 $totalCampos = count($camposPerfil);
+
 
 $porcentajePerfil = $totalCampos > 0
     ? round(($camposCompletados / $totalCampos) * 100)
@@ -239,6 +396,17 @@ if ($porcentajePerfil >= 100) {
             <div class="alert-error">
 
                 <?= htmlspecialchars($error) ?>
+
+            </div>
+
+        <?php endif; ?>
+
+
+        <?php if (!empty($mensaje)): ?>
+
+            <div class="alert-success">
+
+                <?= htmlspecialchars($mensaje) ?>
 
             </div>
 
@@ -398,12 +566,10 @@ if ($porcentajePerfil >= 100) {
                     </a>
 
 
-                    
-
-                         <a
+                    <a
                         href="calendario.php"
-                        class="quick-card">
-                        
+                        class="quick-card"
+                    >
 
                         <div class="quick-icon">
                             📅
@@ -412,22 +578,21 @@ if ($porcentajePerfil >= 100) {
                         <div class="quick-content">
 
                             <h3>
-                                Mis facturas
+                                Mis reuniones
                             </h3>
 
                             <p>
-                                Consulta y gestiona tus facturas
-                                desde la plataforma.
+                                Consulta tus reuniones para gestionar
+                                mejor tu día a día.
                             </p>
 
                             <span class="quick-link">
-                                Ver facturas →
+                                Ver reuniones →
                             </span>
 
                         </div>
-                        </a>
 
-                    
+                    </a>
 
 
                     <div class="quick-card">
@@ -467,6 +632,7 @@ if ($porcentajePerfil >= 100) {
 
             <section class="account-section">
 
+
                 <div class="section-header">
 
                     <div>
@@ -480,8 +646,8 @@ if ($porcentajePerfil >= 100) {
                         </h2>
 
                         <p>
-                            Datos asociados actualmente a tu cuenta
-                            de cliente.
+                            Completa tus datos para aumentar el nivel
+                            de información de tu perfil.
                         </p>
 
                     </div>
@@ -498,7 +664,9 @@ if ($porcentajePerfil >= 100) {
                 </div>
 
 
-                <!-- PROGRESO DEL PERFIL -->
+                <!-- =================================================
+                     PROGRESO
+                ================================================== -->
 
                 <div class="profile-progress">
 
@@ -514,6 +682,7 @@ if ($porcentajePerfil >= 100) {
 
                     </div>
 
+
                     <div class="progress-bar">
 
                         <div
@@ -526,152 +695,417 @@ if ($porcentajePerfil >= 100) {
                 </div>
 
 
-                <!-- DATOS -->
+                <!-- =================================================
+                     FORMULARIO DE DATOS
+                ================================================== -->
 
-                <div class="client-data">
+                <form
+                    method="POST"
+                    action="mi_cuenta.php"
+                    class="client-data-form"
+                >
 
+
+                    <!-- TIPO DE PERSONA -->
 
                     <div class="data-item">
 
-                        <span>
+                        <label for="tipo_persona">
+                            Tipo de persona
+                        </label>
+
+                        <select
+                            id="tipo_persona"
+                            name="tipo_persona"
+                            required
+                        >
+
+                            <option
+                                value="particular"
+                                <?= ($cliente['tipo_persona'] ?? '') === 'particular'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Particular
+                            </option>
+
+                            <option
+                                value="autonomo"
+                                <?= ($cliente['tipo_persona'] ?? '') === 'autonomo'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Autónomo
+                            </option>
+
+                            <option
+                                value="empresa"
+                                <?= ($cliente['tipo_persona'] ?? '') === 'empresa'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Empresa
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- NOMBRE -->
+
+                    <div class="data-item">
+
+                        <label for="nombre">
+                            Nombre
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nombre"
+                            name="nombre"
+                            maxlength="100"
+                            value="<?= htmlspecialchars(
+                                $cliente['nombre'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Tu nombre"
+                        >
+
+                    </div>
+
+
+                    <!-- APELLIDOS -->
+
+                    <div class="data-item">
+
+                        <label for="apellidos">
+                            Apellidos
+                        </label>
+
+                        <input
+                            type="text"
+                            id="apellidos"
+                            name="apellidos"
+                            maxlength="150"
+                            value="<?= htmlspecialchars(
+                                $cliente['apellidos'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Tus apellidos"
+                        >
+
+                    </div>
+
+
+                    <!-- NOMBRE / RAZÓN SOCIAL -->
+
+                    <div class="data-item">
+
+                        <label for="nombre_razon_social">
                             Nombre / Razón social
-                        </span>
+                        </label>
 
-                        <strong>
-                            <?= htmlspecialchars(
-                                $cliente['nombre_razon_social'] ?? ''
-                            ) ?>
-                        </strong>
-
-                    </div>
-
-
-                    <div class="data-item">
-
-                        <span>
-                            NIF / DNI
-                        </span>
-
-                        <strong>
-                            <?= htmlspecialchars(
-                                $cliente['nif'] ?: 'No indicado'
-                            ) ?>
-                        </strong>
+                        <input
+                            type="text"
+                            id="nombre_razon_social"
+                            name="nombre_razon_social"
+                            maxlength="255"
+                            value="<?= htmlspecialchars(
+                                $cliente['nombre_razon_social'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Nombre o razón social"
+                            required
+                        >
 
                     </div>
 
 
+                    <!-- NOMBRE COMERCIAL -->
+
                     <div class="data-item">
 
-                        <span>
+                        <label for="nombre_comercial">
+                            Nombre comercial
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nombre_comercial"
+                            name="nombre_comercial"
+                            maxlength="255"
+                            value="<?= htmlspecialchars(
+                                $cliente['nombre_comercial'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Nombre comercial de tu negocio"
+                        >
+
+                    </div>
+
+
+                    <!-- NIF -->
+
+                    <div class="data-item">
+
+                        <label for="nif">
+                            NIF / CIF
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nif"
+                            name="nif"
+                            maxlength="30"
+                            value="<?= htmlspecialchars(
+                                $cliente['nif'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="NIF / CIF"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="data-item">
+
+                        <label for="email">
                             Email
-                        </span>
+                        </label>
 
-                        <strong>
-                            <?= htmlspecialchars(
-                                $cliente['email'] ?: $usuarioEmail
-                            ) ?>
-                        </strong>
+                        <input
+                            type="email"
+                            id="email"
+                            value="<?= htmlspecialchars(
+                                $cliente['email'] ?: $usuarioEmail,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            readonly
+                        >
 
                     </div>
 
 
+                    <!-- TELÉFONO -->
+
                     <div class="data-item">
 
-                        <span>
+                        <label for="telefono">
                             Teléfono
-                        </span>
+                        </label>
 
-                        <strong>
-                            <?= htmlspecialchars(
-                                $cliente['telefono'] ?: 'No indicado'
-                            ) ?>
-                        </strong>
+                        <input
+                            type="tel"
+                            id="telefono"
+                            name="telefono"
+                            maxlength="50"
+                            value="<?= htmlspecialchars(
+                                $cliente['telefono'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Tu teléfono"
+                        >
 
                     </div>
 
 
+                    <!-- DIRECCIÓN -->
+
                     <div class="data-item">
 
-                        <span>
+                        <label for="direccion">
                             Dirección
-                        </span>
+                        </label>
 
-                        <strong>
-                            <?= htmlspecialchars(
-                                $cliente['direccion'] ?: 'No indicada'
-                            ) ?>
-                        </strong>
-
-                    </div>
-
-
-                    <div class="data-item">
-
-                        <span>
-                            Localidad
-                        </span>
-
-                        <strong>
-
-                            <?php
-
-                            $localidad = [];
-
-                            if (!empty($cliente['codigo_postal'])) {
-                                $localidad[] = $cliente['codigo_postal'];
-                            }
-
-                            if (!empty($cliente['ciudad'])) {
-                                $localidad[] = $cliente['ciudad'];
-                            }
-
-                            if (!empty($cliente['provincia'])) {
-                                $localidad[] = $cliente['provincia'];
-                            }
-
-                            echo htmlspecialchars(
-                                !empty($localidad)
-                                    ? implode(', ', $localidad)
-                                    : 'No indicada'
-                            );
-
-                            ?>
-
-                        </strong>
+                        <input
+                            type="text"
+                            id="direccion"
+                            name="direccion"
+                            maxlength="255"
+                            value="<?= htmlspecialchars(
+                                $cliente['direccion'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Calle, número, piso..."
+                        >
 
                     </div>
 
 
+                    <!-- CÓDIGO POSTAL -->
+
                     <div class="data-item">
 
-                        <span>
+                        <label for="codigo_postal">
+                            Código postal
+                        </label>
+
+                        <input
+                            type="text"
+                            id="codigo_postal"
+                            name="codigo_postal"
+                            maxlength="10"
+                            value="<?= htmlspecialchars(
+                                $cliente['codigo_postal'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Código postal"
+                        >
+
+                    </div>
+
+
+                    <!-- CIUDAD -->
+
+                    <div class="data-item">
+
+                        <label for="ciudad">
+                            Ciudad
+                        </label>
+
+                        <input
+                            type="text"
+                            id="ciudad"
+                            name="ciudad"
+                            maxlength="100"
+                            value="<?= htmlspecialchars(
+                                $cliente['ciudad'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Ciudad"
+                        >
+
+                    </div>
+
+
+                    <!-- PROVINCIA -->
+
+                    <div class="data-item">
+
+                        <label for="provincia">
+                            Provincia
+                        </label>
+
+                        <input
+                            type="text"
+                            id="provincia"
+                            name="provincia"
+                            maxlength="100"
+                            value="<?= htmlspecialchars(
+                                $cliente['provincia'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Provincia"
+                        >
+
+                    </div>
+
+
+                    <!-- PAÍS -->
+
+                    <div class="data-item">
+
+                        <label for="pais">
                             País
-                        </span>
+                        </label>
 
-                        <strong>
-                            <?= htmlspecialchars(
-                                $cliente['pais'] ?: 'No indicado'
-                            ) ?>
-                        </strong>
+                        <input
+                            type="text"
+                            id="pais"
+                            name="pais"
+                            maxlength="100"
+                            value="<?= htmlspecialchars(
+                                $cliente['pais'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="País"
+                        >
 
                     </div>
 
+
+                    <!-- WEB -->
 
                     <div class="data-item">
 
-                        <span>
-                            Estado
-                        </span>
+                        <label for="web">
+                            Página web
+                        </label>
 
-                        <strong class="active-value">
-                            ● Cuenta activa
-                        </strong>
+                        <input
+                            type="url"
+                            id="web"
+                            name="web"
+                            maxlength="255"
+                            value="<?= htmlspecialchars(
+                                $cliente['web'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="https://www.tuweb.com"
+                        >
 
                     </div>
 
 
-                </div>
+                    <!-- SECTOR -->
+
+                    <div class="data-item">
+
+                        <label for="sector_actividad">
+                            Sector / Actividad
+                        </label>
+
+                        <input
+                            type="text"
+                            id="sector_actividad"
+                            name="sector_actividad"
+                            maxlength="150"
+                            value="<?= htmlspecialchars(
+                                $cliente['sector_actividad'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
+                            placeholder="Ej. Diseño web, comercio, hostelería..."
+                        >
+
+                    </div>
+
+
+                    <!-- =================================================
+                         BOTÓN GUARDAR
+                    ================================================== -->
+
+                    <div class="profile-save">
+
+                        <button
+                            type="submit"
+                            class="save-profile-button"
+                        >
+                            Guardar mis datos
+                        </button>
+
+                    </div>
+
+
+                </form>
+
 
             </section>
 
@@ -693,9 +1127,9 @@ if ($porcentajePerfil >= 100) {
                     </h3>
 
                     <p>
-                        Desde esta área podrás gestionar progresivamente
-                        tus servicios, facturas, reuniones y demás
-                        información relacionada con ViziuneAI.
+                        Completa tus datos para mantener actualizada
+                        tu información de cliente y aprovechar todas
+                        las funciones de tu área privada.
                     </p>
 
                 </div>
