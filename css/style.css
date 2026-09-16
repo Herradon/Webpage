@@ -40,11 +40,7 @@ button {
     cursor: pointer;
 }
 
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-}
+
 
 
 /* =========================================================
@@ -1823,6 +1819,7 @@ footer p {
         padding: 8px 4px;
     }
 }
+
 
 
 #neural-canvas {
