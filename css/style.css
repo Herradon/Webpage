@@ -173,31 +173,14 @@ button {
     border-color: #1c6673;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
 }
-.text-intro .d1 img {
-    width: 45%;
-    height: 210px;
-    border-radius: 12px;
-    margin: 20px;
-}
 
-.text-intro .d2 img {
+.text-intro .d1 img,
+.text-intro .d2 img,
+.text-intro .d3 img,
+.text-intro .d4 img {
     width: 40%;
     height: 210px;
-    border-radius: 12px;
-    margin: 20px;
-}
-
-.text-intro .d3 img {
-    width: 55%;
-    height: 210px;
-    border-radius: 12px;
-    margin: 20px;
-}
-
-
-.text-intro .d4 img {
-    width: 45%;
-    height: 210px;
+    object-fit: cover;
     border-radius: 12px;
     margin: 20px;
 }

@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -601,6 +600,14 @@ if (!isset($_SESSION['usuario_id'])) {
                 <ul id="seoListaH2"></ul>
 
             </div>
+
+
+        </div>
+
+
+        <!-- ==================================
+             INFORME PDF
+        =================================== -->
 
 
         </div>
@@ -1234,6 +1241,7 @@ document.addEventListener(
 
                     block:
                         "start"
+
                 }
             );
 
