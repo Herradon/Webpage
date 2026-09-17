@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             data-target="password_actual"
                             aria-label="Mostrar contraseña"
                             title="Mostrar contraseña"
-                        >()</button>
+                        >◎</button>
 
                     </div>
 
@@ -265,7 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             data-target="password_nueva"
                             aria-label="Mostrar contraseña"
                             title="Mostrar contraseña"
-                        >()</button>
+                        >◎</button>
 
                     </div>
 
@@ -303,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             data-target="password_confirmacion"
                             aria-label="Mostrar contraseña"
                             title="Mostrar contraseña"
-                        >()</button>
+                        >◎</button>
 
                     </div>
 

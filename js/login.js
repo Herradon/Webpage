@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 password.type = "text";
 
-                togglePassword.textContent = "(o)";
+                togglePassword.textContent = "◉";
 
                 togglePassword.setAttribute(
                     "aria-label",
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 password.type = "password";
 
-                togglePassword.textContent = "()";
+                togglePassword.textContent = "◎";
 
                 togglePassword.setAttribute(
                     "aria-label",

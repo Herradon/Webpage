@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 campo.type = 'text';
 
-                boton.textContent = '(o)';
+                boton.textContent = '◉';
 
                 boton.setAttribute(
                     'aria-label',
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 campo.type = 'password';
 
-                boton.textContent = '()';
+                boton.textContent = '◎';
 
                 boton.setAttribute(
                     'aria-label',

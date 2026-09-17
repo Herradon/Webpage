@@ -287,7 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             data-target="password"
                             aria-label="Mostrar contraseña"
                             title="Mostrar contraseña"
-                        >()</button>
+                        >◎</button>
 
                     </div>
 

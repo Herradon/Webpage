@@ -4,8 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const formulario = document.getElementById('formRegistro');
 
     const nombre = document.getElementById('nombre');
+
     const email = document.getElementById('email');
+
     const password = document.getElementById('password');
+
     const passwordConfirmacion =
         document.getElementById('password_confirmacion');
 
@@ -17,6 +20,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     /* ==========================================
+       MOSTRAR / OCULTAR CONTRASEÑA
+    ========================================== */
+
+    document.querySelectorAll('.toggle-password').forEach(boton => {
+
+        boton.addEventListener('click', () => {
+
+            const idObjetivo = boton.dataset.target;
+
+            const campo = document.getElementById(idObjetivo);
+
+            if (!campo) {
+                return;
+            }
+
+            if (campo.type === 'password') {
+
+                campo.type = 'text';
+
+                boton.textContent = '◉';
+
+                boton.setAttribute(
+                    'aria-label',
+                    'Ocultar contraseña'
+                );
+
+                boton.setAttribute(
+                    'title',
+                    'Ocultar contraseña'
+                );
+
+            } else {
+
+                campo.type = 'password';
+
+                boton.textContent = '◎';
+
+                boton.setAttribute(
+                    'aria-label',
+                    'Mostrar contraseña'
+                );
+
+                boton.setAttribute(
+                    'title',
+                    'Mostrar contraseña'
+                );
+            }
+
+        });
+
+    });
+
+
+    /* ==========================================
        FUNCIONES
     ========================================== */
 
@@ -25,17 +82,25 @@ document.addEventListener('DOMContentLoaded', () => {
         document
             .querySelectorAll('.campo input')
             .forEach(input => {
+
                 input.classList.remove('error');
+
             });
+
 
         document
             .querySelectorAll('.campo small')
             .forEach(elemento => {
+
                 elemento.textContent = '';
+
             });
 
+
         mensajeError.hidden = true;
+
         mensajeError.textContent = '';
+
     }
 
 
@@ -44,12 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
         input.classList.add('error');
 
         elemento.textContent = mensaje;
+
     }
 
 
     function validarEmail(valor) {
 
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+
     }
 
 
@@ -100,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
 
             valido = false;
+
         }
 
 
@@ -126,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
 
             valido = false;
+
         }
 
 
@@ -152,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
 
             valido = false;
+
         }
 
 
@@ -187,10 +257,12 @@ document.addEventListener('DOMContentLoaded', () => {
             );
 
             valido = false;
+
         }
 
 
         return valido;
+
     }
 
 
@@ -207,6 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 event.preventDefault();
 
                 return;
+
             }
 
 
@@ -229,6 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const confirmacion =
                 passwordConfirmacion.value;
+
 
             if (
                 confirmacion !== '' &&

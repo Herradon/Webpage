@@ -102,6 +102,84 @@ body {
     border-color: #ff6b78;
 }
 
+
+/* ==========================================
+   CAMPOS DE CONTRASEÑA
+========================================== */
+
+.password-wrapper {
+    position: relative;
+
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+
+    padding-right: 54px;
+}
+
+
+/* ==========================================
+   BOTÓN MOSTRAR / OCULTAR CONTRASEÑA
+========================================== */
+
+.toggle-password {
+    position: absolute;
+
+    top: 50%;
+    right: 8px;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    transform: translateY(-50%);
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+    color: #7f94a7;
+
+    font-size: 15px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.toggle-password:hover {
+    border-color: #00cfe0;
+
+    background: rgba(0, 207, 224, 0.08);
+
+    color: #00cfe0;
+}
+
+.toggle-password:active {
+    background: rgba(0, 207, 224, 0.14);
+}
+
+.toggle-password:focus-visible {
+    border-color: #00cfe0;
+
+    box-shadow:
+        0 0 0 2px rgba(0, 207, 224, 0.15);
+}
+
+
 .campo small {
     display: block;
 

@@ -370,26 +370,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
 
+            <!-- ==============================================================
+                 CONTRASEÑA
+                 ============================================================== -->
+
             <div class="campo">
 
                 <label for="password">
                     Contraseña
                 </label>
 
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Mínimo 8 caracteres"
-                    minlength="8"
-                    autocomplete="new-password"
-                    required
-                >
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Mínimo 8 caracteres"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        data-target="password"
+                        aria-label="Mostrar contraseña"
+                        title="Mostrar contraseña"
+                    >◎</button>
+
+                </div>
 
                 <small id="errorPassword"></small>
 
             </div>
 
+
+            <!-- ==============================================================
+                 REPETIR CONTRASEÑA
+                 ============================================================== -->
 
             <div class="campo">
 
@@ -397,15 +417,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Repetir contraseña
                 </label>
 
-                <input
-                    type="password"
-                    id="password_confirmacion"
-                    name="password_confirmacion"
-                    placeholder="Repite tu contraseña"
-                    minlength="8"
-                    autocomplete="new-password"
-                    required
-                >
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="password_confirmacion"
+                        name="password_confirmacion"
+                        placeholder="Repite tu contraseña"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        data-target="password_confirmacion"
+                        aria-label="Mostrar contraseña"
+                        title="Mostrar contraseña"
+                    >◎</button>
+
+                </div>
 
                 <small id="errorPasswordConfirmacion"></small>
 
@@ -435,6 +467,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 
 
+    <!-- JAVASCRIPT EXTERNO -->
     <script src="js/registro.js"></script>
 
 </body>
