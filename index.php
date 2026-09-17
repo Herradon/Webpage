@@ -143,7 +143,7 @@ $_SESSION['suscripcion_activa'] = 1;
         <div class="d1">
 
             <img
-                src=""
+                src="img/agentes.png"
                 alt="">
 
             <h1>
@@ -162,7 +162,7 @@ $_SESSION['suscripcion_activa'] = 1;
         <div class="d2">
 
             <img
-                src=""
+                src="img/facturacion.png"
                 alt="">
 
             <h1>
@@ -181,7 +181,7 @@ $_SESSION['suscripcion_activa'] = 1;
         <div class="d3">
 
             <img
-                src=""
+                src="img/seo.png"
                 alt="">
 
             <h1>
@@ -200,7 +200,7 @@ $_SESSION['suscripcion_activa'] = 1;
         <div class="d4">
 
             <img
-                src=""
+                src="img/seguridad.png"
                 alt="">
 
             <h1>
