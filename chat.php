@@ -507,7 +507,7 @@ if ($action === "email") {
                         $horaReunion,
 
                     ":duracion" =>
-                        60
+                        120
 
                 ]
             );

@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -31,33 +30,6 @@ if (!isset($_SESSION["usuario_id"])) {
 
 
 /* ==========================================================
-   OBTENER DATOS DEL USUARIO
-========================================================== */
-
-$usuarioId =
-    (int) $_SESSION["usuario_id"];
-
-$usuarioEmail =
-    $_SESSION["usuario_email"] ?? "";
-
-
-if ($usuarioEmail === "") {
-
-    http_response_code(401);
-
-    echo json_encode(
-        [
-            "success" => false,
-            "error" => "No se ha podido identificar al usuario."
-        ],
-        JSON_UNESCAPED_UNICODE
-    );
-
-    exit;
-}
-
-
-/* ==========================================================
    COMPROBAR PETICIÓN
 ========================================================== */
 
@@ -78,38 +50,60 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
 
 
 /* ==========================================================
-   OBTENER REUNIONES DEL USUARIO
+   USUARIO ACTUAL
 ========================================================== */
 
+$usuarioId =
+    (int) $_SESSION["usuario_id"];
+
+
 try {
+
+    /* ======================================================
+       OBTENER REUNIONES DEL USUARIO
+       
+       La relación se hace mediante:
+       
+       reuniones.conversacion_id
+                    ↓
+       conversaciones.conversacion_id
+                    ↓
+       conversaciones.usuario_id
+       
+       De esta forma NO dependemos del email introducido
+       en el formulario de contacto.
+    ====================================================== */
 
     $stmt =
         $pdo->prepare(
             "
             SELECT
-                id,
-                conversacion_id,
-                nombre,
-                email,
-                especialista,
-                fecha,
-                hora,
-                duracion
+                r.id,
+                r.conversacion_id,
+                r.nombre,
+                r.email,
+                r.especialista,
+                r.fecha,
+                r.hora,
+                r.duracion
 
-            FROM reuniones
+            FROM reuniones AS r
 
-            WHERE email = ?
+            INNER JOIN conversaciones AS c
+                ON c.conversacion_id = r.conversacion_id
+
+            WHERE c.usuario_id = ?
 
             ORDER BY
-                fecha ASC,
-                hora ASC
+                r.fecha ASC,
+                r.hora ASC
             "
         );
 
 
     $stmt->execute(
         [
-            $usuarioEmail
+            $usuarioId
         ]
     );
 
@@ -138,19 +132,17 @@ try {
 } catch (PDOException $e) {
 
     error_log(
-        "Error calendario: " .
+        "Error calendario-datos.php: " .
         $e->getMessage()
     );
 
 
     http_response_code(500);
 
-
     echo json_encode(
         [
             "success" => false,
-            "error" =>
-                "No se pudieron obtener las reuniones."
+            "error" => "No se pudieron obtener las reuniones."
         ],
         JSON_UNESCAPED_UNICODE
     );

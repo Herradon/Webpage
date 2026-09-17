@@ -50,6 +50,29 @@ document.addEventListener(
 
 
         /* ==================================================
+           COMPROBAR ELEMENTOS
+        ================================================== */
+
+        if (
+            !mesActual ||
+            !diasCalendario ||
+            !mesAnterior ||
+            !mesSiguiente ||
+            !detalleReunion ||
+            !contenidoReunion ||
+            !cerrarDetalle
+        ) {
+
+            console.error(
+                "Error: faltan elementos del calendario en calendario.html."
+            );
+
+            return;
+
+        }
+
+
+        /* ==================================================
            FECHA ACTUAL
         ================================================== */
 
@@ -94,31 +117,68 @@ document.addEventListener(
 
             try {
 
+                console.log(
+                    "Cargando reuniones..."
+                );
+
+
                 const respuesta =
                     await fetch(
-                        "calendario-datos.php"
+                        "calendario-datos.php",
+                        {
+                            method: "GET",
+                            headers: {
+                                "Accept": "application/json"
+                            },
+                            cache: "no-store"
+                        }
                     );
+
+
+                if (!respuesta.ok) {
+
+                    throw new Error(
+                        "Error HTTP: " +
+                        respuesta.status
+                    );
+
+                }
 
 
                 const datos =
                     await respuesta.json();
 
 
+                console.log(
+                    "Respuesta calendario:",
+                    datos
+                );
+
+
                 if (
-                    !datos.success
+                    datos.success !== true
                 ) {
 
-                    console.error(
-                        datos.error
+                    throw new Error(
+                        datos.error ||
+                        "No se pudieron cargar las reuniones."
                     );
-
-                    return;
 
                 }
 
 
                 reuniones =
-                    datos.reuniones || [];
+                    Array.isArray(
+                        datos.reuniones
+                    )
+                        ? datos.reuniones
+                        : [];
+
+
+                console.log(
+                    "Reuniones encontradas:",
+                    reuniones
+                );
 
 
                 generarCalendario();
@@ -130,6 +190,12 @@ document.addEventListener(
                     "Error cargando reuniones:",
                     error
                 );
+
+
+                reuniones = [];
+
+
+                generarCalendario();
 
             }
 
@@ -180,15 +246,6 @@ document.addEventListener(
             let diaSemana =
                 primerDia.getDay();
 
-
-            /*
-             * JavaScript:
-             *
-             * Domingo = 0
-             * Lunes = 1
-             *
-             * Nuestro calendario empieza en lunes.
-             */
 
             if (
                 diaSemana === 0
@@ -445,13 +502,18 @@ document.addEventListener(
                     function (reunion) {
 
                         return (
-                            reunion.fecha ===
-                            fechaTexto
+                            String(
+                                reunion.fecha
+                            ) === fechaTexto
                         );
 
                     }
                 );
 
+
+            /* ==============================================
+               MOSTRAR REUNIONES
+            ============================================== */
 
             reunionesDia.forEach(
                 function (reunion) {
@@ -466,7 +528,7 @@ document.addEventListener(
 
 
             /* ==============================================
-               CLICK
+               CLICK EN EL DÍA
             ============================================== */
 
             div.addEventListener(
@@ -474,8 +536,7 @@ document.addEventListener(
                 function () {
 
                     if (
-                        reunionesDia.length >
-                        0
+                        reunionesDia.length > 0
                     ) {
 
                         mostrarDetalle(
@@ -530,7 +591,14 @@ document.addEventListener(
 
 
             hora.textContent =
-                reunion.hora;
+                reunion.hora
+                    ? String(
+                        reunion.hora
+                    ).substring(
+                        0,
+                        5
+                    )
+                    : "";
 
 
             /* ==============================================
@@ -548,7 +616,8 @@ document.addEventListener(
 
 
             nombre.textContent =
-                reunion.nombre;
+                reunion.nombre ||
+                "Reunión";
 
 
             elemento.appendChild(
@@ -612,21 +681,31 @@ document.addEventListener(
                         "</p>" +
 
                         "<p><strong>Fecha:</strong> " +
-                        formatearFecha(
-                            reunion.fecha
+                        escaparHTML(
+                            formatearFecha(
+                                reunion.fecha
+                            )
                         ) +
                         "</p>" +
 
                         "<p><strong>Hora:</strong> " +
                         escaparHTML(
                             reunion.hora
+                                ? String(
+                                    reunion.hora
+                                ).substring(
+                                    0,
+                                    5
+                                )
+                                : ""
                         ) +
                         "</p>" +
 
                         "<p><strong>Duración:</strong> " +
                         escaparHTML(
                             String(
-                                reunion.duracion
+                                reunion.duracion ??
+                                120
                             )
                         ) +
                         " minutos</p>";
@@ -707,8 +786,15 @@ document.addEventListener(
             fecha
         ) {
 
+            if (!fecha) {
+
+                return "";
+
+            }
+
+
             const partes =
-                fecha.split("-");
+                String(fecha).split("-");
 
 
             if (
@@ -757,6 +843,8 @@ document.addEventListener(
         /* ==================================================
            INICIAR
         ================================================== */
+
+        generarCalendario();
 
         cargarReuniones();
 
