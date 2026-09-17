@@ -143,18 +143,16 @@ $_SESSION['suscripcion_activa'] = 1;
         <div class="d1">
 
             <img
-                src="img/desarrollo.png"
+                src=""
                 alt="">
 
             <h1>
-                Desarrollo
+                Agentes personalizados
             </h1>
 
             <p>
 
-                Creamos, Informamos y asesoramos sobre desarrollo web,
-                programación, funcionalidades, tecnología y
-                creación de páginas web.
+                Tenemos agentes de IA adaptados a tu negocio, con funciones y respuestas personalizadas para ayudarte a automatizar tareas y atender a tus clientes.
 
             </p>
 
@@ -164,18 +162,16 @@ $_SESSION['suscripcion_activa'] = 1;
         <div class="d2">
 
             <img
-                src="img/ecomerce.png"
+                src=""
                 alt="">
 
             <h1>
-                Ventas
+                Facturación
             </h1>
 
             <p>
 
-                Orientamos al cliente sobre servicios, estructura,
-                necesidades, presupuestos, contratación y posibles
-                soluciones.
+                Genera y gestiona tus facturas de forma sencilla, organizada y profesional, con todos los datos necesarios para tu negocio.
 
             </p>
 
@@ -185,17 +181,16 @@ $_SESSION['suscripcion_activa'] = 1;
         <div class="d3">
 
             <img
-                src="img/seosem.png"
+                src=""
                 alt="">
 
             <h1>
-                Análisis
+                Auditoria SEO
             </h1>
 
             <p>
 
-                Analizamos la situación del cliente, detectamos
-                problemas, necesidades y oportunidades de mejora.
+                Analiza tu página web y descubre los principales aspectos que puedes mejorar para optimizar su posicionamiento y visibilidad en buscadores.
 
             </p>
 
@@ -205,17 +200,16 @@ $_SESSION['suscripcion_activa'] = 1;
         <div class="d4">
 
             <img
-                src="img/asesor.png"
+                src=""
                 alt="">
 
             <h1>
-                Asesoramiento
+                Seguridad
             </h1>
 
             <p>
 
-                Ofrecemos orientación general y ayudamos al cliente
-                a determinar qué solución puede necesitar.
+                Protege tu presencia online y revisa los aspectos esenciales de seguridad para mantener tu web y tu información más protegidas.
 
             </p>
 
