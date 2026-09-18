@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -189,64 +188,52 @@ $tipoIrpf =
 
 
 /* ==========================================
-   DATOS DEL CLIENTE DE LA FACTURA
+   DATOS DEL CLIENTE REAL DE LA FACTURA
 ========================================== */
 
 $clienteNombre =
     trim($_POST['cliente_nombre_razon_social'] ?? '');
 
-
 $clienteNif =
     trim($_POST['cliente_nif'] ?? '');
-
 
 $clienteDireccion =
     trim($_POST['cliente_direccion'] ?? '');
 
-
 $clienteCodigoPostal =
     trim($_POST['cliente_codigo_postal'] ?? '');
-
 
 $clienteCiudad =
     trim($_POST['cliente_ciudad'] ?? '');
 
-
 $clienteProvincia =
     trim($_POST['cliente_provincia'] ?? '');
-
 
 $clientePais =
     trim($_POST['cliente_pais'] ?? '');
 
-
 $clienteEmail =
     trim($_POST['cliente_email'] ?? '');
-
 
 $clienteTelefono =
     trim($_POST['cliente_telefono'] ?? '');
 
 
 /* ==========================================
-   ARRAYS DE LINEAS
+   ARRAYS DE LÍNEAS
 ========================================== */
 
 $descripciones =
     $_POST['descripcion'] ?? [];
 
-
 $cantidades =
     $_POST['cantidad'] ?? [];
-
 
 $precios =
     $_POST['precio_unitario'] ?? [];
 
-
 $descuentos =
     $_POST['descuento'] ?? [];
-
 
 $tiposIva =
     $_POST['tipo_iva'] ?? [];
@@ -462,7 +449,7 @@ if (mb_strlen($clienteTelefono) > 50) {
 
 
 /* ==========================================
-   OBTENER / CREAR PERFIL TÉCNICO
+   OBTENER PERFIL DEL USUARIO
 ========================================== */
 
 /*
@@ -470,22 +457,33 @@ if (mb_strlen($clienteTelefono) > 50) {
 | IMPORTANTE
 |--------------------------------------------------------------------------
 |
-| Este registro NO representa al cliente de la factura.
+| El registro de clientes asociado al usuario contiene los datos
+| fiscales que el usuario ha rellenado desde "Mi cuenta".
 |
-| Solo sirve para relacionar técnicamente:
+| Esos datos serán el EMISOR de la factura.
 |
-| usuario → facturas
-|
-| El cliente REAL de la factura está dentro de
-| facturas_privadas y permanece cifrado.
-|--------------------------------------------------------------------------
 */
 
-
-$stmtClienteTecnico =
+$stmtEmisor =
     $pdo->prepare("
         SELECT
-            id
+            id,
+            usuario_id,
+            tipo_persona,
+            nombre,
+            apellidos,
+            nombre_razon_social,
+            nombre_comercial,
+            nif,
+            direccion,
+            codigo_postal,
+            ciudad,
+            provincia,
+            pais,
+            email,
+            telefono,
+            web,
+            sector_actividad
         FROM clientes
         WHERE usuario_id = ?
           AND activo = 1
@@ -493,114 +491,104 @@ $stmtClienteTecnico =
     ");
 
 
-$stmtClienteTecnico->execute([
+$stmtEmisor->execute([
     $usuarioId
 ]);
 
 
-$clienteTecnico =
-    $stmtClienteTecnico->fetch();
+$emisor =
+    $stmtEmisor->fetch(PDO::FETCH_ASSOC);
 
 
 /*
 |--------------------------------------------------------------------------
-| Si el usuario no tiene perfil técnico,
-| lo creamos automáticamente.
+| Si no existe perfil fiscal
 |--------------------------------------------------------------------------
 */
 
-if (!$clienteTecnico) {
+if (!$emisor) {
 
-    $stmtUsuario =
-        $pdo->prepare("
-            SELECT
-                nombre,
-                email
-            FROM usuarios
-            WHERE id = ?
-            LIMIT 1
-        ");
-
-    $stmtUsuario->execute([
-        $usuarioId
-    ]);
-
-    $usuario =
-        $stmtUsuario->fetch();
-
-
-    if (!$usuario) {
-
-        volverConError(
-            'No se ha encontrado tu cuenta de usuario.'
-        );
-
-    }
-
-
-    $nombreTecnico =
-        trim($usuario['nombre'] ?? '');
-
-
-    $emailTecnico =
-        trim($usuario['email'] ?? '');
-
-
-    if ($nombreTecnico === '') {
-
-        $nombreTecnico =
-            'Usuario ' . $usuarioId;
-
-    }
-
-
-    $stmtCrearClienteTecnico =
-        $pdo->prepare("
-            INSERT INTO clientes (
-                usuario_id,
-                tipo_persona,
-                nombre_razon_social,
-                email,
-                fecha_creacion,
-                fecha_actualizacion,
-                activo
-            )
-            VALUES (
-                ?,
-                'fisica',
-                ?,
-                ?,
-                CURRENT_TIMESTAMP,
-                CURRENT_TIMESTAMP,
-                1
-            )
-        ");
-
-
-    $stmtCrearClienteTecnico->execute([
-
-        $usuarioId,
-
-        $nombreTecnico,
-
-        $emailTecnico
-
-    ]);
-
-
-    $clienteId =
-        (int) $pdo->lastInsertId();
-
-
-} else {
-
-    $clienteId =
-        (int) $clienteTecnico['id'];
+    volverConError(
+        'No se ha encontrado tu perfil de datos. Completa primero tus datos en "Mi cuenta".'
+    );
 
 }
 
 
-if ($clienteId <= 0) {
+/*
+|--------------------------------------------------------------------------
+| Validar datos mínimos del emisor
+|--------------------------------------------------------------------------
+*/
+
+$emisorNombreRazonSocial =
+    trim(
+        (string) (
+            $emisor['nombre_razon_social'] ?? ''
+        )
+    );
+
+$emisorNif =
+    trim(
+        (string) (
+            $emisor['nif'] ?? ''
+        )
+    );
+
+$emisorPais =
+    trim(
+        (string) (
+            $emisor['pais'] ?? ''
+        )
+    );
+
+
+if ($emisorNombreRazonSocial === '') {
+
+    volverConError(
+        'Completa tu nombre o razón social en "Mi cuenta" antes de crear una factura.'
+    );
+
+}
+
+
+if ($emisorNif === '') {
+
+    volverConError(
+        'Completa tu NIF/CIF en "Mi cuenta" antes de crear una factura.'
+    );
+
+}
+
+
+if ($emisorPais === '') {
+
+    volverConError(
+        'Completa tu país en "Mi cuenta" antes de crear una factura.'
+    );
+
+}
+
+
+/* ==========================================
+   PERFIL TÉCNICO
+========================================== */
+
+/*
+|--------------------------------------------------------------------------
+| Este cliente sigue siendo el registro técnico que relaciona:
+|
+| usuario → facturas
+|
+| NO es el cliente receptor de la factura.
+|--------------------------------------------------------------------------
+*/
+
+$clienteTecnicoId =
+    (int) ($emisor['id'] ?? 0);
+
+
+if ($clienteTecnicoId <= 0) {
 
     volverConError(
         'No se pudo establecer la relación técnica con tu cuenta.'
@@ -660,7 +648,7 @@ if ($facturaId > 0) {
 
 
     if (
-        (int) $facturaEditar['cliente_id'] !== $clienteId
+        (int) $facturaEditar['cliente_id'] !== $clienteTecnicoId
     ) {
 
         volverConError(
@@ -699,7 +687,7 @@ if (
 
 
 /* ==========================================
-   VALIDAR LINEAS
+   VALIDAR LÍNEAS
 ========================================== */
 
 if (
@@ -717,18 +705,14 @@ if (
 $totalDescripciones =
     count($descripciones);
 
-
 $totalCantidades =
     count($cantidades);
-
 
 $totalPrecios =
     count($precios);
 
-
 $totalDescuentos =
     count($descuentos);
-
 
 $totalTiposIva =
     count($tiposIva);
@@ -761,7 +745,7 @@ $tiposIvaPermitidos = [
 
 
 /* ==========================================
-   PROCESAR LINEAS
+   PROCESAR LÍNEAS
 ========================================== */
 
 $lineasProcesadas = [];
@@ -1005,8 +989,76 @@ if ($totalFactura < 0) {
 
 
 /* ==========================================
-   PREPARAR DATOS PRIVADOS
+   DATOS PRIVADOS DE LA FACTURA
 ========================================== */
+
+/*
+|--------------------------------------------------------------------------
+| EMISOR
+|--------------------------------------------------------------------------
+|
+| Se guarda una copia de los datos actuales del perfil.
+|
+| Esto permite que una factura antigua conserve sus datos originales
+| aunque el usuario modifique posteriormente su perfil.
+|--------------------------------------------------------------------------
+*/
+
+$datosEmisor = [
+
+    'tipo_persona' =>
+        $emisor['tipo_persona'] ?? null,
+
+    'nombre' =>
+        $emisor['nombre'] ?? null,
+
+    'apellidos' =>
+        $emisor['apellidos'] ?? null,
+
+    'nombre_razon_social' =>
+        $emisorNombreRazonSocial,
+
+    'nombre_comercial' =>
+        $emisor['nombre_comercial'] ?? null,
+
+    'nif' =>
+        $emisorNif,
+
+    'direccion' =>
+        $emisor['direccion'] ?? null,
+
+    'codigo_postal' =>
+        $emisor['codigo_postal'] ?? null,
+
+    'ciudad' =>
+        $emisor['ciudad'] ?? null,
+
+    'provincia' =>
+        $emisor['provincia'] ?? null,
+
+    'pais' =>
+        $emisorPais,
+
+    'email' =>
+        $emisor['email'] ?? null,
+
+    'telefono' =>
+        $emisor['telefono'] ?? null,
+
+    'web' =>
+        $emisor['web'] ?? null,
+
+    'sector_actividad' =>
+        $emisor['sector_actividad'] ?? null
+
+];
+
+
+/*
+|--------------------------------------------------------------------------
+| FACTURA PRIVADA
+|--------------------------------------------------------------------------
+*/
 
 $datosFactura = [
 
@@ -1057,6 +1109,24 @@ $datosFactura = [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | NUEVO
+    |--------------------------------------------------------------------------
+    |
+    | Datos históricos del EMISOR.
+    |
+    */
+
+    'emisor' =>
+        $datosEmisor,
+
+    /*
+    |--------------------------------------------------------------------------
+    | CLIENTE RECEPTOR
+    |--------------------------------------------------------------------------
+    */
+
     'cliente' => [
 
         'nombre_razon_social' =>
@@ -1088,8 +1158,20 @@ $datosFactura = [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | LÍNEAS
+    |--------------------------------------------------------------------------
+    */
+
     'lineas' =>
         $lineasProcesadas,
+
+    /*
+    |--------------------------------------------------------------------------
+    | FECHA DE GUARDADO
+    |--------------------------------------------------------------------------
+    */
 
     'fecha_guardado' =>
         date('Y-m-d H:i:s')
@@ -1263,7 +1345,7 @@ try {
 
                 $fechaEmision,
 
-                $clienteId,
+                $clienteTecnicoId,
 
                 $baseImponible,
 
@@ -1344,7 +1426,7 @@ try {
 
             $fechaEmision,
 
-            $clienteId,
+            $clienteTecnicoId,
 
             $baseImponible,
 
@@ -1431,7 +1513,7 @@ try {
 
     /*
     |--------------------------------------------------------------------------
-    | Las líneas están almacenadas dentro de datos_cifrados.
+    | Las líneas permanecen dentro de datos_cifrados.
     |--------------------------------------------------------------------------
     */
 
