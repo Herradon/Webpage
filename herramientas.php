@@ -98,522 +98,536 @@ if (!isset($_SESSION['usuario_id'])) {
 <article class="seo-panel">
 
 
-    <!-- ==================================
-         CABECERA DEL PANEL
-    =================================== -->
+<!-- ==================================
+     CABECERA DEL PANEL
+=================================== -->
 
-    <div class="seo-panel-header">
+<div class="seo-panel-header">
 
-        <div>
+    <div>
 
-            <span class="seo-panel-kicker">
+        <span class="seo-panel-kicker">
 
-                ANÁLISIS SEO
+            ANÁLISIS SEO
 
-            </span>
+        </span>
 
-            <h2>
+        <h2>
 
-                Analiza tu página web
+            Analiza tu página web
 
-            </h2>
+        </h2>
 
-            <p>
+        <p>
 
-                Introduce la URL de tu web y obtén un análisis
-                SEO detallado con recomendaciones de mejora.
+            Introduce la URL de tu web y obtén un análisis
+            SEO detallado con recomendaciones de mejora.
 
-            </p>
-
-        </div>
+        </p>
 
     </div>
 
+</div>
 
-    <!-- ==================================
-         FORMULARIO
-    =================================== -->
 
-    <div class="seo-form">
+<!-- ==================================
+     FORMULARIO
+=================================== -->
 
-        <label for="seoUrl">
+<div class="seo-form">
 
-            URL de tu página web
+    <label for="seoUrl">
 
-        </label>
+        URL de tu página web
 
-        <div class="seo-input-row">
+    </label>
 
-            <input
-                type="url"
-                id="seoUrl"
-                placeholder="https://www.tuweb.com"
-                autocomplete="url"
-            >
+    <div class="seo-input-row">
 
-            <button
-                type="button"
-                class="herramienta-button"
-                id="analizarSeo"
-            >
+        <input
+            type="url"
+            id="seoUrl"
+            placeholder="https://www.tuweb.com"
+            autocomplete="url"
+        >
 
-                🔎 Analizar mi web
+        <button
+            type="button"
+            class="herramienta-button"
+            id="analizarSeo"
+        >
 
-            </button>
+            🔎 Analizar mi web
 
-        </div>
+        </button>
 
     </div>
 
+</div>
 
-    <!-- ==================================
-         CARGANDO
-    =================================== -->
+
+<!-- ==================================
+     CARGANDO
+=================================== -->
+
+<div
+    id="seoLoading"
+    class="seo-loading"
+    hidden
+>
+
+    <div class="seo-loading-spinner"></div>
+
+    <div>
+
+        <strong>
+
+            Analizando tu página web...
+
+        </strong>
+
+        <span>
+
+            Estamos revisando los principales factores SEO.
+
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================
+     ERROR
+=================================== -->
+
+<div
+    id="seoError"
+    class="seo-error"
+    hidden
+></div>
+
+
+<!-- ==================================
+     RESULTADO
+=================================== -->
+
+<div
+    id="seoResultado"
+    class="seo-resultado"
+    hidden
+>
+
+
+<!-- ==================================
+     RESUMEN SUPERIOR
+=================================== -->
+
+<div class="seo-summary-grid">
+
+
+<!-- PUNTUACIÓN -->
+
+<div class="seo-puntuacion">
+
+    <div class="seo-puntuacion-label">
+
+        Puntuación SEO
+
+    </div>
+
+    <strong id="seoPuntuacion">
+
+        -
+
+    </strong>
 
     <div
-        id="seoLoading"
-        class="seo-loading"
-        hidden
+        id="seoNivel"
+        class="seo-nivel"
     >
 
-        <div class="seo-loading-spinner"></div>
+        -
+
+    </div>
+
+</div>
+
+
+<!-- ESTADO GENERAL -->
+
+<div class="seo-summary-card">
+
+    <span class="seo-summary-label">
+
+        ESTADO GENERAL
+
+    </span>
+
+    <strong id="seoEstadoGeneral">
+
+        Análisis completado
+
+    </strong>
+
+    <p>
+
+        Hemos revisado los principales elementos
+        técnicos y de contenido de tu página.
+
+    </p>
+
+</div>
+
+
+<!-- RESUMEN -->
+
+<div class="seo-summary-card">
+
+    <span class="seo-summary-label">
+
+        RESUMEN
+
+    </span>
+
+    <strong>
+
+        Resultado de la auditoría
+
+    </strong>
+
+    <p>
+
+        Puedes copiar el resumen y utilizarlo directamente
+        en el chat de ViziuneAI para gestionar las mejoras.
+
+    </p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- ==================================
+     RESULTADO
+=================================== -->
+
+<div class="seo-section-block">
+
+    <div class="seo-section-heading">
 
         <div>
-
-            <strong>
-
-                Analizando tu página web...
-
-            </strong>
 
             <span>
 
-                Estamos revisando los principales factores SEO.
+                ANÁLISIS
 
             </span>
 
+            <h3>
+
+                Resultado de la auditoría
+
+            </h3>
+
         </div>
 
     </div>
 
 
-    <!-- ==================================
-         ERROR
-    =================================== -->
+<!-- ==================================
+     MÉTRICAS
+=================================== -->
 
-    <div
-        id="seoError"
-        class="seo-error"
-        hidden
-    ></div>
+<div class="seo-metricas">
 
 
-    <!-- ==================================
-         RESULTADO
-    =================================== -->
+<div class="seo-metrica">
 
-    <div
-        id="seoResultado"
-        class="seo-resultado"
-        hidden
-    >
+    <span class="seo-metrica-label">
 
+        Título
 
-        <!-- ==================================
-             RESUMEN SUPERIOR
-        =================================== -->
+    </span>
 
-        <div class="seo-summary-grid">
+    <strong id="seoTitulo">
 
+        -
 
-            <!-- PUNTUACIÓN -->
+    </strong>
 
-            <div class="seo-puntuacion">
+</div>
 
-                <div class="seo-puntuacion-label">
 
-                    Puntuación SEO
+<div class="seo-metrica">
 
-                </div>
+    <span class="seo-metrica-label">
 
-                <strong id="seoPuntuacion">
+        Meta descripción
 
-                    -
+    </span>
 
-                </strong>
+    <strong id="seoDescripcion">
 
-                <div
-                    id="seoNivel"
-                    class="seo-nivel"
-                >
+        -
 
-                    -
+    </strong>
 
-                </div>
+</div>
 
-            </div>
 
+<div class="seo-metrica">
 
-            <!-- ESTADO GENERAL -->
+    <span class="seo-metrica-label">
 
-            <div class="seo-summary-card">
+        H1
 
-                <span class="seo-summary-label">
+    </span>
 
-                    ESTADO GENERAL
+    <strong id="seoH1">
 
-                </span>
+        -
 
-                <strong>
+    </strong>
 
-                    Análisis completado
+</div>
 
-                </strong>
 
-                <p>
+<div class="seo-metrica">
 
-                    Hemos revisado los principales elementos
-                    técnicos y de contenido de tu página.
+    <span class="seo-metrica-label">
 
-                </p>
+        H2
 
-            </div>
+    </span>
 
+    <strong id="seoH2">
 
-            <!-- RECOMENDACIONES -->
+        -
 
-            <div class="seo-summary-card">
+    </strong>
 
-                <span class="seo-summary-label">
+</div>
 
-                    MEJORAS DETECTADAS
 
-                </span>
+<div class="seo-metrica">
 
-                <strong>
+    <span class="seo-metrica-label">
 
-                    Revisa tus recomendaciones
+        Imágenes
 
-                </strong>
+    </span>
 
-                <p>
+    <strong id="seoImagenes">
 
-                    Consulta los puntos que pueden mejorar
-                    el posicionamiento de tu web.
+        -
 
-                </p>
+    </strong>
 
-            </div>
+</div>
 
 
-        </div>
+<div class="seo-metrica">
 
+    <span class="seo-metrica-label">
 
-        <!-- ==================================
-             RECOMENDACIONES
-        =================================== -->
+        Imágenes sin ALT
 
-        <div class="seo-section-block">
+    </span>
 
-            <div class="seo-section-heading">
+    <strong id="seoImagenesAlt">
 
-                <div>
+        -
 
-                    <span>
+    </strong>
 
-                        OPTIMIZACIÓN
+</div>
 
-                    </span>
 
-                    <h3>
+<div class="seo-metrica">
 
-                        Recomendaciones
+    <span class="seo-metrica-label">
 
-                    </h3>
+        Enlaces internos
 
-                </div>
+    </span>
 
-            </div>
+    <strong id="seoInternos">
 
-            <div id="seoListaRecomendaciones"></div>
+        -
 
-        </div>
+    </strong>
 
+</div>
 
-        <!-- ==================================
-             RESULTADO
-        =================================== -->
 
-        <div class="seo-section-block">
+<div class="seo-metrica">
 
-            <div class="seo-section-heading">
+    <span class="seo-metrica-label">
 
-                <div>
+        Enlaces externos
 
-                    <span>
+    </span>
 
-                        ANÁLISIS
+    <strong id="seoExternos">
 
-                    </span>
+        -
 
-                    <h3>
+    </strong>
 
-                        Resultado de la auditoría
+</div>
 
-                    </h3>
 
-                </div>
+<div class="seo-metrica">
 
-            </div>
+    <span class="seo-metrica-label">
 
+        Contenido aproximado
 
-            <!-- ==================================
-                 MÉTRICAS
-            =================================== -->
+    </span>
 
-            <div class="seo-metricas">
+    <strong id="seoPalabras">
 
+        -
 
-                <div class="seo-metrica">
+    </strong>
 
-                    <span class="seo-metrica-label">
+</div>
 
-                        Título
 
-                    </span>
+<div class="seo-metrica">
 
-                    <strong id="seoTitulo">
+    <span class="seo-metrica-label">
 
-                        -
+        Canonical
 
-                    </strong>
+    </span>
 
-                </div>
+    <strong id="seoCanonical">
 
+        -
 
-                <div class="seo-metrica">
+    </strong>
 
-                    <span class="seo-metrica-label">
+</div>
 
-                        Meta descripción
 
-                    </span>
+</div>
 
-                    <strong id="seoDescripcion">
+</div>
 
-                        -
 
-                    </strong>
+<!-- ==================================
+     ESTRUCTURA H1 / H2
+=================================== -->
 
-                </div>
+<div class="seo-details-grid">
 
 
-                <div class="seo-metrica">
+<div class="seo-details-card">
 
-                    <span class="seo-metrica-label">
+    <div class="seo-details-header">
 
-                        H1
+        <span>
 
-                    </span>
+            ESTRUCTURA
 
-                    <strong id="seoH1">
+        </span>
 
-                        -
+        <strong>
 
-                    </strong>
+            H1 encontrados
 
-                </div>
-
-
-                <div class="seo-metrica">
-
-                    <span class="seo-metrica-label">
-
-                        H2
-
-                    </span>
-
-                    <strong id="seoH2">
-
-                        -
-
-                    </strong>
-
-                </div>
-
-
-                <div class="seo-metrica">
-
-                    <span class="seo-metrica-label">
-
-                        Imágenes
-
-                    </span>
-
-                    <strong id="seoImagenes">
-
-                        -
-
-                    </strong>
-
-                </div>
-
-
-                <div class="seo-metrica">
-
-                    <span class="seo-metrica-label">
-
-                        Imágenes sin ALT
-
-                    </span>
-
-                    <strong id="seoImagenesAlt">
-
-                        -
-
-                    </strong>
-
-                </div>
-
-
-                <div class="seo-metrica">
-
-                    <span class="seo-metrica-label">
-
-                        Enlaces internos
-
-                    </span>
-
-                    <strong id="seoInternos">
-
-                        -
-
-                    </strong>
-
-                </div>
-
-
-                <div class="seo-metrica">
-
-                    <span class="seo-metrica-label">
-
-                        Enlaces externos
-
-                    </span>
-
-                    <strong id="seoExternos">
-
-                        -
-
-                    </strong>
-
-                </div>
-
-
-                <div class="seo-metrica">
-
-                    <span class="seo-metrica-label">
-
-                        Contenido aproximado
-
-                    </span>
-
-                    <strong id="seoPalabras">
-
-                        -
-
-                    </strong>
-
-                </div>
-
-
-                <div class="seo-metrica">
-
-                    <span class="seo-metrica-label">
-
-                        Canonical
-
-                    </span>
-
-                    <strong id="seoCanonical">
-
-                        -
-
-                    </strong>
-
-                </div>
-
-
-            </div>
-
-        </div>
-
-
-        <!-- ==================================
-             ESTRUCTURA H1 / H2
-        =================================== -->
-
-        <div class="seo-details-grid">
-
-
-            <div class="seo-details-card">
-
-                <div class="seo-details-header">
-
-                    <span>
-
-                        ESTRUCTURA
-
-                    </span>
-
-                    <strong>
-
-                        H1 encontrados
-
-                    </strong>
-
-                </div>
-
-                <ul id="seoListaH1"></ul>
-
-            </div>
-
-
-            <div class="seo-details-card">
-
-                <div class="seo-details-header">
-
-                    <span>
-
-                        ESTRUCTURA
-
-                    </span>
-
-                    <strong>
-
-                        H2 encontrados
-
-                    </strong>
-
-                </div>
-
-                <ul id="seoListaH2"></ul>
-
-            </div>
-
-
-        </div>
-
-
-        <!-- ==================================
-             INFORME PDF
-        =================================== -->
-
-
-        </div>
-
+        </strong>
 
     </div>
+
+    <ul id="seoListaH1"></ul>
+
+</div>
+
+
+<div class="seo-details-card">
+
+    <div class="seo-details-header">
+
+        <span>
+
+            ESTRUCTURA
+
+        </span>
+
+        <strong>
+
+            H2 encontrados
+
+        </strong>
+
+    </div>
+
+    <ul id="seoListaH2"></ul>
+
+</div>
+
+<!-- ==================================
+     RESUMEN PARA COPIAR
+=================================== -->
+
+<div class="seo-section-block">
+
+    <div class="seo-section-heading">
+
+        <div>
+
+            <span>
+
+                INFORME
+
+            </span>
+
+            <h3>
+
+                Resumen de la auditoría
+
+            </h3>
+
+        </div>
+
+    </div>
+
+
+    <div class="seo-resumen-copiar">
+
+        <textarea
+            id="seoResumenChat"
+            readonly
+            rows="12"
+        ></textarea>
+
+
+        <button
+            type="button"
+            class="herramienta-button"
+            id="copiarResumenSeo"
+        >
+
+            📋 Copiar resumen
+
+        </button>
+
+    </div>
+
+</div>
+
+
+</div>
+
+
+</div>
 
 
 </article>
@@ -621,9 +635,14 @@ if (!isset($_SESSION['usuario_id'])) {
 
 </div>
 
+
+
 </section>
 
 </main>
+
+
+
 
 
 <!-- ==========================================
@@ -656,29 +675,46 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+
         const boton =
             document.getElementById(
                 "analizarSeo"
             );
+
 
         const urlInput =
             document.getElementById(
                 "seoUrl"
             );
 
+
         const loading =
             document.getElementById(
                 "seoLoading"
             );
+
 
         const error =
             document.getElementById(
                 "seoError"
             );
 
+
         const resultado =
             document.getElementById(
                 "seoResultado"
+            );
+
+
+        const botonCopiar =
+            document.getElementById(
+                "copiarResumenSeo"
+            );
+
+
+        const resumenChat =
+            document.getElementById(
+                "seoResumenChat"
             );
 
 
@@ -703,6 +739,12 @@ document.addEventListener(
                 }
 
             }
+        );
+
+
+        botonCopiar.addEventListener(
+            "click",
+            copiarResumen
         );
 
 
@@ -922,117 +964,30 @@ document.addEventListener(
             document.getElementById(
                 "seoPuntuacion"
             ).textContent =
-                (datos.puntuacion ?? 0) +
+                (
+                    datos.puntuacion ?? 0
+                ) +
                 "/100";
 
+
+            /* ======================================
+               VALORACIÓN
+            ======================================= */
 
             document.getElementById(
                 "seoNivel"
             ).textContent =
-                datos.nivel ||
+                datos.valoracion ||
                 "Sin valorar";
 
 
             /* ======================================
-               RECOMENDACIONES
+               RESUMEN
             ======================================= */
 
-            const listaRecomendaciones =
-                document.getElementById(
-                    "seoListaRecomendaciones"
-                );
-
-
-            listaRecomendaciones.innerHTML =
-                "";
-
-
-            if (
-                datos.recomendaciones &&
-                datos.recomendaciones.length > 0
-            ) {
-
-
-                datos.recomendaciones.forEach(
-                    function (recomendacion) {
-
-
-                        const elemento =
-                            document.createElement(
-                                "div"
-                            );
-
-
-                        elemento.className =
-                            "seo-recomendacion " +
-                            (
-                                recomendacion.tipo ||
-                                "warning"
-                            );
-
-
-                        const titulo =
-                            document.createElement(
-                                "strong"
-                            );
-
-
-                        titulo.textContent =
-                            recomendacion.titulo ||
-                            "Recomendación";
-
-
-                        const texto =
-                            document.createElement(
-                                "p"
-                            );
-
-
-                        texto.textContent =
-                            recomendacion.texto ||
-                            "";
-
-
-                        elemento.appendChild(
-                            titulo
-                        );
-
-
-                        elemento.appendChild(
-                            texto
-                        );
-
-
-                        listaRecomendaciones.appendChild(
-                            elemento
-                        );
-
-                    }
-                );
-
-
-            } else {
-
-
-                const elemento =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                elemento.className =
-                    "seo-recomendacion";
-
-
-                elemento.textContent =
-                    "No se han detectado recomendaciones adicionales.";
-
-
-                listaRecomendaciones.appendChild(
-                    elemento
-                );
-
-            }
+            resumenChat.value =
+                datos.resumen_chat ||
+                "No se ha podido generar el resumen de la auditoría.";
 
 
             /* ======================================
@@ -1125,7 +1080,6 @@ document.addEventListener(
                 datos.h1.forEach(
                     function (texto) {
 
-
                         const li =
                             document.createElement(
                                 "li"
@@ -1187,7 +1141,6 @@ document.addEventListener(
                 datos.h2.forEach(
                     function (texto) {
 
-
                         const li =
                             document.createElement(
                                 "li"
@@ -1244,6 +1197,83 @@ document.addEventListener(
 
                 }
             );
+
+        }
+
+
+        /* ==========================================
+           COPIAR RESUMEN
+        ========================================== */
+
+        async function copiarResumen() {
+
+
+            const texto =
+                resumenChat.value;
+
+
+            if (!texto) {
+
+                return;
+
+            }
+
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    texto
+                );
+
+
+                const textoOriginal =
+                    botonCopiar.textContent;
+
+
+                botonCopiar.textContent =
+                    "✓ Resumen copiado";
+
+
+                setTimeout(
+                    function () {
+
+                        botonCopiar.textContent =
+                            textoOriginal;
+
+                    },
+                    2000
+                );
+
+
+            } catch (e) {
+
+
+                resumenChat.select();
+
+                document.execCommand(
+                    "copy"
+                );
+
+
+                const textoOriginal =
+                    botonCopiar.textContent;
+
+
+                botonCopiar.textContent =
+                    "✓ Resumen copiado";
+
+
+                setTimeout(
+                    function () {
+
+                        botonCopiar.textContent =
+                            textoOriginal;
+
+                    },
+                    2000
+                );
+
+            }
 
         }
 

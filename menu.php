@@ -60,16 +60,16 @@
                     Inicio
                 </a>
 
+                 <a href="herramientas.php">
+                    Auditoria SEO
+                </a>
+
                 <a href="calendario.php">
                     Calendario
                 </a>
 
                 <a href="facturas.php">
                     Facturación
-                </a>
-
-                <a href="herramientas.php">
-                    Auditoria SEO
                 </a>
 
                 <a href="mi_cuenta.php">

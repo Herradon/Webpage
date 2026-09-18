@@ -869,6 +869,608 @@ libxml_clear_errors();
 
 
 /* ==========================================================
+   EVALUACIÓN SEO
+========================================================== */
+
+$puntuacion =
+    0;
+
+
+$problemas =
+    [];
+
+
+$correctos =
+    [];
+
+
+/* ----------------------------------------------------------
+   TÍTULO
+---------------------------------------------------------- */
+
+$longitudTitulo =
+    mb_strlen(
+        $title
+    );
+
+
+if ($title === "") {
+
+    $problemas[] =
+        "La página no tiene etiqueta <title>.";
+
+} elseif (
+    $longitudTitulo >= 30 &&
+    $longitudTitulo <= 60
+) {
+
+    $puntuacion += 15;
+
+    $correctos[] =
+        "El título SEO tiene una longitud adecuada.";
+
+} elseif (
+    $longitudTitulo > 0 &&
+    $longitudTitulo <= 70
+) {
+
+    $puntuacion += 10;
+
+    $problemas[] =
+        "El título existe, pero su longitud podría optimizarse.";
+
+} else {
+
+    $puntuacion += 5;
+
+    $problemas[] =
+        "El título SEO es demasiado largo.";
+
+}
+
+
+/* ----------------------------------------------------------
+   META DESCRIPTION
+---------------------------------------------------------- */
+
+$longitudMeta =
+    mb_strlen(
+        $metaDescription
+    );
+
+
+if ($metaDescription === "") {
+
+    $problemas[] =
+        "La página no tiene meta description.";
+
+} elseif (
+    $longitudMeta >= 120 &&
+    $longitudMeta <= 160
+) {
+
+    $puntuacion += 15;
+
+    $correctos[] =
+        "La meta description tiene una longitud adecuada.";
+
+} elseif (
+    $longitudMeta > 0 &&
+    $longitudMeta <= 180
+) {
+
+    $puntuacion += 10;
+
+    $problemas[] =
+        "La meta description existe, pero su longitud podría optimizarse.";
+
+} else {
+
+    $puntuacion += 5;
+
+    $problemas[] =
+        "La meta description es demasiado larga.";
+
+}
+
+
+/* ----------------------------------------------------------
+   H1
+---------------------------------------------------------- */
+
+$numeroH1 =
+    count(
+        $h1
+    );
+
+
+if ($numeroH1 === 1) {
+
+    $puntuacion += 15;
+
+    $correctos[] =
+        "La página tiene un único H1.";
+
+} elseif ($numeroH1 === 0) {
+
+    $problemas[] =
+        "La página no tiene ningún H1.";
+
+} else {
+
+    $puntuacion += 8;
+
+    $problemas[] =
+        "La página tiene varios H1; conviene revisar la estructura.";
+
+}
+
+
+/* ----------------------------------------------------------
+   CONTENIDO
+---------------------------------------------------------- */
+
+if ($palabras >= 600) {
+
+    $puntuacion += 15;
+
+    $correctos[] =
+        "La página dispone de una cantidad de contenido suficiente para el análisis.";
+
+} elseif ($palabras >= 300) {
+
+    $puntuacion += 10;
+
+    $problemas[] =
+        "La cantidad de contenido podría ampliarse.";
+
+} elseif ($palabras > 0) {
+
+    $puntuacion += 5;
+
+    $problemas[] =
+        "La página tiene poco contenido textual.";
+
+} else {
+
+    $problemas[] =
+        "No se ha detectado contenido textual visible.";
+
+}
+
+
+/* ----------------------------------------------------------
+   IMÁGENES Y ALT
+---------------------------------------------------------- */
+
+if ($imagenesTotal === 0) {
+
+    $puntuacion += 10;
+
+    $correctos[] =
+        "No se han detectado imágenes que requieran revisión de atributos ALT.";
+
+} elseif ($imagenesSinAlt === 0) {
+
+    $puntuacion += 10;
+
+    $correctos[] =
+        "Todas las imágenes detectadas tienen atributo ALT.";
+
+} else {
+
+    $imagenesConAlt =
+        $imagenesTotal -
+        $imagenesSinAlt;
+
+    $porcentajeAlt =
+        ($imagenesConAlt / $imagenesTotal) *
+        100;
+
+
+    if ($porcentajeAlt >= 75) {
+
+        $puntuacion += 7;
+
+    } elseif ($porcentajeAlt >= 50) {
+
+        $puntuacion += 5;
+
+    } else {
+
+        $puntuacion += 2;
+
+    }
+
+
+    $problemas[] =
+        "Hay " .
+        $imagenesSinAlt .
+        " imagen(es) sin atributo ALT.";
+
+}
+
+
+/* ----------------------------------------------------------
+   CANONICAL
+---------------------------------------------------------- */
+
+if ($canonical !== "") {
+
+    $puntuacion += 10;
+
+    $correctos[] =
+        "La página dispone de etiqueta canonical.";
+
+} else {
+
+    $problemas[] =
+        "No se ha detectado una etiqueta canonical.";
+
+}
+
+
+/* ----------------------------------------------------------
+   ROBOTS
+---------------------------------------------------------- */
+
+if ($robots !== "") {
+
+    $robotsMinusculas =
+        strtolower(
+            $robots
+        );
+
+
+    if (
+        strpos(
+            $robotsMinusculas,
+            "noindex"
+        ) !== false
+    ) {
+
+        $puntuacion += 0;
+
+        $problemas[] =
+            "La etiqueta robots contiene noindex; la página podría no aparecer en los buscadores.";
+
+    } else {
+
+        $puntuacion += 5;
+
+        $correctos[] =
+            "La página dispone de configuración de robots sin noindex detectado.";
+
+    }
+
+} else {
+
+    $puntuacion += 3;
+
+    $correctos[] =
+        "No se ha detectado una etiqueta robots restrictiva.";
+
+}
+
+
+/* ----------------------------------------------------------
+   OPEN GRAPH
+---------------------------------------------------------- */
+
+$ogElementos =
+    0;
+
+
+if ($ogTitle !== "") {
+
+    $ogElementos++;
+
+}
+
+
+if ($ogDescription !== "") {
+
+    $ogElementos++;
+
+}
+
+
+if ($ogImage !== "") {
+
+    $ogElementos++;
+
+}
+
+
+if ($ogElementos === 3) {
+
+    $puntuacion += 10;
+
+    $correctos[] =
+        "La página tiene configurados título, descripción e imagen Open Graph.";
+
+} elseif ($ogElementos > 0) {
+
+    $puntuacion += 5;
+
+    $problemas[] =
+        "Las etiquetas Open Graph están incompletas.";
+
+} else {
+
+    $problemas[] =
+        "No se han detectado etiquetas Open Graph.";
+
+}
+
+
+/* ----------------------------------------------------------
+   H2
+---------------------------------------------------------- */
+
+$numeroH2 =
+    count(
+        $h2
+    );
+
+
+if ($numeroH2 > 0) {
+
+    $puntuacion += 5;
+
+    $correctos[] =
+        "La página utiliza etiquetas H2 para estructurar el contenido.";
+
+} else {
+
+    $problemas[] =
+        "No se han detectado etiquetas H2.";
+
+}
+
+
+/* ==========================================================
+   ASEGURAR PUNTUACIÓN ENTRE 0 Y 100
+========================================================== */
+
+$puntuacion =
+    max(
+        0,
+        min(
+            100,
+            (int) $puntuacion
+        )
+    );
+
+
+/* ==========================================================
+   VALORACIÓN
+========================================================== */
+
+if ($puntuacion >= 90) {
+
+    $valoracion =
+        "Excelente";
+
+    $descripcionValoracion =
+        "La página presenta una base SEO muy sólida y no se han detectado problemas importantes en los aspectos analizados.";
+
+} elseif ($puntuacion >= 75) {
+
+    $valoracion =
+        "Buena";
+
+    $descripcionValoracion =
+        "La página presenta una base SEO buena, aunque todavía existen algunos aspectos que pueden optimizarse.";
+
+} elseif ($puntuacion >= 50) {
+
+    $valoracion =
+        "Mejorable";
+
+    $descripcionValoracion =
+        "La página tiene una base SEO aceptable, pero presenta varios aspectos que conviene mejorar.";
+
+} else {
+
+    $valoracion =
+        "Deficiente";
+
+    $descripcionValoracion =
+        "La página presenta varios problemas SEO que deberían revisarse y corregirse.";
+
+}
+
+
+/* ==========================================================
+   RESUMEN GENERAL
+========================================================== */
+
+$resumenGeneral =
+    "La página " .
+    $url .
+    " obtiene una valoración SEO de " .
+    $puntuacion .
+    "/100 (" .
+    $valoracion .
+    "). " .
+    $descripcionValoracion;
+
+
+/* ==========================================================
+   RESUMEN PARA EL CHAT
+========================================================== */
+
+$resumenChat =
+    "AUDITORÍA SEO - VIZIUNEAI\n\n" .
+
+    "URL: " .
+    $url .
+    "\n\n" .
+
+    "VALORACIÓN SEO: " .
+    $puntuacion .
+    "/100 - " .
+    $valoracion .
+    "\n\n" .
+
+    "RESUMEN:\n" .
+    $resumenGeneral .
+    "\n\n" .
+
+    "DATOS ANALIZADOS:\n" .
+
+    "- Título: " .
+    (
+        $title !== ""
+            ? $title
+            : "No encontrado"
+    ) .
+    "\n" .
+
+    "- Longitud del título: " .
+    $longitudTitulo .
+    " caracteres\n" .
+
+    "- Meta description: " .
+    (
+        $metaDescription !== ""
+            ? $metaDescription
+            : "No encontrada"
+    ) .
+    "\n" .
+
+    "- Longitud de meta description: " .
+    $longitudMeta .
+    " caracteres\n" .
+
+    "- H1 encontrados: " .
+    $numeroH1 .
+    "\n" .
+
+    "- H2 encontrados: " .
+    $numeroH2 .
+    "\n" .
+
+    "- Palabras aproximadas: " .
+    $palabras .
+    "\n" .
+
+    "- Imágenes: " .
+    $imagenesTotal .
+    "\n" .
+
+    "- Imágenes sin ALT: " .
+    $imagenesSinAlt .
+    "\n" .
+
+    "- Enlaces totales: " .
+    $enlacesTotal .
+    "\n" .
+
+    "- Enlaces internos: " .
+    $enlacesInternos .
+    "\n" .
+
+    "- Enlaces externos: " .
+    $enlacesExternos .
+    "\n" .
+
+    "- Canonical: " .
+    (
+        $canonical !== ""
+            ? $canonical
+            : "No encontrada"
+    ) .
+    "\n" .
+
+    "- Robots: " .
+    (
+        $robots !== ""
+            ? $robots
+            : "No especificado"
+    ) .
+    "\n" .
+
+    "- Open Graph title: " .
+    (
+        $ogTitle !== ""
+            ? "Sí"
+            : "No"
+    ) .
+    "\n" .
+
+    "- Open Graph description: " .
+    (
+        $ogDescription !== ""
+            ? "Sí"
+            : "No"
+    ) .
+    "\n" .
+
+    "- Open Graph image: " .
+    (
+        $ogImage !== ""
+            ? "Sí"
+            : "No"
+    ) .
+    "\n\n" .
+
+
+    "ASPECTOS CORRECTOS:\n";
+
+
+if (count($correctos) > 0) {
+
+    foreach ($correctos as $correcto) {
+
+        $resumenChat .=
+            "✓ " .
+            $correcto .
+            "\n";
+
+    }
+
+} else {
+
+    $resumenChat .=
+        "No se han identificado aspectos especialmente favorables en los criterios analizados.\n";
+
+}
+
+
+$resumenChat .=
+    "\nPROBLEMAS DETECTADOS:\n";
+
+
+if (count($problemas) > 0) {
+
+    foreach ($problemas as $problema) {
+
+        $resumenChat .=
+            "• " .
+            $problema .
+            "\n";
+
+    }
+
+} else {
+
+    $resumenChat .=
+        "No se han detectado problemas en los criterios analizados.\n";
+
+}
+
+
+$resumenChat .=
+    "\nSOLICITUD PARA EL CHAT:\n" .
+
+    "Analiza esta auditoría SEO y ayúdame a gestionar y mejorar esta página. " .
+    "Quiero que me indiques qué cambios debo realizar, priorizando los problemas más importantes. " .
+    "Explícame exactamente qué debo modificar en la página y cómo hacerlo.";
+
+
+/* ==========================================================
    RESULTADO
 ========================================================== */
 
@@ -884,17 +1486,13 @@ $analisis = [
         $title,
 
     "longitud_titulo" =>
-        mb_strlen(
-            $title
-        ),
+        $longitudTitulo,
 
     "meta_description" =>
         $metaDescription,
 
     "longitud_meta_description" =>
-        mb_strlen(
-            $metaDescription
-        ),
+        $longitudMeta,
 
     "robots" =>
         $robots,
@@ -903,17 +1501,13 @@ $analisis = [
         $h1,
 
     "numero_h1" =>
-        count(
-            $h1
-        ),
+        $numeroH1,
 
     "h2" =>
         $h2,
 
     "numero_h2" =>
-        count(
-            $h2
-        ),
+        $numeroH2,
 
     "imagenes_total" =>
         $imagenesTotal,
@@ -943,13 +1537,42 @@ $analisis = [
         $ogDescription,
 
     "og_image" =>
-        $ogImage
+        $ogImage,
+
+    "puntuacion" =>
+        $puntuacion,
+
+    "valoracion" =>
+        $valoracion,
+
+    "descripcion_valoracion" =>
+        $descripcionValoracion,
+
+    "problemas" =>
+        $problemas,
+
+    "correctos" =>
+        $correctos,
+
+    "resumen_general" =>
+        $resumenGeneral,
+
+    "resumen_chat" =>
+        $resumenChat
 
 ];
 
 
 /* ==========================================================
-   RESPUESTA
+   GUARDAR ÚLTIMA AUDITORÍA EN SESIÓN
+========================================================== */
+
+$_SESSION["ultima_auditoria_seo"] =
+    $analisis;
+
+
+/* ==========================================================
+   RESPUESTA JSON
 ========================================================== */
 
 echo json_encode(

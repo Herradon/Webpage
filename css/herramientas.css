@@ -1,4 +1,3 @@
-
 /* ==========================================
    VIZIUNEAI - AUDITORÍA SEO PREMIUM
 ========================================== */
@@ -31,8 +30,7 @@
 }
 
 .herramientas-section .container {
-    width: 100%;
-    max-width: 1180px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -104,22 +102,22 @@
     line-height: 1.75;
 }
 
-
-
 /* ==========================================
    PANEL PRINCIPAL
 ========================================== */
-.seo-panel{
-justify-items: center;
+
+.seo-panel {
+    justify-items: center;
 }
 
-.seo-panel-header{
-width: 100%;
-text-align: center;
+.seo-panel-header {
+    width: 100%;
+    text-align: center;
 }
-.seo-panel-header div{
-width: 100%;
-text-align: center;
+
+.seo-panel-header div {
+    width: 100%;
+    text-align: center;
 }
 
 .herramienta-card {
@@ -359,11 +357,11 @@ text-align: center;
 #seoResultado {
     position: relative;
     z-index: 2;
+    width: 100%;
     margin-top: 42px;
     padding-top: 42px;
     border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
-
 
 /* =========================================================
    RESUMEN SUPERIOR
@@ -376,7 +374,6 @@ text-align: center;
     margin-bottom: 28px;
     align-items: stretch;
 }
-
 
 /* =========================================================
    PUNTUACIÓN
@@ -410,9 +407,6 @@ text-align: center;
     overflow: hidden;
 }
 
-
-/* brillo superior */
-
 .seo-puntuacion::before {
     content: "";
     position: absolute;
@@ -432,9 +426,6 @@ text-align: center;
         0 0 16px rgba(0, 243, 255, 0.5);
 }
 
-
-/* círculo interior */
-
 .seo-puntuacion::after {
     content: "";
     position: absolute;
@@ -446,7 +437,6 @@ text-align: center;
 
     pointer-events: none;
 }
-
 
 .seo-puntuacion-label {
     position: relative;
@@ -461,7 +451,6 @@ text-align: center;
     letter-spacing: 1.6px;
     text-transform: uppercase;
 }
-
 
 .seo-puntuacion strong {
     position: relative;
@@ -478,7 +467,6 @@ text-align: center;
     text-shadow:
         0 0 25px rgba(0, 243, 255, 0.25);
 }
-
 
 .seo-nivel {
     position: relative;
@@ -504,7 +492,6 @@ text-align: center;
     font-size: 11px;
     font-weight: 800;
 }
-
 
 /* =========================================================
    TARJETAS DEL RESUMEN
@@ -543,7 +530,6 @@ text-align: center;
         box-shadow 0.25s ease;
 }
 
-
 .seo-summary-card::before {
     content: "";
 
@@ -560,7 +546,6 @@ text-align: center;
     box-shadow:
         0 0 14px rgba(0, 243, 255, 0.45);
 }
-
 
 .seo-summary-card::after {
     content: "";
@@ -582,7 +567,6 @@ text-align: center;
     pointer-events: none;
 }
 
-
 .seo-summary-card:hover {
     transform: translateY(-3px);
 
@@ -592,7 +576,6 @@ text-align: center;
     box-shadow:
         0 22px 50px rgba(0, 0, 0, 0.25);
 }
-
 
 .seo-summary-label {
     position: relative;
@@ -612,7 +595,6 @@ text-align: center;
     text-transform: uppercase;
 }
 
-
 .seo-summary-card strong {
     position: relative;
     z-index: 2;
@@ -629,7 +611,6 @@ text-align: center;
     line-height: 1.35;
 }
 
-
 .seo-summary-card p {
     position: relative;
     z-index: 2;
@@ -643,13 +624,15 @@ text-align: center;
     line-height: 1.65;
 }
 
-
 /* =========================================================
    BLOQUES DE RESULTADOS
 ========================================================= */
 
 .seo-section-block {
     position: relative;
+
+    width: 100%;
+    box-sizing: border-box;
 
     margin-bottom: 20px;
     padding: 27px;
@@ -670,6 +653,14 @@ text-align: center;
     overflow: hidden;
 }
 
+/* =========================================================
+   INFORME A ANCHO COMPLETO
+========================================================= */
+
+.seo-section-block.seo-informe {
+    grid-column: 1 / -1;
+    width: 100%;
+}
 
 .seo-section-block::before {
     content: "";
@@ -688,7 +679,6 @@ text-align: center;
         0 0 12px rgba(0, 243, 255, 0.4);
 }
 
-
 /* =========================================================
    CABECERAS DE SECCIÓN
 ========================================================= */
@@ -702,7 +692,6 @@ text-align: center;
 
     margin-bottom: 22px;
 }
-
 
 .seo-section-heading span {
     display: block;
@@ -719,7 +708,6 @@ text-align: center;
     text-transform: uppercase;
 }
 
-
 .seo-section-heading h3 {
     margin: 0;
 
@@ -730,7 +718,6 @@ text-align: center;
 
     letter-spacing: -0.3px;
 }
-
 
 .seo-heading-icon {
     display: flex;
@@ -750,7 +737,6 @@ text-align: center;
     font-size: 18px;
 }
 
-
 /* =========================================================
    RECOMENDACIONES
 ========================================================= */
@@ -761,7 +747,6 @@ text-align: center;
 
     gap: 10px;
 }
-
 
 .seo-recomendacion {
     position: relative;
@@ -786,14 +771,12 @@ text-align: center;
         border-color 0.2s ease;
 }
 
-
 .seo-recomendacion:hover {
     transform: translateX(3px);
 
     background:
         rgba(255, 255, 255, 0.04);
 }
-
 
 .seo-recomendacion strong {
     display: block;
@@ -808,7 +791,6 @@ text-align: center;
     line-height: 1.4;
 }
 
-
 .seo-recomendacion p {
     margin: 0;
 
@@ -818,9 +800,6 @@ text-align: center;
 
     line-height: 1.65;
 }
-
-
-/* estados */
 
 .seo-recomendacion.warning {
     border-left-color: #f5c542;
@@ -834,6 +813,97 @@ text-align: center;
     border-left-color: #35d07f;
 }
 
+/* =========================================================
+   RESUMEN SEO PARA COPIAR
+========================================================= */
+
+.seo-resumen-copiar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#seoResumenChat {
+    display: block;
+
+    width: 100%;
+    min-height: 230px;
+
+    box-sizing: border-box;
+
+    padding: 18px;
+
+    resize: vertical;
+
+    border: 1px solid rgba(0, 243, 255, 0.14);
+    border-radius: 13px;
+
+    outline: none;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(8, 21, 34, 0.92),
+            rgba(3, 11, 19, 0.96)
+        );
+
+    color: #dce6ee;
+
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.7;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+#seoResumenChat:hover {
+    border-color:
+        rgba(0, 243, 255, 0.22);
+}
+
+#seoResumenChat:focus {
+    border-color:
+        rgba(0, 243, 255, 0.42);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(9, 24, 38, 0.96),
+            rgba(3, 12, 21, 0.98)
+        );
+
+    box-shadow:
+        0 0 0 3px rgba(0, 243, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+/* =========================================================
+   BOTÓN COPIAR RESUMEN
+========================================================= */
+
+#copiarResumenSeo {
+    width: 100%;
+    min-width: 0;
+    align-self: stretch;
+    margin-top: 0;
+}
+
+#copiarResumenSeo:hover {
+    transform: translateY(-2px);
+}
+
+#copiarResumenSeo:active {
+    transform: translateY(0);
+}
 
 /* =========================================================
    MÉTRICAS
@@ -849,7 +919,6 @@ text-align: center;
 
     margin: 0;
 }
-
 
 .seo-metrica {
     position: relative;
@@ -878,7 +947,6 @@ text-align: center;
         box-shadow 0.22s ease;
 }
 
-
 .seo-metrica::before {
     content: "";
 
@@ -896,7 +964,6 @@ text-align: center;
         0 0 10px rgba(0, 243, 255, 0.4);
 }
 
-
 .seo-metrica:hover {
     transform: translateY(-4px);
 
@@ -906,7 +973,6 @@ text-align: center;
     box-shadow:
         0 12px 28px rgba(0, 0, 0, 0.22);
 }
-
 
 .seo-metrica-label {
     display: block;
@@ -925,7 +991,6 @@ text-align: center;
     text-transform: uppercase;
 }
 
-
 .seo-metrica strong {
     display: block;
 
@@ -939,9 +1004,6 @@ text-align: center;
     word-break: break-word;
 }
 
-
-/* Los valores numéricos y datos importantes */
-
 #seoH1,
 #seoH2,
 #seoImagenes,
@@ -951,7 +1013,6 @@ text-align: center;
 #seoPalabras {
     color: #00f3ff;
 }
-
 
 /* =========================================================
    TÍTULO Y META DESCRIPCIÓN
@@ -967,24 +1028,19 @@ text-align: center;
     line-height: 1.5;
 }
 
-
 /* =========================================================
    H1 / H2
 ========================================================= */
 
 .seo-details-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
 
     gap: 16px;
 
     margin-top: 20px;
 }
 
-
 .seo-details-card {
+    margin-top: 20px;
     position: relative;
 
     padding: 25px;
@@ -1005,7 +1061,6 @@ text-align: center;
     overflow: hidden;
 }
 
-
 .seo-details-card::before {
     content: "";
 
@@ -1023,7 +1078,6 @@ text-align: center;
         0 0 12px rgba(0, 243, 255, 0.4);
 }
 
-
 .seo-details-header {
     display: flex;
 
@@ -1033,7 +1087,6 @@ text-align: center;
 
     margin-bottom: 17px;
 }
-
 
 .seo-details-header span {
     color: #00cbd6;
@@ -1046,14 +1099,12 @@ text-align: center;
     text-transform: uppercase;
 }
 
-
 .seo-details-header strong {
     color: #ffffff;
 
     font-size: 17px;
     font-weight: 800;
 }
-
 
 .seo-details-card ul {
     display: flex;
@@ -1067,7 +1118,6 @@ text-align: center;
 
     list-style: none;
 }
-
 
 .seo-details-card li {
     position: relative;
@@ -1093,7 +1143,6 @@ text-align: center;
         border-color 0.2s ease;
 }
 
-
 .seo-details-card li:hover {
     background:
         rgba(0, 243, 255, 0.035);
@@ -1101,7 +1150,6 @@ text-align: center;
     border-color:
         rgba(0, 243, 255, 0.12);
 }
-
 
 .seo-details-card li::before {
     content: "✓";
@@ -1132,7 +1180,6 @@ text-align: center;
     font-weight: 900;
 }
 
-
 /* =========================================================
    TABLET
 ========================================================= */
@@ -1155,7 +1202,6 @@ text-align: center;
 
 }
 
-
 /* =========================================================
    MÓVIL
 ========================================================= */
@@ -1167,39 +1213,33 @@ text-align: center;
         padding-top: 32px;
     }
 
-
     .seo-summary-grid {
         grid-template-columns: 1fr;
         gap: 12px;
     }
 
-
     .seo-puntuacion {
         min-height: 205px;
     }
-
 
     .seo-summary-card {
         min-height: auto;
         padding: 23px;
     }
 
-
     .seo-section-block {
+        width: 100%;
         padding: 20px 15px;
         border-radius: 17px;
     }
-
 
     .seo-section-heading {
         margin-bottom: 18px;
     }
 
-
     .seo-section-heading h3 {
         font-size: 18px;
     }
-
 
     .seo-metricas {
         grid-template-columns:
@@ -1208,31 +1248,39 @@ text-align: center;
         gap: 9px;
     }
 
-
     .seo-metrica {
         min-height: 100px;
         padding: 14px;
     }
 
-
     .seo-metrica strong {
         font-size: 15px;
     }
-
 
     .seo-details-grid {
         grid-template-columns: 1fr;
         gap: 12px;
     }
 
-
     .seo-details-card {
         padding: 20px 16px;
         border-radius: 17px;
     }
 
-}
+    /* RESUMEN SEO */
 
+    #seoResumenChat {
+        min-height: 260px;
+        padding: 15px;
+        font-size: 12px;
+        line-height: 1.65;
+    }
+
+    #copiarResumenSeo {
+        width: 100%;
+    }
+
+}
 
 /* =========================================================
    MÓVIL PEQUEÑO
@@ -1244,21 +1292,17 @@ text-align: center;
         grid-template-columns: 1fr;
     }
 
-
     .seo-puntuacion strong {
         font-size: 38px;
     }
-
 
     .seo-summary-card strong {
         font-size: 16px;
     }
 
-
     .seo-section-block {
         padding: 18px 12px;
     }
-
 
     .seo-metrica {
         min-height: 88px;

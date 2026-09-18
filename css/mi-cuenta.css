@@ -14,8 +14,7 @@ html {
 }
 
 body {
-    margin: 0;
-    padding: 0;
+
     padding-top: 4%;
     min-height: 100vh;
     background: #07111f;
@@ -594,6 +593,10 @@ body {
 
 @media (max-width: 1000px) {
 
+    body {
+    margin-top: 10%;
+}
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -658,9 +661,9 @@ body {
 
 @media (max-width: 520px) {
 
-    body {
-        padding-top: 7%;
-    }
+   body {
+    margin-top: 10%;
+}
 
     .account-container {
         width: calc(100% - 20px);
@@ -710,6 +713,10 @@ body {
 }
 
 @media (max-width: 380px) {
+
+    body {
+    margin-top: 10%;
+}
 
     .stat-card {
         padding: 17px;
