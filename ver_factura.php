@@ -1,3 +1,4 @@
+
 <?php
 
 session_start();
@@ -1192,11 +1193,21 @@ function dinero($valor)
             <?php endif; ?>
 
 
-            <?php if ($estado === 'emitida'): ?>
+            <!-- ==================================
+                 GENERAR PDF
+                 DISPONIBLE PARA BORRADORES
+                 Y FACTURAS EMITIDAS
+            ================================== -->
+
+            <?php if (
+                $estado === 'borrador' ||
+                $estado === 'emitida'
+            ): ?>
 
                 <a
-                    href="generar_pdf.php?id=<?php echo $facturaId; ?>"
+                    href="generar_pdf.php?id=<?php echo (int) $facturaId; ?>"
                     class="boton boton-principal"
+                    target="_blank"
                 >
                     📄 Generar PDF
                 </a>
@@ -2143,7 +2154,13 @@ function dinero($valor)
         <?php endif; ?>
 
 
+        <!-- ==================================
+             PDF
+             DISPONIBLE EN BORRADOR Y EMITIDA
+        ================================== -->
+
         <?php if (
+            $estado === 'borrador' ||
             $estado === 'emitida'
         ): ?>
 
@@ -2152,7 +2169,7 @@ function dinero($valor)
                 class="boton boton-pdf"
                 target="_blank"
             >
-                Generar PDF
+                📄 Generar PDF
             </a>
 
         <?php endif; ?>

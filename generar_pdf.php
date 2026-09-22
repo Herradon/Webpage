@@ -1,3 +1,4 @@
+
 <?php
 
 session_start();
@@ -293,24 +294,6 @@ try {
 
     /*
     |--------------------------------------------------------------------------
-    | SOLO FACTURAS EMITIDAS
-    |--------------------------------------------------------------------------
-    */
-
-    if (
-        $factura['estado'] !== 'emitida'
-    ) {
-
-        http_response_code(400);
-
-        exit(
-            'El PDF solamente puede generarse para una factura emitida.'
-        );
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
     | DATOS PRIVADOS CIFRADOS
     |--------------------------------------------------------------------------
     */
@@ -381,78 +364,41 @@ try {
         $datosFactura['lineas'] ?? [];
 
 
-    if (
-        !is_array($datosInternosFactura)
-    ) {
+    if (!is_array($datosInternosFactura)) {
 
         $datosInternosFactura = [];
+
     }
 
 
-    if (
-        !is_array($datosCliente)
-    ) {
+    if (!is_array($datosCliente)) {
 
         $datosCliente = [];
+
     }
 
 
-    if (
-        !is_array($datosEmisor)
-    ) {
+    if (!is_array($datosEmisor)) {
 
         $datosEmisor = [];
+
     }
 
 
-    if (
-        !is_array($lineas)
-    ) {
+    if (!is_array($lineas)) {
 
         $lineas = [];
-    }
 
-
-    if (
-        empty($lineas)
-    ) {
-
-        throw new Exception(
-            'La factura no contiene líneas.'
-        );
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | DATOS DEL EMISOR
+    | EMISOR
     |--------------------------------------------------------------------------
-    |
-    | El emisor se obtiene de los datos privados
-    | cifrados de la factura.
-    |
-    | Estos datos proceden de "Mi cuenta" cuando
-    | se guardó la factura.
-    |
     */
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | COMPATIBILIDAD CON FACTURAS ANTIGUAS
-    |--------------------------------------------------------------------------
-    |
-    | Las facturas creadas antes de guardar el bloque
-    | "emisor" no tendrán estos datos.
-    |
-    | En ese caso utilizamos el perfil actual únicamente
-    | como respaldo.
-    |
-    */
-
-    if (
-        empty($datosEmisor)
-    ) {
+    if (empty($datosEmisor)) {
 
         $stmtEmisor = $pdo->prepare("
             SELECT
@@ -489,81 +435,26 @@ try {
             $stmtEmisor->fetch();
 
 
-        if (
-            !$datosEmisor
-        ) {
+        if (!$datosEmisor) {
 
-            $stmtUsuario = $pdo->prepare("
-                SELECT
-                    nombre,
-                    email
+            $datosEmisor = [];
 
-                FROM usuarios
-
-                WHERE id = ?
-
-                LIMIT 1
-            ");
-
-
-            $stmtUsuario->execute([
-                $usuarioId
-            ]);
-
-
-            $usuario =
-                $stmtUsuario->fetch();
-
-
-            $datosEmisor = [
-
-                'tipo_persona' => '',
-
-                'nombre' =>
-                    $usuario['nombre'] ?? '',
-
-                'apellidos' => '',
-
-                'nombre_razon_social' => '',
-
-                'nombre_comercial' => '',
-
-                'nif' => '',
-
-                'direccion' => '',
-
-                'codigo_postal' => '',
-
-                'ciudad' => '',
-
-                'provincia' => '',
-
-                'pais' => '',
-
-                'email' =>
-                    $usuario['email'] ?? '',
-
-                'telefono' => '',
-
-                'web' => ''
-
-            ];
         }
+
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | NORMALIZAR DATOS DEL EMISOR
+    | NORMALIZAR EMISOR
     |--------------------------------------------------------------------------
     */
 
     $emisorNombreRazonSocial =
         trim(
             (string) (
-                $datosEmisor[
-                    'nombre_razon_social'
-                ] ?? ''
+                $datosEmisor['nombre_razon_social']
+                ?? ''
             )
         );
 
@@ -571,9 +462,8 @@ try {
     $emisorNombreComercial =
         trim(
             (string) (
-                $datosEmisor[
-                    'nombre_comercial'
-                ] ?? ''
+                $datosEmisor['nombre_comercial']
+                ?? ''
             )
         );
 
@@ -581,9 +471,8 @@ try {
     $emisorNombre =
         trim(
             (string) (
-                $datosEmisor[
-                    'nombre'
-                ] ?? ''
+                $datosEmisor['nombre']
+                ?? ''
             )
         );
 
@@ -591,9 +480,8 @@ try {
     $emisorApellidos =
         trim(
             (string) (
-                $datosEmisor[
-                    'apellidos'
-                ] ?? ''
+                $datosEmisor['apellidos']
+                ?? ''
             )
         );
 
@@ -601,9 +489,8 @@ try {
     $emisorNif =
         trim(
             (string) (
-                $datosEmisor[
-                    'nif'
-                ] ?? ''
+                $datosEmisor['nif']
+                ?? ''
             )
         );
 
@@ -611,9 +498,8 @@ try {
     $emisorDireccion =
         trim(
             (string) (
-                $datosEmisor[
-                    'direccion'
-                ] ?? ''
+                $datosEmisor['direccion']
+                ?? ''
             )
         );
 
@@ -621,9 +507,8 @@ try {
     $emisorCodigoPostal =
         trim(
             (string) (
-                $datosEmisor[
-                    'codigo_postal'
-                ] ?? ''
+                $datosEmisor['codigo_postal']
+                ?? ''
             )
         );
 
@@ -631,9 +516,8 @@ try {
     $emisorCiudad =
         trim(
             (string) (
-                $datosEmisor[
-                    'ciudad'
-                ] ?? ''
+                $datosEmisor['ciudad']
+                ?? ''
             )
         );
 
@@ -641,9 +525,8 @@ try {
     $emisorProvincia =
         trim(
             (string) (
-                $datosEmisor[
-                    'provincia'
-                ] ?? ''
+                $datosEmisor['provincia']
+                ?? ''
             )
         );
 
@@ -651,9 +534,8 @@ try {
     $emisorPais =
         trim(
             (string) (
-                $datosEmisor[
-                    'pais'
-                ] ?? ''
+                $datosEmisor['pais']
+                ?? ''
             )
         );
 
@@ -661,9 +543,8 @@ try {
     $emisorEmail =
         trim(
             (string) (
-                $datosEmisor[
-                    'email'
-                ] ?? ''
+                $datosEmisor['email']
+                ?? ''
             )
         );
 
@@ -671,9 +552,8 @@ try {
     $emisorTelefono =
         trim(
             (string) (
-                $datosEmisor[
-                    'telefono'
-                ] ?? ''
+                $datosEmisor['telefono']
+                ?? ''
             )
         );
 
@@ -681,18 +561,11 @@ try {
     $emisorWeb =
         trim(
             (string) (
-                $datosEmisor[
-                    'web'
-                ] ?? ''
+                $datosEmisor['web']
+                ?? ''
             )
         );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | NOMBRE PRINCIPAL DEL EMISOR
-    |--------------------------------------------------------------------------
-    */
 
     if (
         $emisorNombreRazonSocial !== ''
@@ -716,6 +589,7 @@ try {
                 ' ' .
                 $emisorApellidos
             );
+
     }
 
 
@@ -725,14 +599,9 @@ try {
 
         $emisorNombreMostrar =
             'Emisor';
+
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOCALIDAD DEL EMISOR
-    |--------------------------------------------------------------------------
-    */
 
     $emisorLocalidad =
         trim(
@@ -787,13 +656,15 @@ try {
     } else {
 
         $numeroFactura =
-            'BORRADOR';
+            $serie .
+            '-BORRADOR';
+
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | FECHA DE EMISIÓN
+    | FECHAS
     |--------------------------------------------------------------------------
     */
 
@@ -802,12 +673,6 @@ try {
         ?? $datosInternosFactura['fecha_emision']
         ?? '';
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | FECHA DE VENCIMIENTO
-    |--------------------------------------------------------------------------
-    */
 
     $fechaVencimiento =
         $datosInternosFactura[
@@ -818,7 +683,7 @@ try {
 
     /*
     |--------------------------------------------------------------------------
-    | MÉTODO DE PAGO
+    | OTROS DATOS
     |--------------------------------------------------------------------------
     */
 
@@ -829,24 +694,12 @@ try {
         ?? '';
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | OBSERVACIONES
-    |--------------------------------------------------------------------------
-    */
-
     $observaciones =
         $datosInternosFactura[
             'observaciones'
         ]
         ?? '';
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | TOTALES
-    |--------------------------------------------------------------------------
-    */
 
     $baseImponible =
         $datosInternosFactura[
@@ -878,105 +731,7 @@ try {
 
     /*
     |--------------------------------------------------------------------------
-    | HTML DE LAS LÍNEAS
-    |--------------------------------------------------------------------------
-    */
-
-    $lineasHtml = '';
-
-
-    foreach (
-        $lineas as $linea
-    ) {
-
-        $lineasHtml .= '
-
-            <tr>
-
-                <td class="descripcion">
-                    ' .
-                    h(
-                        $linea[
-                            'descripcion'
-                        ] ?? ''
-                    ) .
-                    '
-                </td>
-
-                <td class="cantidad">
-                    ' .
-                    number_format(
-                        (float) (
-                            $linea[
-                                'cantidad'
-                            ] ?? 0
-                        ),
-                        3,
-                        ',',
-                        '.'
-                    ) .
-                    '
-                </td>
-
-                <td class="precio">
-                    ' .
-                    dinero(
-                        $linea[
-                            'precio_unitario'
-                        ] ?? 0
-                    ) .
-                    '
-                </td>
-
-                <td class="descuento">
-                    ' .
-                    number_format(
-                        (float) (
-                            $linea[
-                                'descuento'
-                            ] ?? 0
-                        ),
-                        2,
-                        ',',
-                        '.'
-                    ) .
-                    ' %
-                </td>
-
-                <td class="iva">
-                    ' .
-                    number_format(
-                        (float) (
-                            $linea[
-                                'tipo_iva'
-                            ] ?? 0
-                        ),
-                        2,
-                        ',',
-                        '.'
-                    ) .
-                    ' %
-                </td>
-
-                <td class="importe">
-                    ' .
-                    dinero(
-                        $linea[
-                            'base_linea'
-                        ] ?? 0
-                    ) .
-                    '
-                </td>
-
-            </tr>
-
-        ';
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DATOS CLIENTE
+    | CLIENTE
     |--------------------------------------------------------------------------
     */
 
@@ -1049,61 +804,178 @@ try {
 
     /*
     |--------------------------------------------------------------------------
-    | CARGAR CSS DEL PDF
+    | LÍNEAS
     |--------------------------------------------------------------------------
     */
 
-    $rutaCssPdf =
-        __DIR__ .
-        '/css/generar-pdf.css';
+    $lineasHtml = '';
 
 
-    if (
-        !file_exists(
-            $rutaCssPdf
-        )
-    ) {
+    foreach ($lineas as $linea) {
 
-        throw new Exception(
-            'No existe el archivo CSS del PDF: ' .
-            $rutaCssPdf
-        );
-    }
+        $cantidad =
+            (float) (
+                $linea['cantidad']
+                ?? 0
+            );
 
 
-    if (
-        !is_readable(
-            $rutaCssPdf
-        )
-    ) {
-
-        throw new Exception(
-            'El archivo CSS del PDF no se puede leer: ' .
-            $rutaCssPdf
-        );
-    }
+        $precio =
+            (float) (
+                $linea['precio_unitario']
+                ?? 0
+            );
 
 
-    $cssPdf =
-        file_get_contents(
-            $rutaCssPdf
-        );
+        $descuento =
+            (float) (
+                $linea['descuento']
+                ?? 0
+            );
 
 
-    if (
-        $cssPdf === false ||
-        trim($cssPdf) === ''
-    ) {
+        $iva =
+            (float) (
+                $linea['tipo_iva']
+                ?? 0
+            );
 
-        throw new Exception(
-            'No se ha podido cargar el estilo del PDF.'
-        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL DE LA LÍNEA
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            isset(
+                $linea['total_linea']
+            )
+        ) {
+
+            $totalLinea =
+                (float) $linea[
+                    'total_linea'
+                ];
+
+        } elseif (
+            isset(
+                $linea['base_linea']
+            )
+        ) {
+
+            $totalLinea =
+                (float) $linea[
+                    'base_linea'
+                ];
+
+        } else {
+
+            $baseLinea =
+                $cantidad *
+                $precio;
+
+
+            if ($descuento > 0) {
+
+                $baseLinea -=
+                    $baseLinea *
+                    (
+                        $descuento /
+                        100
+                    );
+
+            }
+
+
+            $totalLinea =
+                $baseLinea +
+                (
+                    $baseLinea *
+                    (
+                        $iva /
+                        100
+                    )
+                );
+
+        }
+
+
+        $lineasHtml .= '
+
+        <tr>
+
+            <td>
+                ' .
+                h(
+                    $linea[
+                        'descripcion'
+                    ] ?? ''
+                ) .
+                '
+            </td>
+
+            <td class="centro">
+                ' .
+                number_format(
+                    $cantidad,
+                    3,
+                    ',',
+                    '.'
+                ) .
+                '
+            </td>
+
+            <td class="derecha">
+                ' .
+                dinero(
+                    $precio
+                ) .
+                '
+            </td>
+
+            <td class="derecha">
+                ' .
+                number_format(
+                    $descuento,
+                    2,
+                    ',',
+                    '.'
+                ) .
+                ' %
+            </td>
+
+            <td class="derecha">
+                ' .
+                number_format(
+                    $iva,
+                    2,
+                    ',',
+                    '.'
+                ) .
+                ' %
+            </td>
+
+            <td class="derecha">
+                <strong>
+                    ' .
+                    dinero(
+                        $totalLinea
+                    ) .
+                    '
+                </strong>
+            </td>
+
+        </tr>
+
+        ';
+
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | HTML COMPLETO
+    | HTML
     |--------------------------------------------------------------------------
     */
 
@@ -1115,627 +987,572 @@ try {
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <style>
-        ' . $cssPdf . '
-    </style>
+<style>
+
+@page {
+    margin: 35px 40px;
+}
+
+body {
+    font-family: DejaVu Sans, sans-serif;
+    font-size: 10px;
+    color: #222;
+}
+
+h1 {
+    font-size: 22px;
+    margin: 0 0 10px;
+}
+
+h2 {
+    font-size: 16px;
+    margin: 0 0 8px;
+}
+
+h3 {
+    font-size: 11px;
+    margin: 0 0 8px;
+}
+
+p {
+    margin: 3px 0;
+}
+
+.cabecera {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.emisor {
+    width: 55%;
+    float: left;
+}
+
+.datos {
+    width: 40%;
+    float: right;
+    text-align: right;
+}
+
+.clear {
+    clear: both;
+}
+
+.numero {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.subtexto {
+    color: #777;
+    font-size: 9px;
+}
+
+.bloque {
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+}
+
+th {
+    background: #eeeeee;
+    border: 1px solid #ccc;
+    padding: 7px;
+    font-size: 9px;
+}
+
+td {
+    border: 1px solid #ddd;
+    padding: 7px;
+    font-size: 9px;
+}
+
+.centro {
+    text-align: center;
+}
+
+.derecha {
+    text-align: right;
+}
+
+.totales {
+    width: 45%;
+    margin-left: auto;
+    margin-top: 20px;
+}
+
+.fila {
+    padding: 6px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.fila span {
+    display: inline-block;
+    width: 55%;
+}
+
+.fila strong {
+    display: inline-block;
+    width: 40%;
+    text-align: right;
+}
+
+.total {
+    border-top: 2px solid #222;
+    border-bottom: 2px solid #222;
+    font-size: 13px;
+    padding: 9px 0;
+}
+
+.final {
+    margin-top: 30px;
+    text-align: center;
+    color: #777;
+    font-size: 9px;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<div class="pagina">
 
+<div class="cabecera">
 
-    <header class="cabecera">
+    <div class="emisor">
 
-
-        <div class="empresa">
-
-            <div class="empresa-datos">
-
-                <div class="titulo-emisor">
-                    EMISOR
-                </div>
-
-
-                <h1>
-                    ' .
-                    h(
-                        $emisorNombreMostrar
-                    ) .
-                    '
-                </h1>
-
-
-                ' . (
-                    $emisorNif !== ''
-                    ? '
-
-                    <p>
-
-                        <strong>
-                            NIF:
-                        </strong>
-
-                        ' .
-                        h(
-                            $emisorNif
-                        ) .
-                        '
-
-                    </p>
-
-                    '
-                    : ''
-                ) . '
-
-
-                ' . (
-                    $emisorDireccion !== ''
-                    ? '
-
-                    <p>
-                        ' .
-                        h(
-                            $emisorDireccion
-                        ) .
-                        '
-                    </p>
-
-                    '
-                    : ''
-                ) . '
-
-
-                ' . (
-                    $emisorLocalidad !== ''
-                    ? '
-
-                    <p>
-                        ' .
-                        h(
-                            $emisorLocalidad
-                        ) .
-                        '
-                    </p>
-
-                    '
-                    : ''
-                ) . '
-
-
-                ' . (
-                    $emisorPais !== ''
-                    ? '
-
-                    <p>
-                        ' .
-                        h(
-                            $emisorPais
-                        ) .
-                        '
-                    </p>
-
-                    '
-                    : ''
-                ) . '
-
-
-                ' . (
-                    $emisorEmail !== ''
-                    ? '
-
-                    <p>
-
-                        <strong>
-                            Email:
-                        </strong>
-
-                        ' .
-                        h(
-                            $emisorEmail
-                        ) .
-                        '
-
-                    </p>
-
-                    '
-                    : ''
-                ) . '
-
-
-                ' . (
-                    $emisorTelefono !== ''
-                    ? '
-
-                    <p>
-
-                        <strong>
-                            Teléfono:
-                        </strong>
-
-                        ' .
-                        h(
-                            $emisorTelefono
-                        ) .
-                        '
-
-                    </p>
-
-                    '
-                    : ''
-                ) . '
-
-
-                ' . (
-                    $emisorWeb !== ''
-                    ? '
-
-                    <p>
-
-                        <strong>
-                            Web:
-                        </strong>
-
-                        ' .
-                        h(
-                            $emisorWeb
-                        ) .
-                        '
-
-                    </p>
-
-                    '
-                    : ''
-                ) . '
-
-            </div>
-
+        <div class="subtexto">
+            EMISOR
         </div>
 
+        <h2>
+            ' .
+            h($emisorNombreMostrar) .
+            '
+        </h2>
+';
 
-        <div class="factura-titulo">
 
-            <h2>
-                FACTURA
-            </h2>
+if ($emisorNif !== '') {
 
-
-            <div class="numero-factura">
-
-                ' .
-                h(
-                    $numeroFactura
-                ) .
-                '
-
-            </div>
-
-
-            <div class="datos-factura">
-
-                <p>
-
-                    <strong>
-                        Fecha de emisión:
-                    </strong>
-
-                    <br>
-
-                    ' .
-                    fecha_es(
-                        $fechaEmision
-                    ) .
-                    '
-
-                </p>
-
-
-                ' . (
-                    !empty(
-                        $fechaVencimiento
-                    )
-                    ? '
-
-                    <p>
-
-                        <strong>
-                            Fecha de vencimiento:
-                        </strong>
-
-                        <br>
-
-                        ' .
-                        fecha_es(
-                            $fechaVencimiento
-                        ) .
-                        '
-
-                    </p>
-
-                    '
-                    : ''
-                ) . '
-
-            </div>
-
-        </div>
-
-    </header>
-
-
-    <section class="bloque-clientes">
-
-
-        <div class="cliente">
-
-            <div class="titulo-bloque">
-                CLIENTE
-            </div>
-
-
-            <h3>
-                ' .
-                h(
-                    $clienteNombre
-                ) .
-                '
-            </h3>
-
-
-            ' . (
-                !empty(
-                    $clienteNif
-                )
-                ? '
-
-                <p>
-
-                    <strong>
-                        NIF:
-                    </strong>
-
-                    ' .
-                    h(
-                        $clienteNif
-                    ) .
-                    '
-
-                </p>
-
-                '
-                : ''
-            ) . '
-
-
-            ' . (
-                $clienteDireccion !== ''
-                ? '
-
-                <p>
-                    ' .
-                    h(
-                        $clienteDireccion
-                    ) .
-                    '
-                </p>
-
-                '
-                : ''
-            ) . '
-
-
-            ' . (
-                $clienteLocalidad !== ''
-                ? '
-
-                <p>
-                    ' .
-                    h(
-                        $clienteLocalidad
-                    ) .
-                    '
-                </p>
-
-                '
-                : ''
-            ) . '
-
-
-            ' . (
-                !empty(
-                    $clientePais
-                )
-                ? '
-
-                <p>
-                    ' .
-                    h(
-                        $clientePais
-                    ) .
-                    '
-                </p>
-
-                '
-                : ''
-            ) . '
-
-
-            ' . (
-                !empty(
-                    $clienteEmail
-                )
-                ? '
-
-                <p>
-
-                    <strong>
-                        Email:
-                    </strong>
-
-                    ' .
-                    h(
-                        $clienteEmail
-                    ) .
-                    '
-
-                </p>
-
-                '
-                : ''
-            ) . '
-
-
-            ' . (
-                !empty(
-                    $clienteTelefono
-                )
-                ? '
-
-                <p>
-
-                    <strong>
-                        Teléfono:
-                    </strong>
-
-                    ' .
-                    h(
-                        $clienteTelefono
-                    ) .
-                    '
-
-                </p>
-
-                '
-                : ''
-            ) . '
-
-        </div>
-
-    </section>
-
-
-    <section class="tabla-lineas">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th class="descripcion">
-                        DESCRIPCIÓN
-                    </th>
-
-                    <th>
-                        CANT.
-                    </th>
-
-                    <th>
-                        PRECIO
-                    </th>
-
-                    <th>
-                        DTO.
-                    </th>
-
-                    <th>
-                        IVA
-                    </th>
-
-                    <th>
-                        BASE
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                ' .
-                $lineasHtml .
-                '
-
-            </tbody>
-
-        </table>
-
-    </section>
-
-
-    <section class="zona-final">
-
-
-        <div class="pago">
-
-            <div class="titulo-bloque">
-                FORMA DE PAGO
-            </div>
-
-
-            <p>
-                ' .
-                (
-                    $metodoPago !== ''
-                    ? h(
-                        $metodoPago
-                    )
-                    : 'No especificada'
-                ) .
-                '
-            </p>
-
-        </div>
-
-
-        <div class="totales">
-
-
-            <div class="fila-total">
-
-                <span>
-                    Base imponible
-                </span>
-
-                <strong>
-
-                    ' .
-                    dinero(
-                        $baseImponible
-                    ) .
-                    '
-
-                </strong>
-
-            </div>
-
-
-            <div class="fila-total">
-
-                <span>
-                    IVA
-                </span>
-
-                <strong>
-
-                    ' .
-                    dinero(
-                        $totalIva
-                    ) .
-                    '
-
-                </strong>
-
-            </div>
-
-
-            ' . (
-                (float) $totalIrpf != 0
-                ? '
-
-                <div class="fila-total">
-
-                    <span>
-                        IRPF
-                    </span>
-
-                    <strong>
-
-                        -' .
-                        dinero(
-                            $totalIrpf
-                        ) .
-                        '
-
-                    </strong>
-
-                </div>
-
-                '
-                : ''
-            ) . '
-
-
-            <div class="fila-total total-final">
-
-                <span>
-                    TOTAL
-                </span>
-
-                <strong>
-
-                    ' .
-                    dinero(
-                        $total
-                    ) .
-                    '
-
-                </strong>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    ' . (
-        !empty(
-            trim(
-                (string) $observaciones
-            )
-        )
-        ? '
-
-        <section class="observaciones">
-
-            <div class="titulo-bloque">
-                OBSERVACIONES
-            </div>
-
-
-            <p>
-
-                ' .
-                nl2br(
-                    h(
-                        $observaciones
-                    )
-                ) .
-                '
-
-            </p>
-
-        </section>
-
-        '
-        : ''
-    ) . '
-
-
-    <footer class="pie">
-
+    $html .= '
         <p>
-            Generado mediante ViziuneAI
+            <strong>NIF:</strong>
+            ' .
+            h($emisorNif) .
+            '
+        </p>';
+
+}
+
+
+if ($emisorDireccion !== '') {
+
+    $html .= '
+        <p>
+            ' .
+            h($emisorDireccion) .
+            '
+        </p>';
+
+}
+
+
+if ($emisorLocalidad !== '') {
+
+    $html .= '
+        <p>
+            ' .
+            h($emisorLocalidad) .
+            '
+        </p>';
+
+}
+
+
+if ($emisorPais !== '') {
+
+    $html .= '
+        <p>
+            ' .
+            h($emisorPais) .
+            '
+        </p>';
+
+}
+
+
+if ($emisorEmail !== '') {
+
+    $html .= '
+        <p>
+            <strong>Email:</strong>
+            ' .
+            h($emisorEmail) .
+            '
+        </p>';
+
+}
+
+
+if ($emisorTelefono !== '') {
+
+    $html .= '
+        <p>
+            <strong>Teléfono:</strong>
+            ' .
+            h($emisorTelefono) .
+            '
+        </p>';
+
+}
+
+
+$html .= '
+
+    </div>
+
+
+    <div class="datos">
+
+        <h1>
+            FACTURA
+        </h1>
+
+        <p class="numero">
+            Nº ' .
+            h($numeroFactura) .
+            '
         </p>
 
         <p>
-            Documento generado electrónicamente.
+            Fecha emisión:
+            ' .
+            h(
+                fecha_es(
+                    $fechaEmision
+                )
+            ) .
+            '
+        </p>
+';
+
+
+if (!empty($fechaVencimiento)) {
+
+    $html .= '
+        <p>
+            Vencimiento:
+            ' .
+            h(
+                fecha_es(
+                    $fechaVencimiento
+                )
+            ) .
+            '
+        </p>';
+
+}
+
+
+$html .= '
+
+        <p>
+            ' .
+            h(
+                ucfirst(
+                    $factura['estado']
+                )
+            ) .
+            '
         </p>
 
-    </footer>
+    </div>
 
+
+    <div class="clear"></div>
 
 </div>
+
+
+<div class="bloque">
+
+    <h3>
+        CLIENTE
+    </h3>
+
+    <p>
+        <strong>
+            ' .
+            h($clienteNombre) .
+            '
+        </strong>
+    </p>
+
+    <p>
+        <strong>NIF:</strong>
+        ' .
+        h($clienteNif) .
+        '
+    </p>
+';
+
+
+if ($clienteDireccion !== '') {
+
+    $html .= '
+    <p>
+        ' .
+        h($clienteDireccion) .
+        '
+    </p>';
+
+}
+
+
+if ($clienteLocalidad !== '') {
+
+    $html .= '
+    <p>
+        ' .
+        h($clienteLocalidad) .
+        '
+    </p>';
+
+}
+
+
+if (!empty($clientePais)) {
+
+    $html .= '
+    <p>
+        ' .
+        h($clientePais) .
+        '
+    </p>';
+
+}
+
+
+if (!empty($clienteEmail)) {
+
+    $html .= '
+    <p>
+        <strong>Email:</strong>
+        ' .
+        h($clienteEmail) .
+        '
+    </p>';
+
+}
+
+
+if (!empty($clienteTelefono)) {
+
+    $html .= '
+    <p>
+        <strong>Teléfono:</strong>
+        ' .
+        h($clienteTelefono) .
+        '
+    </p>';
+
+}
+
+
+$html .= '
+
+</div>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Descripción</th>
+
+<th>Cant.</th>
+
+<th>Precio</th>
+
+<th>Desc.</th>
+
+<th>IVA</th>
+
+<th>Total</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+' .
+$lineasHtml .
+'
+
+</tbody>
+
+</table>
+
+
+<div class="totales">
+
+
+    <div class="fila">
+
+        <span>
+            Base imponible
+        </span>
+
+        <strong>
+            ' .
+            dinero(
+                $baseImponible
+            ) .
+            '
+        </strong>
+
+    </div>
+
+
+    <div class="fila">
+
+        <span>
+            IVA
+        </span>
+
+        <strong>
+            ' .
+            dinero(
+                $totalIva
+            ) .
+            '
+        </strong>
+
+    </div>
+';
+
+
+if (
+    (float) $totalIrpf > 0
+) {
+
+    $html .= '
+
+    <div class="fila">
+
+        <span>
+            IRPF
+        </span>
+
+        <strong>
+            -' .
+            dinero(
+                $totalIrpf
+            ) .
+            '
+        </strong>
+
+    </div>';
+
+}
+
+
+$html .= '
+
+    <div class="fila total">
+
+        <span>
+            TOTAL
+        </span>
+
+        <strong>
+            ' .
+            dinero(
+                $total
+            ) .
+            '
+        </strong>
+
+    </div>
+
+</div>
+
+
+<div class="bloque">
+
+    <h3>
+        Forma de pago
+    </h3>
+
+    <p>
+        ' .
+        h(
+            $metodoPago !== ''
+            ? $metodoPago
+            : 'No especificada'
+        ) .
+        '
+    </p>
+
+
+    <h3 style="margin-top:15px;">
+        Observaciones
+    </h3>
+
+    <p>
+';
+
+
+if (
+    trim(
+        (string) $observaciones
+    ) !== ''
+) {
+
+    $html .= nl2br(
+        h(
+            $observaciones
+        )
+    );
+
+} else {
+
+    $html .=
+        'Sin observaciones.';
+
+}
+
+
+$html .= '
+
+    </p>
+
+</div>
+
+
+<div class="final">
+
+    Generado mediante ViziuneAI
+
+</div>
+
 
 </body>
 
 </html>
-
 ';
 
 
@@ -1743,64 +1560,141 @@ try {
     |--------------------------------------------------------------------------
     | CONFIGURAR DOMPDF
     |--------------------------------------------------------------------------
+    |
+    | IMPORTANTE:
+    | NO creamos ninguna carpeta dentro del proyecto.
+    |
+    | Utilizamos una carpeta temporal que PHP ya tenga disponible.
+    |
     */
 
-    $rutaTempDompdf =
-        __DIR__ .
-        '/tmp/dompdf';
+    $directoriosTemporales = [];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | upload_tmp_dir
+    |--------------------------------------------------------------------------
+    */
+
+    $uploadTmpDir =
+        ini_get(
+            'upload_tmp_dir'
+        );
 
 
     if (
-        !is_dir(
-            $rutaTempDompdf
-        )
+        is_string(
+            $uploadTmpDir
+        ) &&
+        trim(
+            $uploadTmpDir
+        ) !== ''
+    ) {
+
+        $directoriosTemporales[] =
+            rtrim(
+                $uploadTmpDir,
+                DIRECTORY_SEPARATOR
+            );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | sys_get_temp_dir
+    |--------------------------------------------------------------------------
+    */
+
+    $tempSistema =
+        sys_get_temp_dir();
+
+
+    if (
+        is_string(
+            $tempSistema
+        ) &&
+        trim(
+            $tempSistema
+        ) !== ''
+    ) {
+
+        $directoriosTemporales[] =
+            rtrim(
+                $tempSistema,
+                DIRECTORY_SEPARATOR
+            );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUSCAR DIRECTORIO VÁLIDO
+    |--------------------------------------------------------------------------
+    */
+
+    $rutaTempDompdf = '';
+
+
+    foreach (
+        array_unique(
+            $directoriosTemporales
+        ) as $ruta
     ) {
 
         if (
-            !mkdir(
-                $rutaTempDompdf,
-                0775,
-                true
-            ) &&
-            !is_dir(
-                $rutaTempDompdf
-            )
+            is_dir($ruta) &&
+            is_writable($ruta)
         ) {
 
-            throw new Exception(
-                'No se ha podido crear la carpeta temporal de Dompdf: ' .
-                $rutaTempDompdf
-            );
+            $rutaTempDompdf =
+                $ruta;
+
+            break;
+
         }
+
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | SI NO HAY DIRECTORIO TEMPORAL
+    |--------------------------------------------------------------------------
+    */
+
     if (
-        !is_writable(
-            $rutaTempDompdf
-        )
+        $rutaTempDompdf === ''
     ) {
 
         throw new Exception(
-            'La carpeta temporal de Dompdf no tiene permisos de escritura: ' .
-            $rutaTempDompdf
+            'PHP no dispone de una carpeta temporal válida y escribible para Dompdf.'
         );
+
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | OPCIONES DOMPDF
+    |--------------------------------------------------------------------------
+    */
 
     $options =
         new Options();
 
 
     $options->set(
-        'tempDir',
-        $rutaTempDompdf
+        'defaultFont',
+        'DejaVu Sans'
     );
 
 
     $options->set(
         'isRemoteEnabled',
-        true
+        false
     );
 
 
@@ -1810,9 +1704,27 @@ try {
     );
 
 
+    $options->set(
+        'tempDir',
+        $rutaTempDompdf
+    );
+
+
+    $options->set(
+        'fontCache',
+        $rutaTempDompdf
+    );
+
+
+    $options->set(
+        'chroot',
+        __DIR__
+    );
+
+
     /*
     |--------------------------------------------------------------------------
-    | GENERAR PDF
+    | CREAR DOMPDF
     |--------------------------------------------------------------------------
     */
 
@@ -1822,11 +1734,23 @@ try {
         );
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | CARGAR HTML
+    |--------------------------------------------------------------------------
+    */
+
     $dompdf->loadHtml(
         $html,
         'UTF-8'
     );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAPEL A4
+    |--------------------------------------------------------------------------
+    */
 
     $dompdf->setPaper(
         'A4',
@@ -1834,12 +1758,33 @@ try {
     );
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | GENERAR
+    |--------------------------------------------------------------------------
+    */
+
     $dompdf->render();
 
 
     /*
     |--------------------------------------------------------------------------
-    | MOSTRAR PDF
+    | LIMPIAR BUFFER
+    |--------------------------------------------------------------------------
+    */
+
+    while (
+        ob_get_level() > 0
+    ) {
+
+        ob_end_clean();
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NOMBRE DEL PDF
     |--------------------------------------------------------------------------
     */
 
@@ -1852,6 +1797,12 @@ try {
         ) .
         '.pdf';
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | MOSTRAR EN EL NAVEGADOR
+    |--------------------------------------------------------------------------
+    */
 
     $dompdf->stream(
         $nombreArchivo,
@@ -1866,105 +1817,52 @@ try {
 
 } catch (Throwable $e) {
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | DIAGNÓSTICO
-    |--------------------------------------------------------------------------
-    */
-
     error_log(
-        'ERROR REAL generar_pdf.php: ' .
+        'ERROR generar_pdf.php: ' .
         $e->getMessage() .
         ' | FILE: ' .
         $e->getFile() .
         ' | LINE: ' .
-        $e->getLine() .
-        ' | TRACE: ' .
-        $e->getTraceAsString()
+        $e->getLine()
     );
 
 
     http_response_code(500);
 
-    ?>
+    echo '<!DOCTYPE html>';
 
-    <!DOCTYPE html>
+    echo '<html lang="es">';
 
-    <html lang="es">
+    echo '<head>';
 
-    <head>
+    echo '<meta charset="UTF-8">';
 
-        <meta charset="UTF-8">
+    echo '<title>Error generando PDF</title>';
 
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-        >
+    echo '</head>';
 
-        <title>
-            Error generando PDF
-        </title>
+    echo '<body style="
+        font-family:Arial,sans-serif;
+        padding:40px;
+        background:#f7f7f7;
+        color:#222;
+    ">';
 
-        <link
-            rel="stylesheet"
-            href="css/generar-pdf.css"
-        >
+    echo '<h1>
+        Error al generar el PDF
+    </h1>';
 
-    </head>
+    echo '<p>';
 
+    echo h(
+        $e->getMessage()
+    );
 
-    <body>
+    echo '</p>';
 
+    echo '</body>';
 
-        <main class="error-pdf">
-
-
-            <div class="error-icono">
-                !
-            </div>
-
-
-            <h1>
-                No se ha podido generar el PDF
-            </h1>
-
-
-            <p>
-
-                ERROR REAL:
-
-                <?php
-                echo h(
-                    $e->getMessage()
-                );
-                ?>
-
-            </p>
-
-
-            <div class="error-acciones">
-
-
-                <a
-                    href="javascript:history.back()"
-                    class="boton"
-                >
-                    ← Volver
-                </a>
-
-
-            </div>
-
-
-        </main>
-
-
-    </body>
-
-    </html>
-
-    <?php
+    echo '</html>';
 
     exit;
 }
