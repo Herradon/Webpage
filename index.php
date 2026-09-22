@@ -385,7 +385,6 @@ $mostrarPoliticaPrivacidad = (
 
                     <div class="chat-intro">
 
-
                         <div class="assistant-avatar">
 
                             <img

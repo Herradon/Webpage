@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "● Diseño y desarrollo de páginas web profesionales, modernas y adaptadas a las necesidades de tu negocio.",
 
             avatar:
-                "img/asset.png"
+                "img/asesoramiento.png"
 
         },
 
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "● Creación y desarrollo de tiendas online para vender productos y servicios por Internet.",
 
             avatar:
-                "img/asset.png"
+                "img/asesoramiento.png"
 
         },
 
@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "● Estrategias SEO y SEM para mejorar la visibilidad de tu negocio, atraer tráfico y conseguir clientes.",
 
             avatar:
-                "img/asset.png"
+                "img/asesoramiento.png"
 
         },
 
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "● Asesoramiento para mejorar, optimizar y hacer crecer la presencia online de tu negocio.",
 
             avatar:
-                "img/asset.png"
+                "img/asesoramiento.png"
 
         }
 
