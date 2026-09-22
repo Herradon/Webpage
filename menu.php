@@ -1,6 +1,15 @@
+<?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$usuarioLogueado = isset($_SESSION['usuario_id']);
+
+?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
 
@@ -60,25 +69,38 @@
                     Inicio
                 </a>
 
-                 <a href="herramientas.php">
-                    Auditoria SEO
-                </a>
-
-                <a href="calendario.php">
-                    Calendario
+                <a href="herramientas.php">
+                   Analisis
                 </a>
 
                 <a href="facturas.php">
                     Facturación
                 </a>
-
-                <a href="mi_cuenta.php">
-                    Mi cuenta
+                
+                
+                <a href="calendario.php">
+                    Calendario
                 </a>
 
-                <a href="logout.php">
-                    Cerrar sesión
-                </a>
+
+
+                <?php if ($usuarioLogueado): ?>
+
+                    <a href="mi_cuenta.php">
+                        Mi cuenta
+                    </a>
+
+                    <a href="logout.php">
+                        Cerrar sesión
+                    </a>
+
+                <?php else: ?>
+
+                    <a href="login.php">
+                        Iniciar sesión
+                    </a>
+
+                <?php endif; ?>
 
             </nav>
 
@@ -547,31 +569,30 @@
                 window.location.pathname
                     .split("/")
                     .pop();
-                            
-                            
+
+
             nav.querySelectorAll("a").forEach(function (link) {
-                            
+
                 const enlace =
                     link.getAttribute("href");
-                            
+
                 if (!enlace) {
                     return;
                 }
-                            
-                            
+
+
                 const paginaEnlace =
                     enlace.split("/").pop();
-                            
-                            
-                link.classList.remove("activo");
-                            
-                            
-                if (paginaActual === paginaEnlace) {
-                            
-                    link.classList.add("activo");
-                            
-                }
 
+
+                link.classList.remove("activo");
+
+
+                if (paginaActual === paginaEnlace) {
+
+                    link.classList.add("activo");
+
+                }
 
             });
 

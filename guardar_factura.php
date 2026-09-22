@@ -183,8 +183,19 @@ $observaciones =
     trim($_POST['observaciones'] ?? '');
 
 
-$tipoIrpf =
-    (float) ($_POST['tipo_irpf'] ?? 0);
+/*
+|--------------------------------------------------------------------------
+| IRPF ELIMINADO
+|--------------------------------------------------------------------------
+|
+| Ya no se recibe ni se calcula ningún porcentaje de IRPF.
+|
+| La columna total_irpf de la tabla facturas se mantiene por compatibilidad
+| con la estructura actual de la base de datos, pero siempre se guarda 0.
+|
+*/
+
+$totalIrpf = 0.00;
 
 
 /* ==========================================
@@ -661,32 +672,6 @@ if ($facturaId > 0) {
 
 
 /* ==========================================
-   VALIDAR IRPF
-========================================== */
-
-$porcentajesIrpfPermitidos = [
-    0,
-    7,
-    15
-];
-
-
-if (
-    !in_array(
-        (int) $tipoIrpf,
-        $porcentajesIrpfPermitidos,
-        true
-    )
-) {
-
-    volverConError(
-        'El porcentaje de IRPF seleccionado no es válido.'
-    );
-
-}
-
-
-/* ==========================================
    VALIDAR LÍNEAS
 ========================================== */
 
@@ -954,16 +939,19 @@ $totalIva =
 
 
 /* ==========================================
-   CALCULAR IRPF
+   IRPF
 ========================================== */
 
-$totalIrpf =
-    round(
-        $baseImponible *
-        $tipoIrpf /
-        100,
-        2
-    );
+/*
+|--------------------------------------------------------------------------
+| IRPF ELIMINADO
+|--------------------------------------------------------------------------
+|
+| Ya no se aplica ninguna retención.
+|
+*/
+
+$totalIrpf = 0.00;
 
 
 /* ==========================================
@@ -973,8 +961,7 @@ $totalIrpf =
 $totalFactura =
     round(
         $baseImponible +
-        $totalIva -
-        $totalIrpf,
+        $totalIva,
         2
     );
 
@@ -1089,11 +1076,17 @@ $datosFactura = [
                 ? $observaciones
                 : null,
 
+        /*
+        |--------------------------------------------------------------------------
+        | IRPF eliminado.
+        |
+        | Se mantiene a 0 únicamente por compatibilidad con datos antiguos
+        | que pudieran esperar esta propiedad.
+        |--------------------------------------------------------------------------
+        */
+
         'tipo_irpf' =>
-            round(
-                $tipoIrpf,
-                2
-            ),
+            0,
 
         'base_imponible' =>
             $baseImponible,
@@ -1102,7 +1095,7 @@ $datosFactura = [
             $totalIva,
 
         'total_irpf' =>
-            $totalIrpf,
+            0.00,
 
         'total' =>
             $totalFactura
@@ -1111,11 +1104,8 @@ $datosFactura = [
 
     /*
     |--------------------------------------------------------------------------
-    | NUEVO
+    | DATOS HISTÓRICOS DEL EMISOR
     |--------------------------------------------------------------------------
-    |
-    | Datos históricos del EMISOR.
-    |
     */
 
     'emisor' =>
@@ -1327,7 +1317,7 @@ try {
                     moneda = 'EUR',
                     base_imponible = ?,
                     total_iva = ?,
-                    total_irpf = ?,
+                    total_irpf = 0,
                     total = ?,
                     metodo_pago = ?,
                     fecha_vencimiento = ?,
@@ -1350,8 +1340,6 @@ try {
                 $baseImponible,
 
                 $totalIva,
-
-                $totalIrpf,
 
                 $totalFactura,
 
@@ -1410,7 +1398,7 @@ try {
                     'EUR',
                     ?,
                     ?,
-                    ?,
+                    0,
                     ?,
                     ?,
                     ?,
@@ -1431,8 +1419,6 @@ try {
             $baseImponible,
 
             $totalIva,
-
-            $totalIrpf,
 
             $totalFactura,
 
@@ -1466,7 +1452,7 @@ try {
 
     /* ==========================================
        GUARDAR DATOS PRIVADOS CIFRADOS
-    ========================================== */
+========================================== */
 
     $stmtPrivada =
         $pdo->prepare("
@@ -1509,7 +1495,7 @@ try {
 
     /* ==========================================
        NO USAR factura_lineas
-    ========================================== */
+========================================== */
 
     /*
     |--------------------------------------------------------------------------
@@ -1520,14 +1506,14 @@ try {
 
     /* ==========================================
        CONFIRMAR
-    ========================================== */
+========================================== */
 
     $pdo->commit();
 
 
     /* ==========================================
        REDIRECCIÓN
-    ========================================== */
+========================================== */
 
     header(
         'Location: ver_factura.php?id=' .

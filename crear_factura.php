@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -64,10 +63,6 @@ if ($facturaId) {
     |--------------------------------------------------------------------------
     | Buscar factura perteneciente al usuario
     |--------------------------------------------------------------------------
-    |
-    | El cliente técnico asociado a la factura se utiliza únicamente
-    | para comprobar que la factura pertenece al usuario conectado.
-    |
     */
 
     $stmtFactura = $pdo->prepare("
@@ -403,8 +398,6 @@ $fechaHoy = $facturaEditar['fecha_emision']
 
 $fechaVencimiento = '';
 
-$tipoIrpf = 0;
-
 $metodoPago = '';
 
 $observaciones = '';
@@ -419,10 +412,6 @@ if ($modoEdicion && $datosPrivadosEditar) {
     $fechaVencimiento =
         $datosPrivadosEditar['factura']['fecha_vencimiento']
         ?? '';
-
-    $tipoIrpf =
-        $datosPrivadosEditar['factura']['tipo_irpf']
-        ?? 0;
 
     $metodoPago =
         $datosPrivadosEditar['factura']['metodo_pago']
@@ -845,6 +834,71 @@ $urlVolver = 'facturas.php';
 
                     </div>
 
+
+                    <!-- ==========================================
+                         MÉTODO DE PAGO
+                    ========================================== -->
+
+                    <div class="campo-factura completo">
+
+                        <label for="metodo_pago">
+                            Método de pago
+                        </label>
+
+                        <select
+                            id="metodo_pago"
+                            name="metodo_pago"
+                        >
+
+                            <option
+                                value=""
+                                <?= $metodoPago === ''
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Seleccionar
+                            </option>
+
+                            <option
+                                value="Transferencia bancaria"
+                                <?= $metodoPago === 'Transferencia bancaria'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Transferencia bancaria
+                            </option>
+
+                            <option
+                                value="Domiciliación"
+                                <?= $metodoPago === 'Domiciliación'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Domiciliación
+                            </option>
+
+                            <option
+                                value="Tarjeta"
+                                <?= $metodoPago === 'Tarjeta'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Tarjeta
+                            </option>
+
+                            <option
+                                value="Efectivo"
+                                <?= $metodoPago === 'Efectivo'
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                Efectivo
+                            </option>
+
+                        </select>
+
+                    </div>
+
                 </div>
 
             </section>
@@ -1115,114 +1169,6 @@ $urlVolver = 'facturas.php';
 
                 <h2>Impuestos y totales</h2>
 
-                <div class="grid-factura">
-
-                    <div class="campo-factura">
-
-                        <label for="tipo_irpf">
-                            IRPF
-                        </label>
-
-                        <select
-                            id="tipo_irpf"
-                            name="tipo_irpf"
-                        >
-
-                            <option
-                                value="0"
-                                <?= (float) $tipoIrpf === 0.0
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                Sin IRPF
-                            </option>
-
-                            <option
-                                value="7"
-                                <?= (float) $tipoIrpf === 7.0
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                7%
-                            </option>
-
-                            <option
-                                value="15"
-                                <?= (float) $tipoIrpf === 15.0
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                15%
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="campo-factura">
-
-                        <label for="metodo_pago">
-                            Método de pago
-                        </label>
-
-                        <select
-                            id="metodo_pago"
-                            name="metodo_pago"
-                        >
-
-                            <option
-                                value=""
-                                <?= $metodoPago === ''
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                Seleccionar
-                            </option>
-
-                            <option
-                                value="Transferencia bancaria"
-                                <?= $metodoPago === 'Transferencia bancaria'
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                Transferencia bancaria
-                            </option>
-
-                            <option
-                                value="Domiciliación"
-                                <?= $metodoPago === 'Domiciliación'
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                Domiciliación
-                            </option>
-
-                            <option
-                                value="Tarjeta"
-                                <?= $metodoPago === 'Tarjeta'
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                Tarjeta
-                            </option>
-
-                            <option
-                                value="Efectivo"
-                                <?= $metodoPago === 'Efectivo'
-                                    ? 'selected'
-                                    : '' ?>
-                            >
-                                Efectivo
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
                 <div class="resumen-factura">
 
                     <div class="totales-factura">
@@ -1247,19 +1193,6 @@ $urlVolver = 'facturas.php';
                             </span>
 
                             <strong id="totalIva">
-                                0,00 €
-                            </strong>
-
-                        </div>
-
-
-                        <div class="fila-total">
-
-                            <span>
-                                IRPF
-                            </span>
-
-                            <strong id="totalIrpf">
                                 0,00 €
                             </strong>
 
@@ -1329,13 +1262,6 @@ $urlVolver = 'facturas.php';
                 type="hidden"
                 name="total_iva"
                 id="inputIva"
-                value="0.00"
-            >
-
-            <input
-                type="hidden"
-                name="total_irpf"
-                id="inputIrpf"
                 value="0.00"
             >
 

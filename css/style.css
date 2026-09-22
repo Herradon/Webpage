@@ -53,7 +53,6 @@ button {
 
 /* =========================================================
    NEURONAS
-   IMPORTANTE: NO SE MODIFICA LA ANIMACIÓN
    ========================================================= */
 
 #neural-canvas {
@@ -217,7 +216,6 @@ button {
 
 .section-title {
     width: 100%;
-    text-align: center;
     margin-bottom: 45px;
     display: flex;
     flex-direction: column;
@@ -245,13 +243,11 @@ button {
 }
 
 .section-title p {
-    width: 100%;
     max-width: 850px;
     color: #9fb1c1;
     font-size: 15px;
     line-height: 1.7;
     text-align: justify;
-    text-align: center;
 }
 
 

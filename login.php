@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -160,6 +159,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             /*
             |--------------------------------------------------------------------------
+            | MOSTRAR POLÍTICA DE PRIVACIDAD DESPUÉS DEL LOGIN
+            |--------------------------------------------------------------------------
+            |
+            | Al iniciar sesión correctamente se marca la sesión
+            | para que el popup aparezca en index.php.
+            |
+            */
+
+            $_SESSION['mostrar_politica_privacidad'] = true;
+
+
+            /*
+            |--------------------------------------------------------------------------
             | ENTRADA AL ÁREA PRIVADA
             |--------------------------------------------------------------------------
             */
@@ -308,6 +320,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="login-footer">
 
+                <!-- RECUPERAR CONTRASEÑA -->
+
+                <div class="forgot-password">
+
+                    <a href="recuperar_password.php">
+                        ¿Has olvidado tu contraseña?
+                    </a>
+
+                </div>
+
+
                 <p>
                     ¿Todavía no tienes una cuenta?
                 </p>
@@ -337,4 +360,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 
 </html>
-

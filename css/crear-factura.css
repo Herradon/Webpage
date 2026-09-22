@@ -122,16 +122,58 @@ body {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
+    width: 100%;
+    align-items: start;
 }
 
+
+/* ==========================================
+   CAMPO
+========================================== */
+
 .campo-factura {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 7px;
+    min-width: 0;
+    width: 100%;
+    align-content: start;
 }
+
+
+/* ==========================================
+   CAMPO COMPLETO
+========================================== */
 
 .campo-factura.completo {
     grid-column: 1 / -1;
+}
+
+
+/* ==========================================
+   MÉTODO DE PAGO
+========================================== */
+
+.campo-factura.metodo-pago {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    align-self: start;
+    justify-self: stretch;
+}
+
+.campo-factura.metodo-pago label {
+    width: 100%;
+    margin: 0;
+}
+
+.campo-factura.metodo-pago select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
 }
 
 
@@ -140,9 +182,11 @@ body {
 ========================================== */
 
 .campo-factura label {
+    display: block;
     color: #c8d4e1;
     font-size: 14px;
     font-weight: 600;
+    line-height: 1.4;
 }
 
 
@@ -153,15 +197,25 @@ body {
 .campo-factura input,
 .campo-factura select,
 .campo-factura textarea {
+    display: block;
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
+
     padding: 12px 13px;
+
     border: 1px solid #2a4058;
     border-radius: 8px;
+
     outline: none;
+
     background: #07111f;
     color: #ffffff;
+
     font-family: inherit;
     font-size: 14px;
+    line-height: 1.4;
+
     transition: 0.2s ease;
 }
 
@@ -190,7 +244,9 @@ body {
 ========================================== */
 
 .campo-factura select {
+    height: 43px;
     cursor: pointer;
+    appearance: auto;
 }
 
 .campo-factura select option {
@@ -215,6 +271,7 @@ body {
 ========================================== */
 
 .campo-factura small {
+    display: block;
     color: #71859b;
     font-size: 12px;
     line-height: 1.4;
@@ -226,12 +283,17 @@ body {
 ========================================== */
 
 .cliente-info {
+    display: block;
+    width: 100%;
     margin-top: 15px;
     padding: 14px;
+
     border: 1px solid #1d3044;
     border-radius: 8px;
+
     background: #091522;
     color: #91a5ba;
+
     font-size: 13px;
     line-height: 1.6;
 }
@@ -242,11 +304,22 @@ body {
 
 
 /* ==========================================
+   CONTENEDOR DE LÍNEAS
+========================================== */
+
+.lineas-factura {
+    width: 100%;
+    overflow-x: auto;
+}
+
+
+/* ==========================================
    CABECERA DE LAS LÍNEAS
 ========================================== */
 
 .lineas-cabecera {
     display: grid;
+
     grid-template-columns:
         minmax(220px, 3fr)
         minmax(80px, 1fr)
@@ -257,6 +330,7 @@ body {
 
     gap: 10px;
 
+    width: 100%;
     margin-bottom: 8px;
 
     color: #8195aa;
@@ -271,6 +345,7 @@ body {
 
 .linea-factura {
     display: grid;
+
     grid-template-columns:
         minmax(220px, 3fr)
         minmax(80px, 1fr)
@@ -281,6 +356,7 @@ body {
 
     gap: 10px;
 
+    width: 100%;
     margin-bottom: 10px;
 
     align-items: center;
@@ -293,16 +369,24 @@ body {
 
 .linea-factura input,
 .linea-factura select {
+    display: block;
     width: 100%;
     min-width: 0;
+
     padding: 11px 10px;
+
     border: 1px solid #2a4058;
     border-radius: 7px;
+
     outline: none;
+
     background: #07111f;
     color: #ffffff;
+
     font-family: inherit;
     font-size: 14px;
+    line-height: 1.4;
+
     transition: 0.2s ease;
 }
 
@@ -331,6 +415,12 @@ body {
 ========================================== */
 
 .linea-total {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    min-width: 0;
+
     color: #ffffff;
     font-size: 14px;
     font-weight: 600;
@@ -344,6 +434,10 @@ body {
 ========================================== */
 
 .boton-eliminar-linea {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     width: 40px;
     height: 40px;
     padding: 0;
@@ -373,6 +467,10 @@ body {
 ========================================== */
 
 .boton-anadir-linea {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     margin-top: 8px;
     padding: 10px 16px;
 
@@ -402,12 +500,16 @@ body {
 ========================================== */
 
 .resumen-factura {
-    display: flex;
-    justify-content: flex-end;
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: end;
+
+    width: 100%;
     margin-top: 25px;
 }
 
 .totales-factura {
+    display: grid;
     width: 100%;
     max-width: 400px;
 }
@@ -418,9 +520,11 @@ body {
 ========================================== */
 
 .fila-total {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto;
+
     align-items: center;
+
     gap: 20px;
 
     padding: 9px 0;
@@ -435,6 +539,7 @@ body {
     color: #ffffff;
     font-size: 15px;
     white-space: nowrap;
+    text-align: right;
 }
 
 .fila-total.total-final {
@@ -454,11 +559,11 @@ body {
 ========================================== */
 
 .acciones-formulario {
-    display: flex;
-    justify-content: flex-end;
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: end;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
 }
 
 
@@ -568,6 +673,10 @@ body {
         align-items: flex-start;
     }
 
+    .lineas-factura {
+        overflow-x: visible;
+    }
+
     .lineas-cabecera {
         display: none;
     }
@@ -589,6 +698,7 @@ body {
     }
 
     .linea-total {
+        justify-content: flex-start;
         text-align: left;
     }
 
@@ -642,8 +752,9 @@ body {
         gap: 15px;
     }
 
-    .campo-factura.completo {
-        grid-column: auto;
+    .campo-factura.completo,
+    .campo-factura.metodo-pago {
+        grid-column: 1;
     }
 
     .linea-factura {
@@ -666,6 +777,7 @@ body {
 
     .resumen-factura {
         margin-top: 20px;
+        justify-items: stretch;
     }
 
     .totales-factura {
@@ -673,6 +785,7 @@ body {
     }
 
     .fila-total {
+        grid-template-columns: 1fr auto;
         font-size: 14px;
     }
 
@@ -685,8 +798,8 @@ body {
     }
 
     .acciones-formulario {
-        flex-direction: column-reverse;
-        align-items: stretch;
+        grid-template-columns: 1fr;
+        justify-content: stretch;
     }
 
     .boton-guardar-factura,
