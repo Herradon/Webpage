@@ -1,40 +1,96 @@
+
 <?php
+
+/*
+|--------------------------------------------------------------------------
+| INICIAR SESIÓN
+|--------------------------------------------------------------------------
+*/
 
 session_start();
 
 
 /*
 |--------------------------------------------------------------------------
-| Obtener la página desde la que se cierra sesión
+| OBTENER DIRECTORIO DEL PROYECTO
+|--------------------------------------------------------------------------
+|
+| Si logout.php está dentro de:
+|
+| /chatbot/logout.php
+|
+| obtendremos:
+|
+| /chatbot
+|
 |--------------------------------------------------------------------------
 */
 
-$redirect = $_GET['redirect'] ?? '/index.php';
+$directorioProyecto = rtrim(
+    dirname($_SERVER['SCRIPT_NAME'] ?? ''),
+    '/'
+);
 
 
 /*
 |--------------------------------------------------------------------------
-| Seguridad
-|--------------------------------------------------------------------------
-|
-| Evitamos que el parámetro redirect pueda utilizarse
-| para enviar al usuario a una web externa.
-|
+| SI ESTAMOS EN LA RAÍZ
 |--------------------------------------------------------------------------
 */
 
 if (
-    empty($redirect) ||
-    $redirect[0] !== '/' ||
-    strpos($redirect, '//') === 0
+    $directorioProyecto === '' ||
+    $directorioProyecto === '.'
 ) {
-    $redirect = '/index.php';
+    $directorioProyecto = '';
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| Cerrar sesión
+| PÁGINA DE REDIRECCIÓN
+|--------------------------------------------------------------------------
+*/
+
+$redirect = $_GET['redirect'] ?? null;
+
+
+/*
+|--------------------------------------------------------------------------
+| VALIDAR REDIRECCIÓN
+|--------------------------------------------------------------------------
+|
+| Solo permitimos rutas internas.
+|
+|--------------------------------------------------------------------------
+*/
+
+if (
+    !is_string($redirect) ||
+    $redirect === '' ||
+    $redirect[0] !== '/' ||
+    strpos($redirect, '//') === 0 ||
+    strpos($redirect, '\\') !== false
+) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | POR DEFECTO
+    |--------------------------------------------------------------------------
+    |
+    | Volvemos al index del proyecto.
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    $redirect = $directorioProyecto . '/index.php';
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| LIMPIAR SESIÓN
 |--------------------------------------------------------------------------
 */
 
@@ -43,7 +99,7 @@ $_SESSION = [];
 
 /*
 |--------------------------------------------------------------------------
-| Eliminar cookie de sesión
+| ELIMINAR COOKIE DE SESIÓN
 |--------------------------------------------------------------------------
 */
 
@@ -51,21 +107,23 @@ if (ini_get('session.use_cookies')) {
 
     $params = session_get_cookie_params();
 
+
     setcookie(
         session_name(),
         '',
         time() - 42000,
-        $params['path'],
-        $params['domain'],
-        $params['secure'],
-        $params['httponly']
+        $params['path'] ?? '/',
+        $params['domain'] ?? '',
+        (bool) ($params['secure'] ?? false),
+        (bool) ($params['httponly'] ?? true)
     );
+
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| Destruir sesión
+| DESTRUIR SESIÓN
 |--------------------------------------------------------------------------
 */
 
@@ -74,9 +132,36 @@ session_destroy();
 
 /*
 |--------------------------------------------------------------------------
-| Volver a la página donde estaba el usuario
+| EVITAR CACHÉ
 |--------------------------------------------------------------------------
 */
 
-header('Location: ' . $redirect);
+header(
+    'Cache-Control: no-store, no-cache, must-revalidate, max-age=0'
+);
+
+header(
+    'Cache-Control: post-check=0, pre-check=0',
+    false
+);
+
+header(
+    'Pragma: no-cache'
+);
+
+header(
+    'Expires: 0'
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| REDIRECCIÓN
+|--------------------------------------------------------------------------
+*/
+
+header(
+    'Location: ' . $redirect
+);
+
 exit;
