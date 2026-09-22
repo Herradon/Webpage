@@ -55,9 +55,7 @@ $mostrarPoliticaPrivacidad = (
 
     <title>ViziuneAI</title>
 
-    <link
-        rel="stylesheet"
-        href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/style.css">
 
     <style>
 

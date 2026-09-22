@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "diseño y desarrollo web": {
 
             nombre:
-                "Alejandro Herradón, tu Asesor en Diseño y Desarrollo Web",
+                "Diseño y Desarrollo Web",
 
             descripcion:
                 "● Diseño y desarrollo de páginas web profesionales, modernas y adaptadas a las necesidades de tu negocio.",
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "tiendas online": {
 
             nombre:
-                "Alejandro Herradón, tu Asesor de Tiendas Online",
+                "Tiendas Online",
 
             descripcion:
                 "● Creación y desarrollo de tiendas online para vender productos y servicios por Internet.",
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "asesor seo y sem": {
 
             nombre:
-                "Alejandro Herradón, tu Asesor SEO y SEM",
+                "SEO y SEM",
 
             descripcion:
                 "● Estrategias SEO y SEM para mejorar la visibilidad de tu negocio, atraer tráfico y conseguir clientes.",
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "asesoramiento web": {
 
             nombre:
-                "Alejandro Herradón, tu Asesor Web",
+                "Asesor Web",
 
             descripcion:
                 "● Asesoramiento para mejorar, optimizar y hacer crecer la presencia online de tu negocio.",
