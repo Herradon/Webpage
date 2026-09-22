@@ -681,6 +681,13 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
 
 }
 
+/* Ocultar tarjetas diagnósticas cuando JS las marca como vacías */
+.seo-info-card[hidden] {
+
+    display: none !important;
+
+}
+
 .seo-info-card h4 {
 
     margin: 0 0 15px;
@@ -2583,19 +2590,43 @@ document.addEventListener(
         function pintarLista(
             id,
             elementos,
-            textoVacio
+            textoVacio,
+            ocultarSiVacio = false
         ) {
 
             const lista =
                 document.getElementById(id);
 
+            if (!lista) return;
+
+            const tarjeta =
+                lista.closest(".seo-info-card");
+
             lista.innerHTML = "";
 
-
-            if (
+            const tieneContenido =
                 Array.isArray(elementos) &&
-                elementos.length > 0
-            ) {
+                elementos.length > 0;
+
+
+            /*
+            |----------------------------------------------------------
+            | OCULTAR TARJETAS VACÍAS
+            |----------------------------------------------------------
+            | Las tarjetas de problemas, correctos y prioridades no se
+            | muestran cuando la auditoría no devuelve contenido para
+            | ellas. Las listas de H1/H2/H3 siguen mostrando su mensaje
+            | informativo cuando están vacías.
+            */
+
+            if (tarjeta && ocultarSiVacio) {
+
+                tarjeta.hidden = !tieneContenido;
+
+            }
+
+
+            if (tieneContenido) {
 
                 elementos.forEach(
                     function (texto) {
@@ -2611,7 +2642,7 @@ document.addEventListener(
                     }
                 );
 
-            } else {
+            } else if (!ocultarSiVacio) {
 
                 const li =
                     document.createElement("li");
@@ -3415,35 +3446,40 @@ document.addEventListener(
             pintarLista(
                 "seoProblemas",
                 datos.problemas,
-                "No se han detectado problemas importantes."
+                "No se han detectado problemas importantes.",
+                true
             );
 
 
             pintarLista(
                 "seoCorrectos",
                 datos.correctos,
-                "No se han registrado aspectos destacados."
+                "No se han registrado aspectos destacados.",
+                true
             );
 
 
             pintarLista(
                 "seoPrioridadAlta",
                 datos.prioridad_alta,
-                "No se han detectado prioridades altas."
+                "No se han detectado prioridades altas.",
+                true
             );
 
 
             pintarLista(
                 "seoPrioridadMedia",
                 datos.prioridad_media,
-                "No se han detectado prioridades medias."
+                "No se han detectado prioridades medias.",
+                true
             );
 
 
             pintarLista(
                 "seoOportunidades",
                 datos.oportunidades,
-                "No se han detectado oportunidades adicionales."
+                "No se han detectado oportunidades adicionales.",
+                true
             );
 
 
