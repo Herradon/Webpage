@@ -1075,7 +1075,7 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
 
         <br>
 
-        <p style="text-align: justify;">
+        <p>
 
            Introduce la URL de tu página y deja que ViziuneAI analice su estado a nivel SEO.
 

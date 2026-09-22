@@ -169,9 +169,302 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let selectedAgent =
         "diseño y desarrollo web";
+    
+
+    
+    /*
+    |--------------------------------------------------------------------------
+    | NEURONAS
+    |--------------------------------------------------------------------------
+    */
+    
+    /* ==========================================
+   RED NEURONAL - NEURAL CANVAS
+========================================== */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const canvas = document.getElementById("neural-canvas");
+
+    if (!canvas) {
+        console.error("❌ No se encontró #neural-canvas");
+        return;
+    }
+
+    console.log("✅ #neural-canvas encontrado");
+
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+        console.error("❌ No se pudo obtener el contexto del canvas");
+        return;
+    }
+
+    let width = 0;
+    let height = 0;
+
+    const particleCount = 50;
+    const maxDistance = 130;
+
+    const nodeColor = "#00f3ff";
+    const lineColor = "0, 243, 255";
+
+    const speed = 0.5;
+
+    let particles = [];
 
 
+    /* ==========================================
+       AJUSTAR CANVAS
+    ========================================== */
 
+    function resizeCanvas() {
+
+        const rect = canvas.getBoundingClientRect();
+
+        width = rect.width;
+        height = rect.height;
+
+        console.log(
+            "Canvas:",
+            width,
+            "x",
+            height
+        );
+
+        if (width <= 0 || height <= 0) {
+            console.warn(
+                "⚠️ El canvas tiene ancho o alto 0"
+            );
+            return;
+        }
+
+        const dpr = window.devicePixelRatio || 1;
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+
+        ctx.setTransform(
+            dpr,
+            0,
+            0,
+            dpr,
+            0,
+            0
+        );
+
+        crearParticulas();
+    }
+
+
+    /* ==========================================
+       CREAR PARTÍCULAS
+    ========================================== */
+
+    function crearParticulas() {
+
+        particles = [];
+
+        for (let i = 0; i < particleCount; i++) {
+
+            particles.push({
+
+                x: Math.random() * width,
+
+                y: Math.random() * height,
+
+                vx:
+                    (Math.random() - 0.5)
+                    * speed,
+
+                vy:
+                    (Math.random() - 0.5)
+                    * speed,
+
+                radius:
+                    Math.random() * 2 + 2
+
+            });
+
+        }
+    }
+
+
+    /* ==========================================
+       ACTUALIZAR PARTÍCULAS
+    ========================================== */
+
+    function actualizarParticulas() {
+
+        particles.forEach(function (particle) {
+
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+
+
+            if (
+                particle.x <= 0 ||
+                particle.x >= width
+            ) {
+
+                particle.vx *= -1;
+
+            }
+
+
+            if (
+                particle.y <= 0 ||
+                particle.y >= height
+            ) {
+
+                particle.vy *= -1;
+
+            }
+
+        });
+    }
+
+
+    /* ==========================================
+       DIBUJAR CONEXIONES
+    ========================================== */
+
+    function dibujarConexiones() {
+
+        for (
+            let i = 0;
+            i < particles.length;
+            i++
+        ) {
+
+            for (
+                let j = i + 1;
+                j < particles.length;
+                j++
+            ) {
+
+                const p1 = particles[i];
+                const p2 = particles[j];
+
+                const dx =
+                    p1.x - p2.x;
+
+                const dy =
+                    p1.y - p2.y;
+
+                const distance =
+                    Math.sqrt(
+                        dx * dx +
+                        dy * dy
+                    );
+
+
+                if (
+                    distance <
+                    maxDistance
+                ) {
+
+                    const opacity =
+                        1 -
+                        (
+                            distance /
+                            maxDistance
+                        );
+
+
+                    ctx.beginPath();
+
+                    ctx.moveTo(
+                        p1.x,
+                        p1.y
+                    );
+
+                    ctx.lineTo(
+                        p2.x,
+                        p2.y
+                    );
+
+                    ctx.strokeStyle =
+                        `rgba(${lineColor}, ${opacity * 0.45})`;
+
+                    ctx.lineWidth = 1;
+
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+
+    /* ==========================================
+       DIBUJAR NEURONAS
+    ========================================== */
+
+    function dibujarParticulas() {
+
+        particles.forEach(function (particle) {
+
+            ctx.beginPath();
+
+            ctx.arc(
+                particle.x,
+                particle.y,
+                particle.radius,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fillStyle = nodeColor;
+
+            ctx.shadowBlur = 8;
+
+            ctx.shadowColor = nodeColor;
+
+            ctx.fill();
+
+        });
+
+        ctx.shadowBlur = 0;
+    }
+
+
+    /* ==========================================
+       ANIMACIÓN
+    ========================================== */
+
+    function animar() {
+
+        ctx.clearRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+        actualizarParticulas();
+
+        dibujarConexiones();
+
+        dibujarParticulas();
+
+        requestAnimationFrame(animar);
+    }
+
+
+    /* ==========================================
+       INICIAR
+    ========================================== */
+
+    resizeCanvas();
+
+    window.addEventListener(
+        "resize",
+        resizeCanvas
+    );
+
+    animar();
+
+});
     /*
     |--------------------------------------------------------------------------
     | NORMALIZAR TEXTO

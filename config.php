@@ -7,11 +7,11 @@
 
 $host = "localhost";
 
-$dbname = "u671328244_chatbot_web";
+$dbname = "chatbot_web";
 
-$username = "u671328244_ViziuneAI";
+$username = "root";
 
-$password = "Viziune_2026";
+$password = "";
 
 
 /* ==========================================

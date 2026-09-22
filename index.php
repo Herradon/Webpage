@@ -149,9 +149,7 @@ $mostrarPoliticaPrivacidad = (
      HERO
 ========================================================= -->
 
-<section
-    id="inicio"
-    class="hero">
+<section id="inicio" class="hero">
 
     <canvas id="neural-canvas"></canvas>
 
