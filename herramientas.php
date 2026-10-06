@@ -7,7 +7,6 @@ require_once 'config.php';
 $usuarioLogueado = isset($_SESSION['usuario_id']);
 
 ?>
-
 <!DOCTYPE html>
 
 <html lang="es">
@@ -18,11 +17,12 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Auditoría SEO | ViziuneAI</title>
+<title>Auditoría SEO | Viziune</title>
 
 <link rel="stylesheet" href="css/style.css">
 
 <link rel="stylesheet" href="css/herramientas.css">
+
 
 <style>
 
@@ -681,7 +681,6 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
 
 }
 
-/* Ocultar tarjetas diagnósticas cuando JS las marca como vacías */
 .seo-info-card[hidden] {
 
     display: none !important;
@@ -900,6 +899,25 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
 
 
 /* ==========================================================
+   ANALÍTICAS
+========================================================== */
+
+.analytics-panel[hidden] {
+
+    display: none !important;
+
+}
+
+.analytics-error[hidden],
+.analytics-loading[hidden],
+.analytics-resultado[hidden] {
+
+    display: none !important;
+
+}
+
+
+/* ==========================================================
    RESPONSIVE
 ========================================================== */
 
@@ -980,10 +998,6 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
 <body>
 
 
-<!-- ==========================================
-     CABECERA
-========================================== -->
-
 <header class="header" style="position:fixed;">
 
 <?php include 'menu.php'; ?>
@@ -991,20 +1005,12 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
 </header>
 
 
-<!-- ==========================================
-     CONTENIDO
-========================================== -->
-
 <main class="herramientas-page">
 
 <section class="herramientas-section">
 
 <div class="container">
 
-
-<!-- ======================================
-     CABECERA
-======================================= -->
 
 <div class="herramientas-header">
 
@@ -1017,52 +1023,40 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
 </div>
 
 
-<!-- ======================================
-     AVISO DE ACCESO PRIVADO
-======================================= -->
-
 <?php if (!$usuarioLogueado): ?>
 
-    <div class="acceso-privado-aviso">
+<div class="acceso-privado-aviso">
 
-        <strong>
+    <strong>
 
-            🔐 Auditoría SEO privada
+        🔐 Auditoría SEO privada
 
-        </strong>
+    </strong>
 
-        <p>
+    <p>
 
-            Puedes consultar esta sección sin iniciar sesión.
-            Para realizar una auditoría SEO de una página web
-            necesitas acceder a tu cuenta.
+        Puedes consultar esta sección sin iniciar sesión.
+        Para realizar una auditoría SEO de una página web
+        necesitas acceder a tu cuenta.
 
-        </p>
+    </p>
 
-        <a
-            href="login.php"
-            class="boton-iniciar-sesion"
-        >
+    <a
+        href="login.php"
+        class="boton-iniciar-sesion"
+    >
 
-            Iniciar sesión
+        Iniciar sesión
 
-        </a>
+    </a>
 
-    </div>
+</div>
 
 <?php endif; ?>
 
 
-<!-- ======================================
-     BLOQUE PRINCIPAL
-======================================= -->
-
 <article class="seo-panel">
 
-
-<!-- ==================================
-     CABECERA
-=================================== -->
 
 <div class="seo-panel-header">
 
@@ -1080,30 +1074,51 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
 
         </h2>
 
-        <br>
+        <details class="seo-info-acordeon">
 
-        <p>
+            <summary>
 
-           Introduce la URL de tu página y deja que ViziuneAI analice su estado a nivel SEO.
+                Como funciona nuestra auditoría
 
-Revisaremos los principales aspectos que pueden influir en la visibilidad y el funcionamiento de tu web: SEO técnico, estructura, contenido, imágenes, enlaces, metadatos, indexación y otros elementos importantes para los buscadores y tus usuarios.
+            </summary>
 
-Al finalizar recibirás un diagnóstico completo y fácil de entender, con una valoración general de tu web, los aspectos que están funcionando correctamente, los problemas detectados, las prioridades que conviene revisar primero y las oportunidades que puedes aprovechar para seguir mejorando.
+            <div class="seo-info-contenido">
 
-Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dónde empezar.
+                <p>
 
-        </p>
+                    <strong>
 
-        <br>
+                        Introduce dentro del campo de texto la URL de tu página
+                        y deja que Viziune analice su estado a nivel SEO.
+
+                    </strong>
+
+                    Revisaremos los principales aspectos que pueden influir en
+                    la visibilidad y el funcionamiento de tu web: SEO técnico,
+                    estructura, contenido, imágenes, enlaces, metadatos,
+                    indexación y otros elementos importantes para los buscadores
+                    y tus usuarios.
+
+                </p>
+
+                <p>
+
+                    Al finalizar recibirás un diagnóstico completo y fácil de
+                    entender, con una valoración general de tu web, los aspectos
+                    que están funcionando correctamente, los problemas detectados,
+                    las prioridades que conviene revisar primero y las oportunidades
+                    que puedes aprovechar para seguir mejorando.
+
+                </p>
+
+            </div>
+
+        </details>
 
     </div>
 
 </div>
 
-
-<!-- ==================================
-     FORMULARIO
-=================================== -->
 
 <div class="seo-form">
 
@@ -1137,10 +1152,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 </div>
 
 
-<!-- ==================================
-     CARGANDO
-=================================== -->
-
 <div
     id="seoLoading"
     class="seo-loading"
@@ -1169,20 +1180,12 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 </div>
 
 
-<!-- ==================================
-     ERROR
-=================================== -->
-
 <div
     id="seoError"
     class="seo-error"
     hidden
 ></div>
 
-
-<!-- ==================================
-     RESULTADO
-=================================== -->
 
 <div
     id="seoResultado"
@@ -1191,12 +1194,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 >
 
 
-<!-- ==================================
-     RESUMEN SUPERIOR
-=================================== -->
-
 <div class="seo-summary-grid">
-
 
 <div class="seo-puntuacion">
 
@@ -1258,27 +1256,20 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     <strong>
 
-        Informe para ViziuneAI
+        Informe para Viziune
 
     </strong>
 
     <p>
 
         Puedes copiar el informe completo y utilizarlo
-        directamente en el chat de ViziuneAI para continuar
+        directamente en el chat de Viziune para continuar
         analizando las necesidades de tu proyecto.
 
     </p>
 
 </div>
 
-
-</div>
-
-
-<!-- ==================================
-     IDENTIFICACIÓN DE LA AUDITORÍA
-=================================== -->
 
 <div class="seo-auditoria-info">
 
@@ -1318,10 +1309,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 </div>
 
 
-<!-- ==================================
-     DIAGNÓSTICO GENERAL
-=================================== -->
-
 <div class="seo-diagnostico">
 
     <h3>
@@ -1338,10 +1325,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
 </div>
 
-
-<!-- ==================================
-     ESTADO POR ÁREAS
-=================================== -->
 
 <div class="seo-areas-section">
 
@@ -1361,22 +1344,13 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </div>
 
-
     <div
         id="seoAreasGrid"
         class="seo-areas-grid"
-    >
-
-        <!-- Las áreas se generan mediante JavaScript -->
-
-    </div>
+    ></div>
 
 </div>
 
-
-<!-- ==================================
-     PUNTUACIONES INTERNAS
-=================================== -->
 
 <div class="seo-section-block">
 
@@ -1475,10 +1449,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 </div>
 
 
-<!-- ==================================
-     DATOS DE LA AUDITORÍA
-=================================== -->
-
 <div class="seo-section-block">
 
     <div class="seo-section-heading">
@@ -1513,11 +1483,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoHttpCode">
-
-        -
-
-    </strong>
+    <strong id="seoHttpCode">-</strong>
 
 </div>
 
@@ -1530,11 +1496,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoHttps">
-
-        -
-
-    </strong>
+    <strong id="seoHttps">-</strong>
 
 </div>
 
@@ -1547,11 +1509,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoTiempoRespuesta">
-
-        -
-
-    </strong>
+    <strong id="seoTiempoRespuesta">-</strong>
 
 </div>
 
@@ -1564,11 +1522,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoTamano">
-
-        -
-
-    </strong>
+    <strong id="seoTamano">-</strong>
 
 </div>
 
@@ -1581,11 +1535,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoIdioma">
-
-        -
-
-    </strong>
+    <strong id="seoIdioma">-</strong>
 
 </div>
 
@@ -1598,11 +1548,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoViewport">
-
-        -
-
-    </strong>
+    <strong id="seoViewport">-</strong>
 
 </div>
 
@@ -1615,11 +1561,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoTitulo">
-
-        -
-
-    </strong>
+    <strong id="seoTitulo">-</strong>
 
 </div>
 
@@ -1632,11 +1574,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoLongitudTitulo">
-
-        -
-
-    </strong>
+    <strong id="seoLongitudTitulo">-</strong>
 
 </div>
 
@@ -1649,11 +1587,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoDescripcion">
-
-        -
-
-    </strong>
+    <strong id="seoDescripcion">-</strong>
 
 </div>
 
@@ -1666,11 +1600,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoLongitudDescripcion">
-
-        -
-
-    </strong>
+    <strong id="seoLongitudDescripcion">-</strong>
 
 </div>
 
@@ -1683,11 +1613,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoH1">
-
-        -
-
-    </strong>
+    <strong id="seoH1">-</strong>
 
 </div>
 
@@ -1700,11 +1626,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoH2">
-
-        -
-
-    </strong>
+    <strong id="seoH2">-</strong>
 
 </div>
 
@@ -1717,11 +1639,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoH3">
-
-        -
-
-    </strong>
+    <strong id="seoH3">-</strong>
 
 </div>
 
@@ -1734,11 +1652,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoParrafos">
-
-        -
-
-    </strong>
+    <strong id="seoParrafos">-</strong>
 
 </div>
 
@@ -1751,11 +1665,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoPalabras">
-
-        -
-
-    </strong>
+    <strong id="seoPalabras">-</strong>
 
 </div>
 
@@ -1768,11 +1678,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoImagenes">
-
-        -
-
-    </strong>
+    <strong id="seoImagenes">-</strong>
 
 </div>
 
@@ -1785,11 +1691,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoImagenesAlt">
-
-        -
-
-    </strong>
+    <strong id="seoImagenesAlt">-</strong>
 
 </div>
 
@@ -1802,11 +1704,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoInternos">
-
-        -
-
-    </strong>
+    <strong id="seoInternos">-</strong>
 
 </div>
 
@@ -1819,11 +1717,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoExternos">
-
-        -
-
-    </strong>
+    <strong id="seoExternos">-</strong>
 
 </div>
 
@@ -1836,11 +1730,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoCanonical">
-
-        -
-
-    </strong>
+    <strong id="seoCanonical">-</strong>
 
 </div>
 
@@ -1853,11 +1743,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoRobots">
-
-        -
-
-    </strong>
+    <strong id="seoRobots">-</strong>
 
 </div>
 
@@ -1870,11 +1756,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoRobotsTxt">
-
-        -
-
-    </strong>
+    <strong id="seoRobotsTxt">-</strong>
 
 </div>
 
@@ -1887,11 +1769,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoSitemap">
-
-        -
-
-    </strong>
+    <strong id="seoSitemap">-</strong>
 
 </div>
 
@@ -1904,11 +1782,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoOpenGraph">
-
-        -
-
-    </strong>
+    <strong id="seoOpenGraph">-</strong>
 
 </div>
 
@@ -1921,11 +1795,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     </span>
 
-    <strong id="seoTwitterCard">
-
-        -
-
-    </strong>
+    <strong id="seoTwitterCard">-</strong>
 
 </div>
 
@@ -1934,10 +1804,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
 </div>
 
-
-<!-- ==================================
-     ESTRUCTURA
-=================================== -->
 
 <div class="seo-section-block">
 
@@ -1964,22 +1830,13 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
     <div class="seo-details-grid">
 
-
         <div class="seo-details-card">
 
             <div class="seo-details-header">
 
-                <span>
+                <span>H1</span>
 
-                    H1
-
-                </span>
-
-                <strong>
-
-                    Encabezados principales
-
-                </strong>
+                <strong>Encabezados principales</strong>
 
             </div>
 
@@ -1992,17 +1849,9 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
             <div class="seo-details-header">
 
-                <span>
+                <span>H2</span>
 
-                    H2
-
-                </span>
-
-                <strong>
-
-                    Subapartados
-
-                </strong>
+                <strong>Subapartados</strong>
 
             </div>
 
@@ -2015,24 +1864,15 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
             <div class="seo-details-header">
 
-                <span>
+                <span>H3</span>
 
-                    H3
-
-                </span>
-
-                <strong>
-
-                    Subniveles
-
-                </strong>
+                <strong>Subniveles</strong>
 
             </div>
 
             <ul id="seoListaH3"></ul>
 
         </div>
-
 
     </div>
 
@@ -2045,10 +1885,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
 </div>
 
-
-<!-- ==================================
-     PROBLEMAS / CORRECTOS
-=================================== -->
 
 <div class="seo-bloques-grid">
 
@@ -2081,10 +1917,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 </div>
 
 
-<!-- ==================================
-     PRIORIDAD ALTA
-=================================== -->
-
 <div class="seo-info-card seo-prioridad seo-prioridad-alta">
 
     <h4>
@@ -2097,10 +1929,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
 </div>
 
-
-<!-- ==================================
-     PRIORIDAD MEDIA
-=================================== -->
 
 <div class="seo-info-card seo-prioridad seo-prioridad-media">
 
@@ -2115,10 +1943,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 </div>
 
 
-<!-- ==================================
-     OPORTUNIDADES
-=================================== -->
-
 <div class="seo-info-card seo-prioridad seo-oportunidades">
 
     <h4>
@@ -2132,9 +1956,509 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 </div>
 
 
-<!-- ==================================
-     RESUMEN PARA VIZIUNEAI
-=================================== -->
+</div>
+
+
+<!-- ======================================================
+     ANALÍTICAS WEB
+====================================================== -->
+
+<section
+    class="analytics-panel"
+    id="analiticas"
+    hidden
+>
+
+    <div class="analytics-panel-header">
+
+        <div>
+
+            <span class="analytics-panel-kicker">
+
+                ANALÍTICAS WEB
+
+            </span>
+
+            <h2>
+
+                Mide el rendimiento de tu página web.
+
+            </h2>
+
+            <p>
+
+                Consulta desde Viziune el tráfico y el comportamiento
+                de los usuarios de tu proyecto mediante Google Analytics.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+<?php if (!$usuarioLogueado): ?>
+
+
+    <div class="analytics-private-notice">
+
+        <strong>
+
+            🔐 Analíticas privadas
+
+        </strong>
+
+        <p>
+
+            Para consultar las analíticas de una página web necesitas
+            iniciar sesión en tu cuenta de Viziune.
+
+        </p>
+
+        <a
+            href="login.php"
+            class="boton-iniciar-sesion"
+        >
+
+            Iniciar sesión
+
+        </a>
+
+    </div>
+
+
+<?php else: ?>
+
+
+    <div class="analytics-connect-card">
+
+        <div class="analytics-connect-content">
+
+            <span class="analytics-summary-label">
+
+                GOOGLE ANALYTICS 4
+
+            </span>
+
+            <h3>
+
+                Analíticas de tu proyecto
+
+            </h3>
+
+            <p>
+
+                Viziune consulta automáticamente los datos
+                de Google Analytics de la propiedad conectada
+                a tu proyecto.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="analyticsError"
+        class="analytics-error"
+        hidden
+    ></div>
+
+
+    <div
+        id="analyticsLoading"
+        class="analytics-loading"
+        hidden
+    >
+
+        <div class="seo-loading-spinner"></div>
+
+        <div>
+
+            <strong>
+
+                Cargando analíticas...
+
+            </strong>
+
+            <span>
+
+                Estamos consultando los datos de tu proyecto.
+
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="analyticsResultado"
+        class="analytics-resultado"
+        hidden
+    >
+
+        <div class="analytics-project-header">
+
+            <div>
+
+                <span class="analytics-summary-label">
+
+                    PROYECTO
+
+                </span>
+
+                <h3 id="analyticsProyecto">
+
+                    -
+
+                </h3>
+
+                <p id="analyticsProperty">
+
+                    -
+
+                </p>
+
+            </div>
+
+
+            <div class="analytics-status">
+
+                <span class="analytics-status-dot"></span>
+
+                <span id="analyticsEstado">
+
+                    Conectado
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="analytics-periodo">
+
+            <button
+                type="button"
+                class="analytics-periodo-button"
+                data-periodo="7"
+            >
+
+                7 días
+
+            </button>
+
+
+            <button
+                type="button"
+                class="analytics-periodo-button active"
+                data-periodo="30"
+            >
+
+                30 días
+
+            </button>
+
+
+            <button
+                type="button"
+                class="analytics-periodo-button"
+                data-periodo="90"
+            >
+
+                90 días
+
+            </button>
+
+        </div>
+
+
+        <div class="analytics-summary-grid">
+
+            <div class="analytics-summary-card">
+
+                <span>
+
+                    USUARIOS
+
+                </span>
+
+                <strong id="analyticsUsuarios">
+
+                    -
+
+                </strong>
+
+            </div>
+
+
+            <div class="analytics-summary-card">
+
+                <span>
+
+                    SESIONES
+
+                </span>
+
+                <strong id="analyticsSesiones">
+
+                    -
+
+                </strong>
+
+            </div>
+
+
+            <div class="analytics-summary-card">
+
+                <span>
+
+                    PÁGINAS VISTAS
+
+                </span>
+
+                <strong id="analyticsPaginas">
+
+                    -
+
+                </strong>
+
+            </div>
+
+
+            <div class="analytics-summary-card">
+
+                <span>
+
+                    EVENTOS
+
+                </span>
+
+                <strong id="analyticsEventos">
+
+                    -
+
+                </strong>
+
+            </div>
+
+
+            <div class="analytics-summary-card">
+
+                <span>
+
+                    USUARIOS ACTIVOS
+
+                </span>
+
+                <strong id="analyticsActivos">
+
+                    -
+
+                </strong>
+
+                <small>
+
+                    Último periodo
+
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="analytics-realtime">
+
+            <div class="analytics-section-heading">
+
+                <span>
+
+                    TIEMPO REAL
+
+                </span>
+
+                <h3>
+
+                    Usuarios activos ahora
+
+                </h3>
+
+            </div>
+
+            <div class="analytics-realtime-value">
+
+                <strong id="analyticsUsuariosTiempoReal">
+
+                    —
+
+                </strong>
+
+                <span>
+
+                    usuarios activos
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="analytics-data-grid">
+
+
+            <div class="analytics-data-card">
+
+                <div class="analytics-section-heading">
+
+                    <span>
+
+                        PÁGINAS
+
+                    </span>
+
+                    <h3>
+
+                        Páginas más visitadas
+
+                    </h3>
+
+                </div>
+
+                <div id="analyticsPaginasLista">
+
+                    <p>
+
+                        No hay datos disponibles.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-data-card">
+
+                <div class="analytics-section-heading">
+
+                    <span>
+
+                        DISPOSITIVOS
+
+                    </span>
+
+                    <h3>
+
+                        Dispositivos utilizados
+
+                    </h3>
+
+                </div>
+
+                <div id="analyticsDispositivosLista">
+
+                    <p>
+
+                        No hay datos disponibles.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-data-card">
+
+                <div class="analytics-section-heading">
+
+                    <span>
+
+                        PROCEDENCIA
+
+                    </span>
+
+                    <h3>
+
+                        Países de los usuarios
+
+                    </h3>
+
+                </div>
+
+                <div id="analyticsPaisesLista">
+
+                    <p>
+
+                        No hay datos disponibles.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-data-card">
+
+                <div class="analytics-section-heading">
+
+                    <span>
+
+                        CANALES
+
+                    </span>
+
+                    <h3>
+
+                        Fuentes de tráfico
+
+                    </h3>
+
+                </div>
+
+                <div id="analyticsCanalesLista">
+
+                    <p>
+
+                        No hay datos disponibles.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <p class="analytics-disclaimer">
+
+            Los datos mostrados proceden de la propiedad de Google Analytics
+            conectada al proyecto. Viziune solo mostrará la información
+            para la que la cuenta autorizada tenga permisos.
+
+        </p>
+
+
+    </div>
+
+
+<?php endif; ?>
+
+
+</section>
+
+
+<!-- ======================================================
+     RESUMEN PARA VIZIUNE
+====================================================== -->
 
 <div class="seo-section-block">
 
@@ -2150,7 +2474,7 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
             <h3>
 
-                Informe completo para ViziuneAI
+                Informe completo para Viziune
 
             </h3>
 
@@ -2185,7 +2509,6 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
 </div>
 
-
 </article>
 
 
@@ -2196,9 +2519,9 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 </main>
 
 
-<!-- ==========================================
+<!-- ======================================================
      AVISO DE INICIO DE SESIÓN
-========================================== -->
+====================================================== -->
 
 <div
     id="loginAviso"
@@ -2270,30 +2593,75 @@ Obtén una visión clara de cómo está tu web, qué necesita mejorar y por dón
 
 </div>
 
-
-<!-- ==========================================
+<!-- =========================================================
      FOOTER
-========================================== -->
+========================================================= -->
 
-<footer class="footer">
+<footer>
 
-<div class="container">
+    <div class="container">
 
-<p>
+        <p>
+            © <?php echo date("Y"); ?> Viziune
+        </p>
 
-    © <?php echo date('Y'); ?> ViziuneAI.
-    Todos los derechos reservados.
 
-</p>
+        <div class="footer-enlaces-legales">
 
-</div>
+
+            <!-- POLÍTICA DE PRIVACIDAD -->
+
+            <a
+                href="politica_entera.php"
+                class="configurar-cookies-footer">
+
+                Política de privacidad
+
+            </a>
+
+
+            <!-- POLÍTICA DE COOKIES -->
+
+            <a
+                href="politica_cookies.php"
+                class="configurar-cookies-footer">
+
+                Política de cookies
+
+            </a>
+    
+            <a href="terminos.php" class="terminoscondiciones">Términos y condiciones</a>
+            
+
+
+
+            <!-- CONFIGURAR COOKIES -->
+
+            <a
+                href="#"
+                class="configurar-cookies-footer"
+                onclick="if (typeof window.mostrarPreferenciasCookies === 'function') { window.mostrarPreferenciasCookies(); } return false;">
+
+                Configurar cookies
+
+            </a>
+
+
+        </div>
+
+    </div>
 
 </footer>
 
+<!-- =========================================================
+     SISTEMA PROPIO DE COOKIES
+     SIN COOKIEBOT
+========================================================= -->
 
-<!-- ==========================================
-     JAVASCRIPT AUDITORÍA SEO
-========================================== -->
+<?php include 'cookies.php'; ?>
+
+
+
 
 <script>
 
@@ -2319,6 +2687,48 @@ document.addEventListener(
 
         const resultado =
             document.getElementById("seoResultado");
+
+
+        function ocultarResultado() {
+
+            if (!resultado) {
+
+                return;
+
+            }
+
+            resultado.hidden = true;
+
+            resultado.style.setProperty(
+                "display",
+                "none",
+                "important"
+            );
+
+        }
+
+
+        function mostrarResultadoVisible() {
+
+            if (!resultado) {
+
+                return;
+
+            }
+
+            resultado.hidden = false;
+
+            resultado.style.setProperty(
+                "display",
+                "block",
+                "important"
+            );
+
+        }
+
+
+        ocultarResultado();
+
 
         const botonCopiar =
             document.getElementById("copiarResumenSeo");
@@ -2356,27 +2766,39 @@ document.addEventListener(
         }
 
 
-        cerrarLoginAviso.addEventListener(
-            "click",
-            cerrarAvisoLogin
-        );
+        if (cerrarLoginAviso) {
+
+            cerrarLoginAviso.addEventListener(
+                "click",
+                cerrarAvisoLogin
+            );
+
+        }
 
 
-        seguirSinLogin.addEventListener(
-            "click",
-            cerrarAvisoLogin
-        );
+        if (seguirSinLogin) {
+
+            seguirSinLogin.addEventListener(
+                "click",
+                cerrarAvisoLogin
+            );
+
+        }
 
 
-        irLogin.addEventListener(
-            "click",
-            function () {
+        if (irLogin) {
 
-                window.location.href =
-                    "login.php";
+            irLogin.addEventListener(
+                "click",
+                function () {
 
-            }
-        );
+                    window.location.href =
+                        "login.php";
+
+                }
+            );
+
+        }
 
 
         window.mostrarAvisoLogin =
@@ -2387,32 +2809,44 @@ document.addEventListener(
             usuarioLogueado;
 
 
-        boton.addEventListener(
-            "click",
-            analizarSEO
-        );
+        if (boton) {
+
+            boton.addEventListener(
+                "click",
+                analizarSEO
+            );
+
+        }
 
 
-        urlInput.addEventListener(
-            "keydown",
-            function (event) {
+        if (urlInput) {
 
-                if (event.key === "Enter") {
+            urlInput.addEventListener(
+                "keydown",
+                function (event) {
 
-                    event.preventDefault();
+                    if (event.key === "Enter") {
 
-                    analizarSEO();
+                        event.preventDefault();
+
+                        analizarSEO();
+
+                    }
 
                 }
+            );
 
-            }
-        );
+        }
 
 
-        botonCopiar.addEventListener(
-            "click",
-            copiarResumen
-        );
+        if (botonCopiar) {
+
+            botonCopiar.addEventListener(
+                "click",
+                copiarResumen
+            );
+
+        }
 
 
         async function analizarSEO() {
@@ -2475,19 +2909,19 @@ document.addEventListener(
             }
 
 
-            error.hidden = true;
-
-            resultado.hidden = true;
-
-            loading.hidden = false;
-
-            boton.disabled = true;
-
-            boton.textContent =
-                "Analizando...";
-
-
             try {
+
+                error.hidden = true;
+
+                ocultarResultado();
+
+                loading.hidden = false;
+
+                boton.disabled = true;
+
+                boton.textContent =
+                    "Analizando...";
+
 
                 const response =
                     await fetch(
@@ -2582,7 +3016,7 @@ document.addEventListener(
 
             error.hidden = false;
 
-            resultado.hidden = true;
+            ocultarResultado();
 
         }
 
@@ -2609,19 +3043,10 @@ document.addEventListener(
                 elementos.length > 0;
 
 
-            /*
-            |----------------------------------------------------------
-            | OCULTAR TARJETAS VACÍAS
-            |----------------------------------------------------------
-            | Las tarjetas de problemas, correctos y prioridades no se
-            | muestran cuando la auditoría no devuelve contenido para
-            | ellas. Las listas de H1/H2/H3 siguen mostrando su mensaje
-            | informativo cuando están vacías.
-            */
-
             if (tarjeta && ocultarSiVacio) {
 
-                tarjeta.hidden = !tieneContenido;
+                tarjeta.hidden =
+                    !tieneContenido;
 
             }
 
@@ -2656,12 +3081,6 @@ document.addEventListener(
 
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CREAR TARJETAS DE ESTADO POR ÁREA
-        |--------------------------------------------------------------------------
-        */
 
         function crearArea(
             nombre,
@@ -2706,7 +3125,8 @@ document.addEventListener(
                 document.createElement("div");
 
             tarjeta.className =
-                "seo-area-card " + clase;
+                "seo-area-card " +
+                clase;
 
 
             const encabezado =
@@ -2733,7 +3153,9 @@ document.addEventListener(
                 "seo-area-card-score";
 
             puntuacionElemento.textContent =
-                puntuacion + "/" + maximo;
+                puntuacion +
+                "/" +
+                maximo;
 
 
             encabezado.appendChild(
@@ -2804,12 +3226,6 @@ document.addEventListener(
 
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | MOSTRAR ÁREAS
-        |--------------------------------------------------------------------------
-        */
 
         function mostrarAreas(datos) {
 
@@ -3067,12 +3483,6 @@ document.addEventListener(
 
         function mostrarResultado(datos) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | PUNTUACIÓN GENERAL
-            |--------------------------------------------------------------------------
-            */
-
             document.getElementById(
                 "seoPuntuacion"
             ).textContent =
@@ -3101,12 +3511,6 @@ document.addEventListener(
                 "Análisis completado.";
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | DIAGNÓSTICO
-            |--------------------------------------------------------------------------
-            */
-
             document.getElementById(
                 "seoDiagnosticoTexto"
             ).textContent =
@@ -3114,24 +3518,12 @@ document.addEventListener(
                 "No se ha podido generar el diagnóstico.";
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | URL
-            |--------------------------------------------------------------------------
-            */
-
             document.getElementById(
                 "seoUrlResultado"
             ).textContent =
                 datos.url ||
                 "-";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | FECHA
-            |--------------------------------------------------------------------------
-            */
 
             const ahora =
                 new Date();
@@ -3157,12 +3549,6 @@ document.addEventListener(
                     }
                 );
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | DATOS TÉCNICOS
-            |--------------------------------------------------------------------------
-            */
 
             document.getElementById(
                 "seoHttpCode"
@@ -3209,12 +3595,6 @@ document.addEventListener(
                     : "No detectado";
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | SEO ON-PAGE
-            |--------------------------------------------------------------------------
-            */
-
             document.getElementById(
                 "seoTitulo"
             ).textContent =
@@ -3242,12 +3622,6 @@ document.addEventListener(
                 (datos.longitud_meta_description ?? 0) +
                 " caracteres";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | ESTRUCTURA
-            |--------------------------------------------------------------------------
-            */
 
             document.getElementById(
                 "seoH1"
@@ -3279,12 +3653,6 @@ document.addEventListener(
                 datos.palabras_aproximadas ?? 0;
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | IMÁGENES Y ENLACES
-            |--------------------------------------------------------------------------
-            */
-
             document.getElementById(
                 "seoImagenes"
             ).textContent =
@@ -3308,12 +3676,6 @@ document.addEventListener(
             ).textContent =
                 datos.enlaces_externos ?? 0;
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | INDEXACIÓN
-            |--------------------------------------------------------------------------
-            */
 
             document.getElementById(
                 "seoCanonical"
@@ -3345,12 +3707,6 @@ document.addEventListener(
                     : "No detectado";
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | REDES SOCIALES
-            |--------------------------------------------------------------------------
-            */
-
             document.getElementById(
                 "seoOpenGraph"
             ).textContent =
@@ -3364,12 +3720,6 @@ document.addEventListener(
                 datos.twitter_card ||
                 "No detectada";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | PUNTUACIONES
-            |--------------------------------------------------------------------------
-            */
 
             const puntuaciones =
                 datos.puntuaciones || {};
@@ -3403,12 +3753,6 @@ document.addEventListener(
                 "/10";
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | LISTAS DE ENCABEZADOS
-            |--------------------------------------------------------------------------
-            */
-
             pintarLista(
                 "seoListaH1",
                 datos.h1,
@@ -3436,12 +3780,6 @@ document.addEventListener(
                 datos.arbol_estructura ||
                 "No se ha podido generar el árbol de estructura.";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | DIAGNÓSTICOS
-            |--------------------------------------------------------------------------
-            */
 
             pintarLista(
                 "seoProblemas",
@@ -3483,53 +3821,19 @@ document.addEventListener(
             );
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | INFORME COMPLETO PARA VIZIUNEAI
-            |--------------------------------------------------------------------------
-            |
-            | IMPORTANTE:
-            | El informe se divide en dos partes:
-            |
-            | 1. INSTRUCCIONES:
-            |    Explican a ViziuneAI cómo debe interpretar los datos.
-            |
-            | 2. DATOS:
-            |    Contienen los resultados reales de la auditoría.
-            |
-            */
-
             let resumen = "";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | CONTEXTO
-            |--------------------------------------------------------------------------
-            */
-
-
             resumen +=
-                "CONTEXTO PARA VIZIUNEAI\n";
-
+                "CONTEXTO PARA VIZIUNE\n";
 
             resumen +=
                 "El contenido que aparece a continuación procede de una auditoría SEO automática realizada sobre una página web.\n\n";
 
-
             resumen +=
                 "Este documento debe utilizarse como CONTEXTO TÉCNICO para responder a las preguntas del usuario relacionadas con esta página web, su SEO, estructura, contenido, indexación, rendimiento y oportunidades de mejora.\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | INSTRUCCIONES
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
-                "INSTRUCCIONES PARA VIZIUNEAI\n";
-
+                "INSTRUCCIONES PARA VIZIUNE\n";
 
             resumen +=
                 "ROL:\n";
@@ -3537,149 +3841,104 @@ document.addEventListener(
             resumen +=
                 "Actúa como un asesor especializado en SEO, desarrollo web y optimización de páginas web.\n\n";
 
-
             resumen +=
                 "OBJETIVO:\n";
 
             resumen +=
                 "Utiliza los resultados de esta auditoría para ayudar al usuario a comprender el estado actual de su página web y determinar qué aspectos debería revisar, corregir u optimizar.\n\n";
 
-
             resumen +=
                 "REGLAS DE INTERPRETACIÓN:\n\n";
-
 
             resumen +=
                 "1. Utiliza los datos de esta auditoría como fuente principal de contexto sobre la página analizada.\n";
 
-
             resumen +=
                 "2. No inventes datos, errores, configuraciones, métricas o problemas que no aparezcan en la auditoría.\n";
-
 
             resumen +=
                 "3. Si un dato no está disponible, indica claramente que no ha sido comprobado o que la auditoría no dispone de esa información.\n";
 
-
             resumen +=
                 "4. No supongas que un elemento está mal configurado simplemente porque no exista información suficiente para comprobarlo.\n";
-
 
             resumen +=
                 "5. Interpreta los datos. No te limites a repetirlos.\n";
 
-
             resumen +=
                 "6. Explica qué significa cada problema detectado y qué consecuencias puede tener para el SEO, la indexación, la experiencia del usuario o la visibilidad de la página.\n";
-
 
             resumen +=
                 "7. Propón acciones concretas y realistas para solucionar los problemas detectados.\n";
 
-
             resumen +=
                 "8. Da prioridad a los elementos incluidos en PRIORIDAD ALTA.\n";
-
 
             resumen +=
                 "9. Después analiza los elementos incluidos en PRIORIDAD MEDIA.\n";
 
-
             resumen +=
                 "10. Utiliza las OPORTUNIDADES DE MEJORA como acciones complementarias.\n";
-
 
             resumen +=
                 "11. Ten en cuenta también los ASPECTOS CORRECTOS para saber qué elementos ya funcionan correctamente y evitar recomendar cambios innecesarios.\n";
 
-
             resumen +=
                 "12. Cuando existan varios problemas relacionados entre sí, agrúpalos y evita recomendar acciones duplicadas.\n";
-
 
             resumen +=
                 "13. Si el usuario pregunta qué debería solucionar primero, utiliza las prioridades de la auditoría y explica el motivo del orden propuesto.\n";
 
-
             resumen +=
                 "14. Si el usuario quiere mejorar la web paso a paso, convierte los resultados de la auditoría en un plan de trabajo ordenado.\n";
-
 
             resumen +=
                 "15. Si el usuario solicita una solución técnica, explica qué debería modificarse y por qué.\n";
 
-
             resumen +=
                 "16. Si para solucionar un problema necesitas ver código, archivos o configuración que no aparecen en este informe, solicita al usuario esa información en lugar de inventarla.\n";
-
 
             resumen +=
                 "17. Distingue siempre entre DATOS DETECTADOS, INTERPRETACIÓN y RECOMENDACIONES.\n";
 
-
             resumen +=
                 "18. No confundas la puntuación general con las puntuaciones parciales.\n";
-
 
             resumen +=
                 "19. Interpreta las puntuaciones junto con los problemas y datos concretos de la auditoría.\n";
 
-
             resumen +=
                 "20. Utiliza un lenguaje claro y comprensible para el usuario, evitando tecnicismos innecesarios.\n\n";
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | FORMA DE RESPONDER
-            |--------------------------------------------------------------------------
-            */
 
             resumen +=
                 "FORMA DE RESPONDER AL USUARIO\n";
 
-
             resumen +=
                 "Cuando el usuario pregunte por esta auditoría:\n\n";
-
 
             resumen +=
                 "1. Comienza explicando brevemente el estado general de la página según la puntuación y el diagnóstico.\n";
 
-
             resumen +=
                 "2. Identifica los problemas más importantes.\n";
-
 
             resumen +=
                 "3. Explica por qué cada problema puede ser relevante.\n";
 
-
             resumen +=
                 "4. Indica cómo podría solucionarse.\n";
-
 
             resumen +=
                 "5. Prioriza las acciones para que el usuario sepa por dónde empezar.\n";
 
-
             resumen +=
                 "6. Indica qué elementos ya están correctamente configurados.\n";
-
 
             resumen +=
                 "7. Explica las oportunidades de mejora que puedan aportar valor adicional.\n";
 
-
             resumen +=
                 "8. Si el usuario solicita ayuda para realizar las mejoras, ofrece instrucciones prácticas basadas en los datos disponibles.\n\n";
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | REGLA FUNDAMENTAL
-            |--------------------------------------------------------------------------
-            */
 
             resumen +=
                 "REGLA FUNDAMENTAL:\n";
@@ -3687,128 +3946,80 @@ document.addEventListener(
             resumen +=
                 "Si la auditoría no contiene información suficiente para responder con seguridad a una pregunta concreta, debes indicarlo claramente y solicitar los datos necesarios. No debes inventar información para completar la respuesta.\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | OBJETIVO FINAL
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "OBJETIVO FINAL:\n";
 
             resumen +=
                 "Transformar los resultados técnicos de esta auditoría en una explicación comprensible y en acciones concretas que ayuden al usuario a mejorar progresivamente su página web.\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | DATOS DE LA AUDITORÍA
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "DATOS REALES DE LA AUDITORÍA SEO\n";
 
-
             resumen +=
                 "AUDITORÍA SEO\n\n";
-
 
             resumen +=
                 "URL: " +
                 (datos.url || "-") +
                 "\n";
 
-
             resumen +=
                 "PUNTUACIÓN GENERAL: " +
                 (datos.puntuacion ?? 0) +
                 "/100\n";
-
 
             resumen +=
                 "VALORACIÓN: " +
                 (datos.valoracion || "-") +
                 "\n";
 
-
             resumen +=
                 "DESCRIPCIÓN DE LA VALORACIÓN: " +
                 (datos.descripcion_valoracion || "-") +
                 "\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | DIAGNÓSTICO GENERAL
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "DIAGNÓSTICO GENERAL:\n";
-
 
             resumen +=
                 (datos.resumen_general || "-") +
                 "\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | PUNTUACIONES
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "PUNTUACIONES POR ÁREA:\n";
-
 
             resumen +=
                 "- SEO técnico: " +
                 (puntuaciones.tecnico ?? 0) +
                 "/25\n";
 
-
             resumen +=
                 "- SEO on-page: " +
                 (puntuaciones.on_page ?? 0) +
                 "/25\n";
-
 
             resumen +=
                 "- Contenido: " +
                 (puntuaciones.contenido ?? 0) +
                 "/20\n";
 
-
             resumen +=
                 "- Estructura: " +
                 (puntuaciones.estructura ?? 0) +
                 "/10\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | DATOS TÉCNICOS
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "DATOS TÉCNICOS:\n";
-
 
             resumen +=
                 "- Código HTTP: " +
                 (datos.http_code || "-") +
                 "\n";
 
-
             resumen +=
                 "- HTTPS: " +
                 (datos.https ? "Sí" : "No") +
                 "\n";
-
 
             resumen +=
                 "- Tiempo de respuesta: " +
@@ -3819,7 +4030,6 @@ document.addEventListener(
                 ) +
                 "\n";
 
-
             resumen +=
                 "- Tamaño: " +
                 (
@@ -3828,7 +4038,6 @@ document.addEventListener(
                 ) +
                 "\n";
 
-
             resumen +=
                 "- Idioma: " +
                 (
@@ -3836,7 +4045,6 @@ document.addEventListener(
                     "No declarado"
                 ) +
                 "\n";
-
 
             resumen +=
                 "- Viewport: " +
@@ -3847,16 +4055,8 @@ document.addEventListener(
                 ) +
                 "\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | SEO ON-PAGE
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "SEO ON-PAGE:\n";
-
 
             resumen +=
                 "- Título: " +
@@ -3866,14 +4066,12 @@ document.addEventListener(
                 ) +
                 "\n";
 
-
             resumen +=
                 "- Longitud título: " +
                 (
                     datos.longitud_titulo ?? 0
                 ) +
                 " caracteres\n";
-
 
             resumen +=
                 "- Meta description: " +
@@ -3883,7 +4081,6 @@ document.addEventListener(
                 ) +
                 "\n";
 
-
             resumen +=
                 "- Longitud meta description: " +
                 (
@@ -3891,70 +4088,39 @@ document.addEventListener(
                 ) +
                 " caracteres\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | ESTRUCTURA
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "ESTRUCTURA:\n";
 
-
             resumen +=
                 "- H1: " +
-                (
-                    datos.numero_h1 ?? 0
-                ) +
+                (datos.numero_h1 ?? 0) +
                 "\n";
-
 
             resumen +=
                 "- H2: " +
-                (
-                    datos.numero_h2 ?? 0
-                ) +
+                (datos.numero_h2 ?? 0) +
                 "\n";
-
 
             resumen +=
                 "- H3: " +
-                (
-                    datos.numero_h3 ?? 0
-                ) +
+                (datos.numero_h3 ?? 0) +
                 "\n";
-
 
             resumen +=
                 "- Párrafos: " +
-                (
-                    datos.parrafos ?? 0
-                ) +
+                (datos.parrafos ?? 0) +
                 "\n";
-
 
             resumen +=
                 "- Palabras aproximadas: " +
-                (
-                    datos.palabras_aproximadas ?? 0
-                ) +
+                (datos.palabras_aproximadas ?? 0) +
                 "\n\n";
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ENCABEZADOS
-            |--------------------------------------------------------------------------
-            */
 
             resumen +=
                 "ENCABEZADOS ENCONTRADOS:\n\n";
 
-
             resumen +=
                 "H1:\n";
-
 
             if (
                 Array.isArray(datos.h1) &&
@@ -3979,10 +4145,8 @@ document.addEventListener(
 
             }
 
-
             resumen +=
                 "\nH2:\n";
-
 
             if (
                 Array.isArray(datos.h2) &&
@@ -4007,10 +4171,8 @@ document.addEventListener(
 
             }
 
-
             resumen +=
                 "\nH3:\n";
-
 
             if (
                 Array.isArray(datos.h3) &&
@@ -4035,16 +4197,8 @@ document.addEventListener(
 
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | ÁRBOL
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "\nÁRBOL DE ESTRUCTURA:\n";
-
 
             resumen +=
                 (
@@ -4053,58 +4207,31 @@ document.addEventListener(
                 ) +
                 "\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | IMÁGENES Y ENLACES
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "IMÁGENES Y ENLACES:\n";
 
-
             resumen +=
                 "- Imágenes: " +
-                (
-                    datos.imagenes_total ?? 0
-                ) +
+                (datos.imagenes_total ?? 0) +
                 "\n";
-
 
             resumen +=
                 "- Imágenes sin ALT: " +
-                (
-                    datos.imagenes_sin_alt ?? 0
-                ) +
+                (datos.imagenes_sin_alt ?? 0) +
                 "\n";
-
 
             resumen +=
                 "- Enlaces internos: " +
-                (
-                    datos.enlaces_internos ?? 0
-                ) +
+                (datos.enlaces_internos ?? 0) +
                 "\n";
-
 
             resumen +=
                 "- Enlaces externos: " +
-                (
-                    datos.enlaces_externos ?? 0
-                ) +
+                (datos.enlaces_externos ?? 0) +
                 "\n\n";
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | INDEXACIÓN
-            |--------------------------------------------------------------------------
-            */
 
             resumen +=
                 "INDEXACIÓN:\n";
-
 
             resumen +=
                 "- Canonical: " +
@@ -4114,7 +4241,6 @@ document.addEventListener(
                 ) +
                 "\n";
 
-
             resumen +=
                 "- Robots: " +
                 (
@@ -4122,7 +4248,6 @@ document.addEventListener(
                     "No detectado"
                 ) +
                 "\n";
-
 
             resumen +=
                 "- robots.txt: " +
@@ -4133,7 +4258,6 @@ document.addEventListener(
                 ) +
                 "\n";
 
-
             resumen +=
                 "- sitemap.xml: " +
                 (
@@ -4143,16 +4267,8 @@ document.addEventListener(
                 ) +
                 "\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | METADATOS SOCIALES
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "METADATOS SOCIALES:\n";
-
 
             resumen +=
                 "- Open Graph: " +
@@ -4162,7 +4278,6 @@ document.addEventListener(
                 ) +
                 "\n";
 
-
             resumen +=
                 "- Twitter Card: " +
                 (
@@ -4171,16 +4286,8 @@ document.addEventListener(
                 ) +
                 "\n\n";
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | PROBLEMAS
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "PROBLEMAS DETECTADOS:\n";
-
 
             if (
                 Array.isArray(datos.problemas) &&
@@ -4205,16 +4312,8 @@ document.addEventListener(
 
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | CORRECTOS
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "\nASPECTOS CORRECTOS:\n";
-
 
             if (
                 Array.isArray(datos.correctos) &&
@@ -4239,16 +4338,8 @@ document.addEventListener(
 
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | PRIORIDAD ALTA
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "\nPRIORIDAD ALTA:\n";
-
 
             if (
                 Array.isArray(datos.prioridad_alta) &&
@@ -4273,16 +4364,8 @@ document.addEventListener(
 
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | PRIORIDAD MEDIA
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "\nPRIORIDAD MEDIA:\n";
-
 
             if (
                 Array.isArray(datos.prioridad_media) &&
@@ -4307,16 +4390,8 @@ document.addEventListener(
 
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | OPORTUNIDADES
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
                 "\nOPORTUNIDADES DE MEJORA:\n";
-
 
             if (
                 Array.isArray(datos.oportunidades) &&
@@ -4341,32 +4416,20 @@ document.addEventListener(
 
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | INSTRUCCIÓN FINAL
-            |--------------------------------------------------------------------------
-            */
-
             resumen +=
-                "INSTRUCCIÓN FINAL PARA VIZIUNEAI\n";
-
+                "\nINSTRUCCIÓN FINAL PARA VIZIUNE\n";
 
             resumen +=
                 "Utiliza toda la información anterior como contexto de esta auditoría SEO.\n";
 
-
             resumen +=
                 "Cuando el usuario haga preguntas relacionadas con esta web, analiza primero estos datos antes de responder.\n";
-
 
             resumen +=
                 "No te limites a repetir el informe: interpreta los resultados, explica los problemas y proporciona recomendaciones prácticas.\n";
 
-
             resumen +=
                 "Si el usuario quiere solucionar los problemas, conviértelos en acciones concretas y ordénalas según su prioridad e impacto.\n";
-
 
             resumen +=
                 "Si necesitas información que no aparece en este informe, solicítala al usuario antes de realizar suposiciones.\n";
@@ -4376,19 +4439,12 @@ document.addEventListener(
                 resumen;
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | MOSTRAR ÁREAS
-            |--------------------------------------------------------------------------
-            */
-
             mostrarAreas(
                 datos
             );
 
 
-            resultado.hidden =
-                false;
+            mostrarResultadoVisible();
 
 
             resultado.scrollIntoView({
@@ -4468,6 +4524,1255 @@ document.addEventListener(
             }
 
         }
+
+    }
+);
+
+
+/* ==========================================================
+   GOOGLE ANALYTICS 4
+   CONTROL ÚNICO DE ANALYTICS
+========================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const analyticsPanel =
+            document.getElementById(
+                "analiticas"
+            );
+
+        const analyticsLoading =
+            document.getElementById(
+                "analyticsLoading"
+            );
+
+        const analyticsError =
+            document.getElementById(
+                "analyticsError"
+            );
+
+        const analyticsResultado =
+            document.getElementById(
+                "analyticsResultado"
+            );
+
+        const botonesPeriodo =
+            document.querySelectorAll(
+                ".analytics-periodo-button"
+            );
+
+
+        if (!analyticsPanel) {
+
+            console.error(
+                "Viziune: no existe #analiticas"
+            );
+
+            return;
+
+        }
+
+
+        /* ======================================================
+           LEER COOKIE DIRECTAMENTE
+           
+           Esto evita depender únicamente de
+           window.viziuneCookieConsent.
+        ====================================================== */
+
+        function obtenerConsentimientoCookie() {
+
+            const nombre =
+                "viz_cookie_consent=";
+
+            const cookies =
+                document.cookie.split(";");
+
+
+            for (
+                let i = 0;
+                i < cookies.length;
+                i++
+            ) {
+
+                let cookie =
+                    cookies[i].trim();
+
+
+                if (
+                    cookie.indexOf(
+                        nombre
+                    ) === 0
+                ) {
+
+                    const valor =
+                        cookie.substring(
+                            nombre.length
+                        );
+
+
+                    try {
+
+                        return JSON.parse(
+                            decodeURIComponent(
+                                valor
+                            )
+                        );
+
+                    } catch (error) {
+
+                        console.error(
+                            "Viziune: error leyendo consentimiento:",
+                            error
+                        );
+
+                        return null;
+
+                    }
+
+                }
+
+            }
+
+
+            return null;
+
+        }
+
+
+        /* ======================================================
+           COMPROBAR CONSENTIMIENTO
+        ====================================================== */
+
+        function obtenerConsentimientoActual() {
+
+            if (
+                window.viziuneCookieConsent &&
+                typeof window.viziuneCookieConsent === "object"
+            ) {
+
+                return window.viziuneCookieConsent;
+
+            }
+
+
+            const consentimientoCookie =
+                obtenerConsentimientoCookie();
+
+
+            if (
+                consentimientoCookie
+            ) {
+
+                window.viziuneCookieConsent =
+                    consentimientoCookie;
+
+                return consentimientoCookie;
+
+            }
+
+
+            return null;
+
+        }
+
+
+        function tieneConsentimientoAnalytics() {
+
+            const consentimiento =
+                obtenerConsentimientoActual();
+
+
+            return (
+                consentimiento &&
+                consentimiento.analiticas === true
+            );
+
+        }
+
+
+        /* ======================================================
+           MOSTRAR / OCULTAR PANEL
+        ====================================================== */
+
+        function mostrarPanelAnalytics() {
+
+            analyticsPanel.hidden =
+                false;
+
+            analyticsPanel.style.setProperty(
+                "display",
+                "block",
+                "important"
+            );
+
+        }
+
+
+        function ocultarPanelAnalytics() {
+
+            analyticsPanel.hidden =
+                true;
+
+            analyticsPanel.style.setProperty(
+                "display",
+                "none",
+                "important"
+            );
+
+        }
+
+
+        /* ======================================================
+           GOOGLE ANALYTICS REAL
+        ====================================================== */
+
+        const GA_ID =
+            "G-DPY8CEKPEF";
+
+        let googleAnalyticsCargado =
+            false;
+
+
+        function cargarGoogleAnalytics() {
+
+            if (
+                googleAnalyticsCargado
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                !tieneConsentimientoAnalytics()
+            ) {
+
+                return;
+
+            }
+
+
+            googleAnalyticsCargado =
+                true;
+
+
+            window.dataLayer =
+                window.dataLayer || [];
+
+
+            window.gtag =
+                window.gtag ||
+                function () {
+
+                    window.dataLayer.push(
+                        arguments
+                    );
+
+                };
+
+
+            window.gtag(
+                "js",
+                new Date()
+            );
+
+
+            window.gtag(
+                "config",
+                GA_ID
+            );
+
+
+            const script =
+                document.createElement(
+                    "script"
+                );
+
+
+            script.async =
+                true;
+
+
+            script.src =
+                "https://www.googletagmanager.com/gtag/js?id=" +
+                encodeURIComponent(
+                    GA_ID
+                );
+
+
+            document.head.appendChild(
+                script
+            );
+
+        }
+
+
+        /* ======================================================
+           UTILIDADES ANALYTICS
+        ====================================================== */
+
+        function mostrarErrorAnalytics(
+            mensaje
+        ) {
+
+            if (!analyticsError) {
+
+                return;
+
+            }
+
+            analyticsError.textContent =
+                "❌ " +
+                mensaje;
+
+            analyticsError.hidden =
+                false;
+
+        }
+
+
+        function ocultarErrorAnalytics() {
+
+            if (!analyticsError) {
+
+                return;
+
+            }
+
+            analyticsError.hidden =
+                true;
+
+            analyticsError.textContent =
+                "";
+
+        }
+
+
+        function formatearNumero(
+            valor
+        ) {
+
+            if (
+                valor === null ||
+                valor === undefined ||
+                valor === ""
+            ) {
+
+                return "-";
+
+            }
+
+
+            const numero =
+                Number(valor);
+
+
+            if (
+                Number.isNaN(numero)
+            ) {
+
+                return String(valor);
+
+            }
+
+
+            return numero.toLocaleString(
+                "es-ES"
+            );
+
+        }
+
+
+        function obtenerValor(
+            datos,
+            claves,
+            valorPorDefecto = null
+        ) {
+
+            for (
+                let i = 0;
+                i < claves.length;
+                i++
+            ) {
+
+                const clave =
+                    claves[i];
+
+
+                if (
+                    datos &&
+                    Object.prototype.hasOwnProperty.call(
+                        datos,
+                        clave
+                    ) &&
+                    datos[clave] !== null &&
+                    datos[clave] !== undefined
+                ) {
+
+                    return datos[clave];
+
+                }
+
+            }
+
+
+            return valorPorDefecto;
+
+        }
+
+
+        function pintarListado(
+            id,
+            elementos,
+            campos
+        ) {
+
+            const contenedor =
+                document.getElementById(id);
+
+
+            if (!contenedor) {
+
+                return;
+
+            }
+
+
+            contenedor.innerHTML =
+                "";
+
+
+            if (
+                !Array.isArray(elementos) ||
+                elementos.length === 0
+            ) {
+
+                const p =
+                    document.createElement(
+                        "p"
+                    );
+
+                p.textContent =
+                    "No hay datos disponibles.";
+
+                contenedor.appendChild(
+                    p
+                );
+
+                return;
+
+            }
+
+
+            const lista =
+                document.createElement(
+                    "div"
+                );
+
+            lista.className =
+                "analytics-list";
+
+
+            elementos.forEach(
+                function (item) {
+
+                    let nombre =
+                        "-";
+
+                    let valor =
+                        "-";
+
+
+                    if (
+                        typeof item === "string"
+                    ) {
+
+                        nombre =
+                            item;
+
+                    } else if (
+                        item &&
+                        typeof item === "object"
+                    ) {
+
+                        nombre =
+                            obtenerValor(
+                                item,
+                                campos.nombres || [
+                                    "nombre",
+                                    "name",
+                                    "pagina",
+                                    "page",
+                                    "pais",
+                                    "country",
+                                    "dispositivo",
+                                    "device",
+                                    "canal",
+                                    "channel"
+                                ],
+                                "-"
+                            );
+
+
+                        valor =
+                            obtenerValor(
+                                item,
+                                campos.valores || [
+                                    "valor",
+                                    "value",
+                                    "usuarios",
+                                    "users",
+                                    "activeUsers",
+                                    "sesiones",
+                                    "sessions",
+                                    "vistas",
+                                    "views",
+                                    "screenPageViews",
+                                    "eventCount"
+                                ],
+                                "-"
+                            );
+
+                    }
+
+
+                    const fila =
+                        document.createElement(
+                            "div"
+                        );
+
+                    fila.className =
+                        "analytics-list-row";
+
+
+                    const nombreElemento =
+                        document.createElement(
+                            "span"
+                        );
+
+                    nombreElemento.textContent =
+                        nombre;
+
+
+                    const valorElemento =
+                        document.createElement(
+                            "strong"
+                        );
+
+                    valorElemento.textContent =
+                        formatearNumero(
+                            valor
+                        );
+
+
+                    fila.appendChild(
+                        nombreElemento
+                    );
+
+                    fila.appendChild(
+                        valorElemento
+                    );
+
+
+                    lista.appendChild(
+                        fila
+                    );
+
+                }
+            );
+
+
+            contenedor.appendChild(
+                lista
+            );
+
+        }
+
+
+        /* ======================================================
+           PINTAR RESULTADOS
+        ====================================================== */
+
+        function mostrarAnalytics(
+            datos
+        ) {
+
+            if (!datos) {
+
+                throw new Error(
+                    "Google Analytics no devolvió datos."
+                );
+
+            }
+
+
+            analyticsResultado.hidden =
+                false;
+
+
+            const proyecto =
+                obtenerValor(
+                    datos,
+                    [
+                        "proyecto",
+                        "project",
+                        "nombre_proyecto"
+                    ],
+                    "-"
+                );
+
+
+            const property =
+                obtenerValor(
+                    datos,
+                    [
+                        "property",
+                        "property_id",
+                        "propertyId"
+                    ],
+                    "-"
+                );
+
+
+            document.getElementById(
+                "analyticsProyecto"
+            ).textContent =
+                proyecto;
+
+
+            document.getElementById(
+                "analyticsProperty"
+            ).textContent =
+                property;
+
+
+            const usuarios =
+                obtenerValor(
+                    datos,
+                    [
+                        "usuarios",
+                        "users",
+                        "activeUsers"
+                    ]
+                );
+
+
+            const sesiones =
+                obtenerValor(
+                    datos,
+                    [
+                        "sesiones",
+                        "sessions"
+                    ]
+                );
+
+
+            const paginas =
+                obtenerValor(
+                    datos,
+                    [
+                        "paginas",
+                        "paginas_vistas",
+                        "pageViews",
+                        "screenPageViews"
+                    ]
+                );
+
+
+            const eventos =
+                obtenerValor(
+                    datos,
+                    [
+                        "eventos",
+                        "eventCount"
+                    ]
+                );
+
+
+            const activos =
+                obtenerValor(
+                    datos,
+                    [
+                        "activos",
+                        "usuarios_activos",
+                        "activeUsers"
+                    ]
+                );
+
+
+            const tiempoReal =
+                obtenerValor(
+                    datos,
+                    [
+                        "activos_tiempo_real",
+                        "usuarios_tiempo_real",
+                        "realtimeUsers"
+                    ]
+                );
+
+
+            document.getElementById(
+                "analyticsUsuarios"
+            ).textContent =
+                formatearNumero(
+                    usuarios
+                );
+
+
+            document.getElementById(
+                "analyticsSesiones"
+            ).textContent =
+                formatearNumero(
+                    sesiones
+                );
+
+
+            document.getElementById(
+                "analyticsPaginas"
+            ).textContent =
+                formatearNumero(
+                    paginas
+                );
+
+
+            document.getElementById(
+                "analyticsEventos"
+            ).textContent =
+                formatearNumero(
+                    eventos
+                );
+
+
+            document.getElementById(
+                "analyticsActivos"
+            ).textContent =
+                formatearNumero(
+                    activos
+                );
+
+
+            document.getElementById(
+                "analyticsUsuariosTiempoReal"
+            ).textContent =
+                tiempoReal !== null
+                    ? formatearNumero(
+                        tiempoReal
+                    )
+                    : "—";
+
+
+            const paginasLista =
+                obtenerValor(
+                    datos,
+                    [
+                        "paginas_lista",
+                        "paginas_mas_visitadas"
+                    ],
+                    []
+                );
+
+
+            pintarListado(
+                "analyticsPaginasLista",
+                Array.isArray(paginasLista)
+                    ? paginasLista
+                    : [],
+                {
+                    nombres: [
+                        "pagina",
+                        "page",
+                        "nombre",
+                        "name",
+                        "pageTitle"
+                    ],
+                    valores: [
+                        "vistas",
+                        "views",
+                        "screenPageViews",
+                        "valor",
+                        "value"
+                    ]
+                }
+            );
+
+
+            const dispositivos =
+                obtenerValor(
+                    datos,
+                    [
+                        "dispositivos",
+                        "dispositivos_lista",
+                        "device_data"
+                    ],
+                    []
+                );
+
+
+            pintarListado(
+                "analyticsDispositivosLista",
+                Array.isArray(dispositivos)
+                    ? dispositivos
+                    : [],
+                {
+                    nombres: [
+                        "dispositivo",
+                        "device",
+                        "nombre",
+                        "name",
+                        "deviceCategory"
+                    ],
+                    valores: [
+                        "usuarios",
+                        "users",
+                        "activeUsers",
+                        "valor",
+                        "value"
+                    ]
+                }
+            );
+
+
+            const paises =
+                obtenerValor(
+                    datos,
+                    [
+                        "paises",
+                        "paises_lista",
+                        "countries"
+                    ],
+                    []
+                );
+
+
+            pintarListado(
+                "analyticsPaisesLista",
+                Array.isArray(paises)
+                    ? paises
+                    : [],
+                {
+                    nombres: [
+                        "pais",
+                        "country",
+                        "nombre",
+                        "name",
+                        "countryName"
+                    ],
+                    valores: [
+                        "usuarios",
+                        "users",
+                        "activeUsers",
+                        "valor",
+                        "value"
+                    ]
+                }
+            );
+
+
+            const canales =
+                obtenerValor(
+                    datos,
+                    [
+                        "canales",
+                        "canales_lista",
+                        "channels"
+                    ],
+                    []
+                );
+
+
+            pintarListado(
+                "analyticsCanalesLista",
+                Array.isArray(canales)
+                    ? canales
+                    : [],
+                {
+                    nombres: [
+                        "canal",
+                        "channel",
+                        "nombre",
+                        "name",
+                        "sessionDefaultChannelGroup"
+                    ],
+                    valores: [
+                        "usuarios",
+                        "users",
+                        "activeUsers",
+                        "sesiones",
+                        "sessions",
+                        "valor",
+                        "value"
+                    ]
+                }
+            );
+
+
+            const estado =
+                document.getElementById(
+                    "analyticsEstado"
+                );
+
+
+            if (estado) {
+
+                estado.textContent =
+                    "Conectado";
+
+            }
+
+        }
+
+
+        /* ======================================================
+           CARGAR ANALYTICS
+        ====================================================== */
+
+        async function cargarAnalytics(
+            periodo
+        ) {
+
+            if (
+                !analyticsResultado
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                !tieneConsentimientoAnalytics()
+            ) {
+
+                ocultarPanelAnalytics();
+
+                return;
+
+            }
+
+
+            mostrarPanelAnalytics();
+
+            cargarGoogleAnalytics();
+
+
+            if (
+                periodo !== "7" &&
+                periodo !== "30" &&
+                periodo !== "90"
+            ) {
+
+                periodo =
+                    "30";
+
+            }
+
+
+            if (analyticsLoading) {
+
+                analyticsLoading.hidden =
+                    false;
+
+            }
+
+
+            analyticsResultado.hidden =
+                true;
+
+
+            ocultarErrorAnalytics();
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "analytics.php?periodo=" +
+                        encodeURIComponent(
+                            periodo
+                        ),
+                        {
+                            method: "GET",
+
+                            headers: {
+
+                                "Accept":
+                                    "application/json",
+
+                                "Cache-Control":
+                                    "no-cache"
+
+                            },
+
+                            cache:
+                                "no-store"
+
+                        }
+                    );
+
+
+                const texto =
+                    await response.text();
+
+
+                let data;
+
+
+                try {
+
+                    data =
+                        JSON.parse(
+                            texto
+                        );
+
+                } catch (e) {
+
+                    console.error(
+                        "Respuesta Analytics:",
+                        texto
+                    );
+
+                    throw new Error(
+                        "Google Analytics devolvió una respuesta no válida."
+                    );
+
+                }
+
+
+                if (
+                    !response.ok
+                ) {
+
+                    throw new Error(
+                        data.error ||
+                        "No se pudieron obtener las analíticas."
+                    );
+
+                }
+
+
+                if (
+                    data.success === false
+                ) {
+
+                    throw new Error(
+                        data.error ||
+                        "No se pudieron obtener las analíticas."
+                    );
+
+                }
+
+
+                if (
+                    !tieneConsentimientoAnalytics()
+                ) {
+
+                    ocultarPanelAnalytics();
+
+                    return;
+
+                }
+
+
+                mostrarAnalytics(
+                    data
+                );
+
+
+            } catch (e) {
+
+                console.error(
+                    "Error Analytics:",
+                    e
+                );
+
+
+                if (
+                    tieneConsentimientoAnalytics()
+                ) {
+
+                    mostrarErrorAnalytics(
+                        e.message ||
+                        "No se pudieron cargar las analíticas."
+                    );
+
+                } else {
+
+                    ocultarPanelAnalytics();
+
+                }
+
+
+            } finally {
+
+                if (analyticsLoading) {
+
+                    analyticsLoading.hidden =
+                        true;
+
+                }
+
+            }
+
+        }
+
+
+        /* ======================================================
+           BOTONES 7 / 30 / 90
+        ====================================================== */
+
+        botonesPeriodo.forEach(
+            function (botonPeriodo) {
+
+                botonPeriodo.addEventListener(
+                    "click",
+                    function () {
+
+                        if (
+                            !tieneConsentimientoAnalytics()
+                        ) {
+
+                            ocultarPanelAnalytics();
+
+                            return;
+
+                        }
+
+
+                        const periodo =
+                            botonPeriodo.dataset.periodo;
+
+
+                        botonesPeriodo.forEach(
+                            function (boton) {
+
+                                boton.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                        botonPeriodo.classList.add(
+                            "active"
+                        );
+
+
+                        cargarAnalytics(
+                            periodo
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* ======================================================
+           ESTADO INICIAL
+        ====================================================== */
+
+        function iniciarAnalytics() {
+
+            const consentimiento =
+                obtenerConsentimientoActual();
+
+
+            console.log(
+                "Viziune Analytics - consentimiento:",
+                consentimiento
+            );
+
+
+            if (
+                consentimiento &&
+                consentimiento.analiticas === true
+            ) {
+
+                console.log(
+                    "Viziune Analytics - consentimiento concedido."
+                );
+
+
+                mostrarPanelAnalytics();
+
+                cargarAnalytics(
+                    "30"
+                );
+
+            } else {
+
+                console.log(
+                    "Viziune Analytics - sin consentimiento."
+                );
+
+
+                ocultarPanelAnalytics();
+
+            }
+
+        }
+
+
+        iniciarAnalytics();
+
+
+        /* ======================================================
+           CAMBIO DEL BANNER DE COOKIES
+        ====================================================== */
+
+        document.addEventListener(
+            "viziuneCookieConsentChanged",
+            function (event) {
+
+                const consentimiento =
+                    event.detail || {};
+
+
+                window.viziuneCookieConsent =
+                    consentimiento;
+
+
+                console.log(
+                    "Viziune Analytics - cambio de consentimiento:",
+                    consentimiento
+                );
+
+
+                if (
+                    consentimiento.analiticas === true
+                ) {
+
+                    mostrarPanelAnalytics();
+
+                    cargarAnalytics(
+                        "30"
+                    );
+
+                } else {
+
+                    ocultarPanelAnalytics();
+
+
+                    if (analyticsResultado) {
+
+                        analyticsResultado.hidden =
+                            true;
+
+                    }
+
+
+                    ocultarErrorAnalytics();
+
+                }
+
+            }
+        );
 
     }
 );

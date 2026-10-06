@@ -20,6 +20,16 @@ $usuarioLogueado = isset($_SESSION['usuario_id']);
     <link rel="stylesheet" href="css/menu.css">
 
     <title>Document</title>
+    
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DPY8CEKPEF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DPY8CEKPEF');
+</script>
 
 </head>
 

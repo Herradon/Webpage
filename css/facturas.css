@@ -556,12 +556,15 @@ a {
    ========================================================= */
 
 @media (max-width: 700px) {
+    
+    
 
     .facturacion-header {
         padding: 22px 15px;
     }
 
     .cabecera-contenido {
+         margin-top: 50px;
         flex-direction: column;
         align-items: stretch;
     }

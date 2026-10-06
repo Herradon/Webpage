@@ -38,24 +38,70 @@ $mostrarPoliticaPrivacidad = (
 <html lang="es">
 
 <head>
-
-    <script
-        id="Cookiebot"
-        src="https://consent.cookiebot.com/uc.js"
-        data-cbid="c73a4920-9b86-4f59-b4e9-a3f8e1dfba1d"
-        data-blockingmode="auto"
-        type="text/javascript">
-    </script>
-
+   
     <meta charset="UTF-8">
+    
+    <link rel="icon" type="image/png" href="img/iconv.png">
+    
+   <link rel="stylesheet" href="css/satoshi.css">
+   
+    <link rel="stylesheet" href="css/ranade.css">
+
+    <link rel="stylesheet" href="css/plein.css">
 
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
+    
+     <meta name="google-site-verification" content="gAC20XPhZpBfAy1K2QxKwRTgZXFDY8MqzfiiPGJk910" />
+    
+    <meta
+        name="description"
+        content="Viziune es una consultoría web y de servicios digitales especializada en diseño y desarrollo web, tiendas online, SEO, SEM y soluciones digitales con inteligencia artificial.">
 
-    <title>ViziuneAI</title>
+    <link
+        rel="canonical"
+        href="https://viziuneai.es/">
 
-    <link rel="stylesheet" href="css/style.css">
+    <title>
+        Viziune | Consultoría Web, Diseño Web, SEO y Soluciones Digitales
+    </title>
+    
+    <meta name="application-name" content="Viziune">
+    
+    <meta property="og:site_name" content="Viziune">
+
+    <link rel="stylesheet" href="css/style.css?v=2">
+        
+       <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Viziune",
+            "url": "https://viziuneai.es/"
+        }
+        </script>
+        
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Viziune",
+            "legalName": "Viziune SL",
+            "url": "https://viziuneai.es/"
+        }
+        </script>
+
+<!-- Google tag (gtag.js) -->
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DPY8CEKPEF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-DPY8CEKPEF');
+    </script>
 
     <style>
 
@@ -116,10 +162,83 @@ $mostrarPoliticaPrivacidad = (
             font-weight: 700;
 
         }
-
+        
         .boton-iniciar-sesion:hover {
 
             opacity: 0.9;
+
+        }
+
+
+        /* ==========================================================
+           ENLACES LEGALES DEL FOOTER
+        ========================================================== */
+
+        .footer-enlaces-legales {
+
+            display: flex;
+            
+            width: 100%;
+
+            justify-content: center;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            gap: 10px 20px;
+
+            margin-top: 10px;
+
+        }
+
+
+        .footer-enlaces-legales .configurar-cookies-footer {
+
+            margin-top: 0;
+
+        }
+
+
+        .configurar-cookies-footer {
+
+            display: inline-block;
+
+            color: #00cfe0;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            cursor: pointer;
+
+        }
+
+
+        .configurar-cookies-footer:hover {
+
+            text-decoration: underline;
+
+        }
+        
+        .terminoscondiciones {
+
+            display: inline-block;
+
+            color: #00cfe0;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            cursor: pointer;
+
+        }
+
+
+        .terminoscondiciones:hover {
+
+            text-decoration: underline;
 
         }
 
@@ -144,126 +263,131 @@ $mostrarPoliticaPrivacidad = (
 
 
 <!-- =========================================================
-     HERO
+     CÓMO TRABAJA TU PRESENCIA DIGITAL
 ========================================================= -->
 
-<section id="inicio" class="hero">
+<section class="presencia-negocio">
 
-    <canvas id="neural-canvas"></canvas>
-
-
-    <div class="container hero-content">
+    <div class="presencia-header">
 
         <h1>
-            Descubre lo que la inteligencia artificial puede hacer por tu negocio
+            ¿Tu presencia digital está trabajando para ti?
         </h1>
 
-
         <p>
-
-            No necesitas saber exactamente qué necesitas. En ViziuneAI te ayudamos a descubrirlo.
-            Si ya tienes una página web, empieza analizándola con nuestra Auditoría SEO. Obtendrás una visión de su estado y un resumen de los principales aspectos que puedes mejorar.
-            Después, lleva ese análisis a ViziuneAI y habla con nuestros agentes de inteligencia artificial. Podrás plantear tus dudas, explorar ideas y descubrir qué soluciones pueden encajar mejor con tu negocio.
-            Si todavía no tienes una web o simplemente tienes una idea, puedes empezar directamente hablando con ViziuneAI.
-            Cuando tengas claro lo que necesitas, podrás solicitar presupuesto sin tener que empezar de nuevo: la conversación recoge todo el contexto, las dudas y las ideas que han surgido durante el proceso.
-            Analiza tu web. Explora tus posibilidades. Encuentra la solución.
-
+            Tener una web, aparecer en Google o estar presente en internet
+            no garantiza conseguir clientes. Lo importante es que cada parte
+            de tu presencia digital trabaje en conjunto para atraer,
+            convencer y convertir oportunidades.
         </p>
 
     </div>
 
-</section>
 
+    <div class="presencia-recorrido">
 
-<!-- =========================================================
-     ESPECIALIDADES
-========================================================= -->
+        <article class="presencia-card">
 
-<section>
+            <div class="presencia-top">
+                <span class="presencia-numero">01</span>
+                <span class="presencia-linea"></span>
+            </div>
 
-    <div class="text-intro">
+            <div class="presencia-icono">↗</div>
 
-
-        <div class="d1">
-
-            <img
-                src="img/agentes.png"
-                alt="">
-
-            <h1>
-                Agentes personalizados
-            </h1>
+            <h3>
+                Que te encuentren
+            </h3>
 
             <p>
-
-                Tenemos agentes de inteligencia artificial adaptados a las necesidades de tu negocio, con funciones y respuestas personalizadas para ayudarte a automatizar tareas, atender a tus clientes y mejorar diferentes procesos de tu día a día.
-
+                Aumenta tu visibilidad ante las personas que realmente
+                buscan los productos o servicios que ofreces.
             </p>
 
-        </div>
+            <span class="presencia-servicios">
+                SEO · SEM · POSICIONAMIENTO
+            </span>
+
+        </article>
 
 
-        <div class="d2">
+        <article class="presencia-card">
 
-            <img
-                src="img/facturacion.png"
-                alt="">
+            <div class="presencia-top">
+                <span class="presencia-numero">02</span>
+                <span class="presencia-linea"></span>
+            </div>
 
-            <h1>
-                Facturación
-            </h1>
+            <div class="presencia-icono">◇</div>
+
+            <h3>
+                Que confíen en ti
+            </h3>
 
             <p>
-
-                Genera y gestiona tus facturas de forma sencilla, organizada y profesional, manteniendo toda la información necesaria para llevar el control de tu facturación.
-
+                Una presencia digital profesional ayuda a transmitir
+                el valor de tu negocio desde el primer contacto.
             </p>
 
-        </div>
+            <span class="presencia-servicios">
+                WEB · UX/UI · IDENTIDAD
+            </span>
+
+        </article>
 
 
-        <div class="d3">
+        <article class="presencia-card">
 
-            <img
-                src="img/seo.png"
-                alt="">
+            <div class="presencia-top">
+                <span class="presencia-numero">03</span>
+                <span class="presencia-linea"></span>
+            </div>
 
-            <h1>
-                Auditoria SEO
-            </h1>
+            <div class="presencia-icono">→</div>
+
+            <h3>
+                Que contacten contigo
+            </h3>
 
             <p>
-
-               Analiza tu página web y descubre los principales aspectos que puedes mejorar para optimizar su posicionamiento, visibilidad y rendimiento en los buscadores.
-
+                Diseñamos experiencias y puntos de contacto pensados
+                para transformar visitas en oportunidades comerciales.
             </p>
 
-        </div>
+            <span class="presencia-servicios">
+                ESTRATEGIA · CONVERSIÓN · AUTOMATIZACIÓN
+            </span>
+
+        </article>
 
 
-        <div class="d4">
+        <article class="presencia-card">
 
-            <img
-                src="img/seguridad.png"
-                alt="">
+            <div class="presencia-top">
+                <span class="presencia-numero">04</span>
+                <span class="presencia-linea"></span>
+            </div>
 
-            <h1>
-                Seguridad
-            </h1>
+            <div class="presencia-icono">✓</div>
+
+            <h3>
+                Que se conviertan en clientes
+            </h3>
 
             <p>
-
-               Protege tu presencia online revisando los aspectos esenciales de seguridad de tu página web y mantén tu información y tus sistemas más protegidos.
-
+                Optimizamos cada parte del proceso para que tu ecosistema
+                digital acompañe al cliente hasta la decisión.
             </p>
 
-        </div>
+            <span class="presencia-servicios">
+                OPTIMIZACIÓN · ANALÍTICA · SOLUCIONES DIGITALES
+            </span>
 
+        </article>
 
     </div>
 
 </section>
-
 
 <!-- =========================================================
      CHAT
@@ -276,28 +400,27 @@ $mostrarPoliticaPrivacidad = (
     <div class="container">
 
 
-        <div class="section-title">
 
-            <h1>
+<div class="section-title">
 
-                De nuestro asistente
-                <span>al correo</span>
+    <h2>
+        De nuestro asistente
+        <span>al correo</span>
+    </h2>
 
-            </h1>
+    <p>
+        A partir de aquí es donde todo tu negocio pasa a otro nivel. Puedes
+        elegir qué especialista quieres consultar y cuando
+        termines enviar toda la conversación a nuestro equipo.
+    </p>
 
+    <details class="agent-info-acordeon">
 
-            <p>
+        <summary>
+            Como usar el chat
+        </summary>
 
-                A partir de aquí es donde toda la conversación
-                con nuestro asistente pasa a otro nivel, puedes
-                elegir qué especialista quieres consultar y cuando
-                termines enviar toda la conversación a nuestro equipo.
-
-            </p>
-
-
-            <br>
-
+        <div class="agent-info-contenido">
 
             <p class="agent-selector-description">
 
@@ -312,19 +435,13 @@ $mostrarPoliticaPrivacidad = (
 
                 - 2) Si todavía no tienes página web, estás en el lugar indicado:
 
-                <br>
+                <br><br>
 
                 - Habla con nuestro asesor y cuéntale qué necesitas para tu proyecto.
 
-                <br>
+                <br><br>
 
-                - Si prefieres una atención más personalizada, puedes solicitar
-                una reunión para que te llamemos o realizar una videoconferencia
-                y resolver tus dudas directamente.
-
-                <br>
-
-                - Cuando hayas terminado la conversación y hayas solicitado tu cita,
+                - Cuando hayas terminado la conversación,
                 si quieres dar el siguiente paso, escribe «quiero contactar»,
                 «quiero hablar» o «quiero pedir un presupuesto». Aparecerá un botón
                 debajo del chat desde el que podrás enviarnos la conversación,
@@ -335,6 +452,11 @@ $mostrarPoliticaPrivacidad = (
 
         </div>
 
+    </details>
+
+</div>
+
+
 
         <?php if (!$usuarioLogueado): ?>
 
@@ -344,17 +466,10 @@ $mostrarPoliticaPrivacidad = (
 
             <div class="acceso-privado-aviso">
 
-                <strong>
-                    🔐 Funciones privadas del asistente
-                </strong>
-
                 <p>
-
-                    Puedes consultar y utilizar el asistente sin iniciar sesión.
                     Para solicitar una reunión o enviar la conversación a nuestro
                     equipo y poder recibir atención personalizada, necesitas
                     acceder a tu cuenta.
-
                 </p>
 
                 <a
@@ -387,8 +502,17 @@ $mostrarPoliticaPrivacidad = (
 
                         <div class="assistant-avatar">
 
+                            <!--
+                            =================================================
+                            AVATAR ACTUALIZADO
+                            Se utiliza asesoramiento.png y no asset.png.
+                            El ?v=2 evita que el navegador utilice una
+                            versión antigua guardada en caché.
+                            =================================================
+                            -->
+
                             <img
-                                src="img/asesoramiento.png"
+                                src="img/asesoramiento.png?v=2"
                                 alt="Asistente de Diseño y Desarrollo Web">
 
                         </div>
@@ -399,8 +523,14 @@ $mostrarPoliticaPrivacidad = (
                             <strong id="assistantName">
 
                                 Diseño y Desarrollo Web
+                                
+                                <br>
 
                             </strong>
+                            
+                             <span id="assistantDescription">
+                                Soluciones digitales para crear, mejorar y hacer crecer tu negocio online.
+                                </span>
 
                         </div>
 
@@ -641,14 +771,14 @@ $mostrarPoliticaPrivacidad = (
 
         <div class="section-title">
 
-            <h1>
-                CONTACTO
-            </h1>
-
-
             <h2>
-                ¿Quieres hablar con nosotros?
+                CONTACTO
             </h2>
+
+
+            <h3>
+                ¿Quieres hablar con nosotros?
+            </h3>
 
 
             <p>
@@ -762,31 +892,22 @@ $mostrarPoliticaPrivacidad = (
 
 
         <div class="reunion-modal-header">
-
-
-            <div>
-
-                <span class="reunion-modal-label">
-                    REUNIÓN
-                </span>
-
-
-                <h2 id="reunionModalTitle">
-                    Solicitar una reunión
-                </h2>
-
-            </div>
-
-
-            <button
+                
+                 <button
                 type="button"
                 id="closeReunionModal"
                 class="reunion-modal-close"
                 aria-label="Cerrar">
-
-                &times;
+                     
+                Cerrar
 
             </button>
+
+
+                <div> 
+
+            </div>
+
 
 
         </div>
@@ -803,11 +924,6 @@ $mostrarPoliticaPrivacidad = (
 
 
             <div class="form-group">
-
-
-                <label>
-                    Fecha de la reunión
-                </label>
 
 
                 <div class="calendar-container">
@@ -841,7 +957,6 @@ $mostrarPoliticaPrivacidad = (
                             ›
 
                         </button>
-
 
                     </div>
 
@@ -929,8 +1044,52 @@ $mostrarPoliticaPrivacidad = (
     <div class="container">
 
         <p>
-            © <?php echo date("Y"); ?> ViziuneAI
+            © <?php echo date("Y"); ?> Viziune
         </p>
+
+
+        <div class="footer-enlaces-legales">
+
+
+            <!-- POLÍTICA DE PRIVACIDAD -->
+
+            <a
+                href="politica_entera.php"
+                class="configurar-cookies-footer">
+
+                Política de privacidad
+
+            </a>
+
+
+            <!-- POLÍTICA DE COOKIES -->
+
+            <a
+                href="politica_cookies.php"
+                class="configurar-cookies-footer">
+
+                Política de cookies
+
+            </a>
+    
+            <a href="terminos.php" class="terminoscondiciones">Términos y condiciones</a>
+        
+
+
+
+            <!-- CONFIGURAR COOKIES -->
+
+            <a
+                href="#"
+                class="configurar-cookies-footer"
+                onclick="if (typeof window.mostrarPreferenciasCookies === 'function') { window.mostrarPreferenciasCookies(); } return false;">
+
+                Configurar cookies
+
+            </a>
+
+
+        </div>
 
     </div>
 
@@ -950,6 +1109,14 @@ $mostrarPoliticaPrivacidad = (
 
 
 <script src="js/app.js"></script>
+
+
+<!-- =========================================================
+     SISTEMA PROPIO DE COOKIES
+     SIN COOKIEBOT
+========================================================= -->
+
+<?php include 'cookies.php'; ?>
 
 
 </body>

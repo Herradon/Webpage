@@ -49,9 +49,18 @@ if ($usuarioLogueado) {
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Calendario | ViziuneAI</title>
+    <title>Calendario | Viziune</title>
 
     <link rel="stylesheet" href="css/calendario.css">
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DPY8CEKPEF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DPY8CEKPEF');
+</script>
 
 
     <style>

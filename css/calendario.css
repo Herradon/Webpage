@@ -174,6 +174,7 @@ body {
 ========================================================== */
 
 .detalle-reunion {
+    width: 40%;
     position: relative;
     margin-top: 25px;
     padding: 25px;
@@ -205,6 +206,17 @@ body {
 ========================================================== */
 
 @media (max-width: 900px) {
+    
+    .detalle-reunion {
+    width: 100%;
+    position: relative;
+    margin-top: 25px;
+    padding: 25px;
+    background: #0d1a29;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.35);
+    border: 1px solid #1c3045;
+}
 
     .calendario-contenedor {
         margin: 80px auto;
@@ -262,6 +274,17 @@ body {
 ========================================================== */
 
 @media (max-width: 700px) {
+    
+    .detalle-reunion {
+    width: 100%;
+    position: relative;
+    margin-top: 25px;
+    padding: 25px;
+    background: #0d1a29;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.35);
+    border: 1px solid #1c3045;
+}
 
     .calendario-contenedor {
         width: 100%;
@@ -423,6 +446,17 @@ body {
 ========================================================== */
 
 @media (max-width: 400px) {
+    
+    .detalle-reunion {
+    width: 100%;
+    position: relative;
+    margin-top: 25px;
+    padding: 25px;
+    background: #0d1a29;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.35);
+    border: 1px solid #1c3045;
+}
 
     .calendario-contenedor {
         padding: 5px;

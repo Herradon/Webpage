@@ -254,12 +254,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Crear cuenta | ViziuneAI</title>
+    <title>Crear cuenta | Viziune</title>
 
     <link
         rel="stylesheet"
         href="css/registro.css"
     >
+    
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DPY8CEKPEF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DPY8CEKPEF');
+</script>
 
 </head>
 
@@ -269,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="registro-cabecera">
 
-            <h1>ViziuneAI</h1>
+            <h1>Viziune</h1>
 
             <p>
                 Crea tu cuenta

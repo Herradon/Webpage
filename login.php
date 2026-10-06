@@ -14,7 +14,10 @@ $mensaje = '';
 */
 
 if (isset($_GET['registro']) && $_GET['registro'] === 'ok') {
-    $mensaje = 'Cuenta creada correctamente. Ya puedes iniciar sesión.';
+
+    $mensaje =
+        'Cuenta creada correctamente. Ya puedes iniciar sesión.';
+
 }
 
 
@@ -26,8 +29,12 @@ if (isset($_GET['registro']) && $_GET['registro'] === 'ok') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $email =
+        trim($_POST['email'] ?? '');
+
+    $password =
+        $_POST['password'] ?? '';
+
 
     /*
     |--------------------------------------------------------------------------
@@ -35,15 +42,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     |--------------------------------------------------------------------------
     */
 
-    if ($email === '' || $password === '') {
+    if (
+        $email === '' ||
+        $password === ''
+    ) {
 
-        $error = 'Debes introducir tu correo electrónico y contraseña.';
+        $error =
+            'Debes introducir tu correo electrónico y contraseña.';
 
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } elseif (
+        !filter_var(
+            $email,
+            FILTER_VALIDATE_EMAIL
+        )
+    ) {
 
-        $error = 'Introduce un correo electrónico válido.';
+        $error =
+            'Introduce un correo electrónico válido.';
 
     } else {
+
 
         /*
         |--------------------------------------------------------------------------
@@ -51,21 +69,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         |--------------------------------------------------------------------------
         */
 
-        $stmt = $pdo->prepare("
-            SELECT
-                id,
-                nombre,
-                email,
-                password,
-                activo
-            FROM usuarios
-            WHERE email = ?
-            LIMIT 1
-        ");
+        $stmt =
+            $pdo->prepare("
+                SELECT
+                    id,
+                    nombre,
+                    email,
+                    password,
+                    activo
+                FROM usuarios
+                WHERE email = ?
+                LIMIT 1
+            ");
 
-        $stmt->execute([$email]);
+        $stmt->execute([
+            $email
+        ]);
 
-        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+        $usuario =
+            $stmt->fetch(
+                PDO::FETCH_ASSOC
+            );
 
 
         /*
@@ -74,15 +98,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         |--------------------------------------------------------------------------
         */
 
-        if (!$usuario || !$usuario['activo']) {
+        if (
+            !$usuario ||
+            !$usuario['activo']
+        ) {
 
-            $error = 'El correo o la contraseña son incorrectos.';
+            $error =
+                'El correo o la contraseña son incorrectos.';
 
-        } elseif (!password_verify($password, $usuario['password'])) {
+        } elseif (
+            !password_verify(
+                $password,
+                $usuario['password']
+            )
+        ) {
 
-            $error = 'El correo o la contraseña son incorrectos.';
+            $error =
+                'El correo o la contraseña son incorrectos.';
 
         } else {
+
 
             /*
             |--------------------------------------------------------------------------
@@ -92,9 +127,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             session_regenerate_id(true);
 
-            $_SESSION['usuario_id'] = (int) $usuario['id'];
-            $_SESSION['usuario_nombre'] = $usuario['nombre'];
-            $_SESSION['usuario_email'] = $usuario['email'];
+            $_SESSION['usuario_id'] =
+                (int) $usuario['id'];
+
+            $_SESSION['usuario_nombre'] =
+                $usuario['nombre'];
+
+            $_SESSION['usuario_email'] =
+                $usuario['email'];
 
 
             /*
@@ -103,19 +143,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             |--------------------------------------------------------------------------
             */
 
-            $stmtCliente = $pdo->prepare("
-                SELECT id
-                FROM clientes
-                WHERE usuario_id = ?
-                  AND activo = 1
-                LIMIT 1
-            ");
+            $stmtCliente =
+                $pdo->prepare("
+                    SELECT id
+                    FROM clientes
+                    WHERE usuario_id = ?
+                      AND activo = 1
+                    LIMIT 1
+                ");
 
             $stmtCliente->execute([
                 $usuario['id']
             ]);
 
-            $cliente = $stmtCliente->fetch(PDO::FETCH_ASSOC);
+            $cliente =
+                $stmtCliente->fetch(
+                    PDO::FETCH_ASSOC
+                );
 
 
             /*
@@ -126,7 +170,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($cliente) {
 
-                $_SESSION['cliente_id'] = (int) $cliente['id'];
+                $_SESSION['cliente_id'] =
+                    (int) $cliente['id'];
 
             } else {
 
@@ -135,7 +180,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 | dejamos la sesión de usuario creada.
                 */
 
-                unset($_SESSION['cliente_id']);
+                unset(
+                    $_SESSION['cliente_id']
+                );
+
             }
 
 
@@ -154,7 +202,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             |--------------------------------------------------------------------------
             */
 
-            $_SESSION['suscripcion_activa'] = 1;
+            $_SESSION['suscripcion_activa'] =
+                1;
 
 
             /*
@@ -165,9 +214,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             | Al iniciar sesión correctamente se marca la sesión
             | para que el popup aparezca en index.php.
             |
+            | Cuando el usuario pulse "Aceptar", el archivo
+            | aceptar_privacidad.php eliminará esta variable.
+            |
             */
 
-            $_SESSION['mostrar_politica_privacidad'] = true;
+            $_SESSION['mostrar_politica_privacidad'] =
+                true;
 
 
             /*
@@ -176,11 +229,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             |--------------------------------------------------------------------------
             */
 
-            header('Location: index.php');
+            header(
+                'Location: index.php'
+            );
+
             exit;
 
         }
+
     }
+
 }
 
 ?>
@@ -196,29 +254,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Iniciar sesión | ViziuneAI</title>
+    <title>Iniciar sesión | Viziune</title>
+
 
     <!-- CSS DEL LOGIN -->
+
     <link
         rel="stylesheet"
         href="css/login.css"
     >
+    
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DPY8CEKPEF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DPY8CEKPEF');
+</script>
 
 </head>
 
 <body>
 
+
     <main class="login-container">
+
 
         <section class="login-card">
 
+
             <div class="login-header">
 
+
                 <div class="logo">
+
                     VIZIUNE<span>AI</span>
+
                 </div>
 
-                <h1>Iniciar sesión</h1>
+
+                <h1>
+                    Iniciar sesión
+                </h1>
+
 
                 <p>
                     Accede a tu área de cliente para gestionar tus facturas.
@@ -230,7 +310,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($mensaje): ?>
 
                 <div class="login-success">
+
                     <?= htmlspecialchars($mensaje) ?>
+
                 </div>
 
             <?php endif; ?>
@@ -239,7 +321,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($error): ?>
 
                 <div class="login-error">
+
                     <?= htmlspecialchars($error) ?>
+
                 </div>
 
             <?php endif; ?>
@@ -251,13 +335,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 method="POST"
             >
 
+
                 <!-- CORREO -->
 
                 <div class="form-group">
 
+
                     <label for="email">
+
                         Correo electrónico
+
                     </label>
+
 
                     <input
                         type="email"
@@ -265,7 +354,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         name="email"
                         placeholder="tu@email.com"
                         autocomplete="email"
-                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                        value="<?= htmlspecialchars(
+                            $_POST['email'] ?? ''
+                        ) ?>"
                         required
                     >
 
@@ -276,11 +367,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-group">
 
+
                     <label for="password">
+
                         Contraseña
+
                     </label>
 
+
                     <div class="password-wrapper">
+
 
                         <input
                             type="password"
@@ -291,6 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             required
                         >
 
+
                         <!-- OJO DENTRO DEL CAMPO -->
 
                         <button
@@ -299,7 +396,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             data-target="password"
                             aria-label="Mostrar contraseña"
                             title="Mostrar contraseña"
-                        >◎</button>
+                        >
+                            ◎
+                        </button>
+
 
                     </div>
 
@@ -312,50 +412,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     type="submit"
                     id="loginButton"
                 >
+
                     Iniciar sesión
+
                 </button>
+
 
             </form>
 
 
             <div class="login-footer">
 
+
                 <!-- RECUPERAR CONTRASEÑA -->
 
                 <div class="forgot-password">
 
+
                     <a href="recuperar_password.php">
+
                         ¿Has olvidado tu contraseña?
+
                     </a>
+
 
                 </div>
 
 
                 <p>
+
                     ¿Todavía no tienes una cuenta?
+
                 </p>
 
+
                 <a href="registro.php">
+
                     Crear una cuenta
+
                 </a>
+
 
                 <div class="volver-inicio">
 
+
                     <a href="index.php">
+
                         ← Volver al inicio
+
                     </a>
+
 
                 </div>
 
+
             </div>
 
+
         </section>
+
 
     </main>
 
 
     <!-- JAVASCRIPT DEL LOGIN -->
+
     <script src="js/login.js"></script>
+
 
 </body>
 

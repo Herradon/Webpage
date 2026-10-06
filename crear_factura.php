@@ -451,6 +451,15 @@ $urlVolver = 'facturas.php';
         rel="stylesheet"
         href="css/crear-factura.css"
     >
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DPY8CEKPEF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DPY8CEKPEF');
+</script>
 
 </head>
 

@@ -551,7 +551,7 @@ if ($action === "email") {
 
     $textoEmail =
 
-        "NUEVO CONTACTO DESDE VIZIUNEAI\n\n" .
+        "NUEVO CONTACTO DESDE VIZIUNE\n\n" .
 
         "========================================\n" .
 
@@ -625,7 +625,7 @@ if ($action === "email") {
 
         $mail->setFrom(
             $SMTP_FROM,
-            "ViziuneAI"
+            "Viziune"
         );
 
        
@@ -922,7 +922,7 @@ $agentPrompts = [
 
     "diseño y desarrollo web" =>
 
-        "Eres Alejandro Herradón, especialista en diseño y desarrollo web.
+        "Eres especialista en diseño y desarrollo web.
 
         Tu función es asesorar al usuario sobre creación, diseño y desarrollo de páginas web profesionales.
 
@@ -939,7 +939,7 @@ $agentPrompts = [
 
     "tiendas online" =>
 
-        "Eres Alejandro Herradón, especialista en tiendas online y comercio electrónico.
+        "Eres especialista en tiendas online y comercio electrónico.
 
         Tu función es asesorar al usuario sobre creación, diseño y desarrollo de tiendas online.
 
@@ -956,7 +956,7 @@ $agentPrompts = [
 
     "asesor seo y sem" =>
 
-        "Eres Alejandro Herradón, especialista en SEO y SEM.
+        "Eres especialista en SEO y SEM.
 
         Tu función es ayudar al usuario a mejorar la visibilidad de su página web mediante posicionamiento orgánico y publicidad online.
 
@@ -973,7 +973,7 @@ $agentPrompts = [
 
     "asesoramiento web" =>
 
-        "Eres Alejandro Herradón, especialista en asesoramiento web.
+        "Eres especialista en asesoramiento web.
 
         Tu función es analizar las necesidades generales del usuario relacionadas con su presencia online.
 

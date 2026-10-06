@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -17,10 +16,7 @@ if (!isset($_SESSION['usuario_id'])) {
 
 }
 
-
-$usuarioId =
-    (int) $_SESSION['usuario_id'];
-
+$usuarioId = (int) $_SESSION['usuario_id'];
 
 if ($usuarioId <= 0) {
 
@@ -49,32 +45,8 @@ if (!$facturaId || $facturaId <= 0) {
 
 
 /* ==========================================
-   OBTENER FACTURA
+   OBTENER FACTURA TÉCNICA
 ========================================== */
-
-/*
-|--------------------------------------------------------------------------
-| SEGURIDAD DE ACCESO
-|--------------------------------------------------------------------------
-|
-| usuarios.id
-|      ↓
-| clientes.usuario_id
-|      ↓
-| facturas.cliente_id
-|
-| El usuario solo puede consultar sus propias
-| facturas.
-|
-| IMPORTANTE:
-|
-| Aquí solamente obtenemos información técnica
-| de la factura.
-|
-| Los datos privados están en facturas_privadas
-| y se descifran después.
-|
-*/
 
 $stmtFactura = $pdo->prepare("
     SELECT
@@ -104,9 +76,7 @@ $stmtFactura->execute([
     $usuarioId
 ]);
 
-
-$facturaTecnica =
-    $stmtFactura->fetch();
+$facturaTecnica = $stmtFactura->fetch(PDO::FETCH_ASSOC);
 
 
 /* ==========================================
@@ -120,16 +90,23 @@ if (!$facturaTecnica) {
     echo '
     <!DOCTYPE html>
     <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>Acceso no permitido | ViziuneAI</title>
+    <head>
+
+        <meta charset="UTF-8">
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        >
+
+        <title>Acceso no permitido | Viziune</title>
 
         <link
             rel="stylesheet"
             href="css/ver-factura.css"
         >
+
     </head>
 
     <body>
@@ -145,15 +122,16 @@ if (!$facturaTecnica) {
             </p>
 
             <a
-                href="mi_cuenta.php"
+                href="facturas.php"
                 class="boton boton-principal"
             >
-                ← Volver a mi cuenta
+                ← Volver a facturas
             </a>
 
         </div>
 
     </body>
+
     </html>
     ';
 
@@ -165,30 +143,32 @@ if (!$facturaTecnica) {
    COMPROBAR CLAVE DE CIFRADO
 ========================================== */
 
-$claveCifrado =
-    $VIZIUNEAI_FACTURAS_KEY ?? '';
+$claveCifrado = $VIZIUNEAI_FACTURAS_KEY ?? '';
 
-
-if (!$claveCifrado) {
+if ($claveCifrado === '') {
 
     http_response_code(500);
 
     echo '
     <!DOCTYPE html>
     <html lang="es">
+
     <head>
+
         <meta charset="UTF-8">
+
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
         >
 
-        <title>Error | ViziuneAI</title>
+        <title>Error | Viziune</title>
 
         <link
             rel="stylesheet"
             href="css/ver-factura.css"
         >
+
     </head>
 
     <body>
@@ -213,6 +193,7 @@ if (!$claveCifrado) {
         </div>
 
     </body>
+
     </html>
     ';
 
@@ -227,19 +208,23 @@ if (strlen($claveCifrado) < 32) {
     echo '
     <!DOCTYPE html>
     <html lang="es">
+
     <head>
+
         <meta charset="UTF-8">
+
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
         >
 
-        <title>Error | ViziuneAI</title>
+        <title>Error | Viziune</title>
 
         <link
             rel="stylesheet"
             href="css/ver-factura.css"
         >
+
     </head>
 
     <body>
@@ -264,6 +249,7 @@ if (strlen($claveCifrado) < 32) {
         </div>
 
     </body>
+
     </html>
     ';
 
@@ -272,19 +258,18 @@ if (strlen($claveCifrado) < 32) {
 
 
 /* ==========================================
-   GENERAR CLAVE BINARIA
+   GENERAR CLAVE AES-256
 ========================================== */
 
-$clave =
-    hash(
-        'sha256',
-        $claveCifrado,
-        true
-    );
+$clave = hash(
+    'sha256',
+    $claveCifrado,
+    true
+);
 
 
 /* ==========================================
-   OBTENER FACTURA PRIVADA CIFRADA
+   OBTENER DATOS PRIVADOS CIFRADOS
 ========================================== */
 
 $stmtPrivada = $pdo->prepare("
@@ -304,9 +289,7 @@ $stmtPrivada->execute([
     $usuarioId
 ]);
 
-
-$facturaPrivada =
-    $stmtPrivada->fetch();
+$facturaPrivada = $stmtPrivada->fetch(PDO::FETCH_ASSOC);
 
 
 /* ==========================================
@@ -320,21 +303,23 @@ if (!$facturaPrivada) {
     echo '
     <!DOCTYPE html>
     <html lang="es">
+
     <head>
+
         <meta charset="UTF-8">
+
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
         >
 
-        <title>
-            Factura no disponible | ViziuneAI
-        </title>
+        <title>Factura no disponible | Viziune</title>
 
         <link
             rel="stylesheet"
             href="css/ver-factura.css"
         >
+
     </head>
 
     <body>
@@ -360,6 +345,7 @@ if (!$facturaPrivada) {
         </div>
 
     </body>
+
     </html>
     ';
 
@@ -368,18 +354,12 @@ if (!$facturaPrivada) {
 
 
 /* ==========================================
-   DESCIFRAR FACTURA CON OPENSSL
+   DESCIFRAR FACTURA
 ========================================== */
 
 try {
 
-    /* ------------------------------------------
-       COMPROBAR OPENSSL
-    ------------------------------------------ */
-
-    if (
-        !function_exists('openssl_decrypt')
-    ) {
+    if (!function_exists('openssl_decrypt')) {
 
         throw new Exception(
             'La extensión OpenSSL de PHP no está disponible.'
@@ -388,15 +368,10 @@ try {
     }
 
 
-    /* ------------------------------------------
-       DECODIFICAR CONTENIDO
-    ------------------------------------------ */
-
-    $contenidoPrivado =
-        base64_decode(
-            $facturaPrivada['datos_cifrados'],
-            true
-        );
+    $contenidoPrivado = base64_decode(
+        $facturaPrivada['datos_cifrados'],
+        true
+    );
 
 
     if (
@@ -411,27 +386,34 @@ try {
     }
 
 
-    /* ------------------------------------------
+    /* ==========================================
        EXTRAER IV
-    ------------------------------------------ */
+    ========================================== */
 
-    $iv =
-        substr(
-            $contenidoPrivado,
-            0,
-            16
+    $iv = substr(
+        $contenidoPrivado,
+        0,
+        16
+    );
+
+
+    if (strlen($iv) !== 16) {
+
+        throw new Exception(
+            'El vector de inicialización no es válido.'
         );
 
+    }
 
-    /* ------------------------------------------
+
+    /* ==========================================
        EXTRAER DATOS CIFRADOS
-    ------------------------------------------ */
+    ========================================== */
 
-    $datosCifrados =
-        substr(
-            $contenidoPrivado,
-            16
-        );
+    $datosCifrados = substr(
+        $contenidoPrivado,
+        16
+    );
 
 
     if (
@@ -446,41 +428,17 @@ try {
     }
 
 
-    /* ------------------------------------------
-       GENERAR CLAVE AES-256
-    ------------------------------------------ */
-
-    $clave =
-        hash(
-            'sha256',
-            $claveCifrado,
-            true
-        );
-
-
-    if (
-        strlen($clave) !== 32
-    ) {
-
-        throw new Exception(
-            'La clave de cifrado no tiene una longitud válida.'
-        );
-
-    }
-
-
-    /* ------------------------------------------
+    /* ==========================================
        DESCIFRAR AES-256-CBC
-    ------------------------------------------ */
+    ========================================== */
 
-    $jsonFactura =
-        openssl_decrypt(
-            $datosCifrados,
-            'AES-256-CBC',
-            $clave,
-            OPENSSL_RAW_DATA,
-            $iv
-        );
+    $jsonFactura = openssl_decrypt(
+        $datosCifrados,
+        'AES-256-CBC',
+        $clave,
+        OPENSSL_RAW_DATA,
+        $iv
+    );
 
 
     if ($jsonFactura === false) {
@@ -492,18 +450,16 @@ try {
     }
 
 
-    /* ------------------------------------------
+    /* ==========================================
        CONVERTIR JSON
-    ------------------------------------------ */
+    ========================================== */
 
-    $datosFactura =
-        json_decode(
-            $jsonFactura,
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        );
-
+    $datosFactura = json_decode(
+        $jsonFactura,
+        true,
+        512,
+        JSON_THROW_ON_ERROR
+    );
 
 } catch (Throwable $e) {
 
@@ -514,27 +470,28 @@ try {
         $e->getMessage()
     );
 
-
     http_response_code(500);
 
     echo '
     <!DOCTYPE html>
     <html lang="es">
+
     <head>
+
         <meta charset="UTF-8">
+
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
         >
 
-        <title>
-            Error | ViziuneAI
-        </title>
+        <title>Error | Viziune</title>
 
         <link
             rel="stylesheet"
             href="css/ver-factura.css"
         >
+
     </head>
 
     <body>
@@ -560,6 +517,7 @@ try {
         </div>
 
     </body>
+
     </html>
     ';
 
@@ -568,7 +526,7 @@ try {
 
 
 /* ==========================================
-   COMPROBAR ESTRUCTURA DESCIFRADA
+   COMPROBAR ESTRUCTURA
 ========================================== */
 
 if (
@@ -582,21 +540,23 @@ if (
     echo '
     <!DOCTYPE html>
     <html lang="es">
+
     <head>
+
         <meta charset="UTF-8">
+
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
         >
 
-        <title>
-            Error | ViziuneAI
-        </title>
+        <title>Error | Viziune</title>
 
         <link
             rel="stylesheet"
             href="css/ver-factura.css"
         >
+
     </head>
 
     <body>
@@ -622,6 +582,7 @@ if (
         </div>
 
     </body>
+
     </html>
     ';
 
@@ -663,18 +624,28 @@ $factura = [
 
 
 /* ==========================================
-   DATOS PRIVADOS DE LA FACTURA
+   DATOS PRIVADOS
 ========================================== */
 
 $datosFacturaReal =
-    $datosFactura['factura'];
+    is_array($datosFactura['factura'])
+        ? $datosFactura['factura']
+        : [];
 
 
 if (
-    array_key_exists(
-        'numero',
-        $datosFacturaReal
-    ) &&
+    array_key_exists('serie', $datosFacturaReal) &&
+    $datosFacturaReal['serie'] !== ''
+) {
+
+    $factura['serie'] =
+        $datosFacturaReal['serie'];
+
+}
+
+
+if (
+    array_key_exists('numero', $datosFacturaReal) &&
     $datosFacturaReal['numero'] !== null
 ) {
 
@@ -685,9 +656,7 @@ if (
 
 
 if (
-    !empty(
-        $datosFacturaReal['fecha_emision']
-    )
+    !empty($datosFacturaReal['fecha_emision'])
 ) {
 
     $factura['fecha_emision'] =
@@ -697,9 +666,7 @@ if (
 
 
 if (
-    !empty(
-        $datosFacturaReal['estado']
-    )
+    !empty($datosFacturaReal['estado'])
 ) {
 
     $factura['estado'] =
@@ -711,74 +678,44 @@ if (
 $factura['moneda'] =
     $datosFacturaReal['moneda'] ?? 'EUR';
 
-
 $factura['base_imponible'] =
     $datosFacturaReal['base_imponible'] ?? 0;
-
 
 $factura['total_iva'] =
     $datosFacturaReal['total_iva'] ?? 0;
 
-
 $factura['total_irpf'] =
     $datosFacturaReal['total_irpf'] ?? 0;
-
 
 $factura['total'] =
     $datosFacturaReal['total'] ?? 0;
 
-
 $factura['metodo_pago'] =
     $datosFacturaReal['metodo_pago'] ?? null;
-
 
 $factura['fecha_vencimiento'] =
     $datosFacturaReal['fecha_vencimiento'] ?? null;
 
-
 $factura['observaciones'] =
     $datosFacturaReal['observaciones'] ?? null;
-
 
 $factura['tipo_irpf'] =
     $datosFacturaReal['tipo_irpf'] ?? 0;
 
 
 /* ==========================================
-   DATOS DEL EMISOR PRIVADOS
+   EMISOR
 ========================================== */
-
-/*
-|--------------------------------------------------------------------------
-| Las facturas nuevas contienen una copia cifrada
-| de los datos del emisor obtenidos desde Mi cuenta.
-|--------------------------------------------------------------------------
-|
-| Esto permite que una factura conserve los datos
-| que tenía el emisor en el momento de guardarla.
-|
-*/
 
 $emisorPrivado =
     $datosFactura['emisor'] ?? null;
 
 
-/*
-|--------------------------------------------------------------------------
-| COMPATIBILIDAD CON FACTURAS ANTIGUAS
-|--------------------------------------------------------------------------
-|
-| Las facturas creadas antes de guardar el bloque
-| "emisor" no tendrán estos datos.
-|
-| En ese caso utilizamos el perfil actual del usuario
-| únicamente como respaldo.
-|
-*/
+/* ==========================================
+   COMPATIBILIDAD FACTURAS ANTIGUAS
+========================================== */
 
-if (
-    !is_array($emisorPrivado)
-) {
+if (!is_array($emisorPrivado)) {
 
     $stmtEmisorActual = $pdo->prepare("
         SELECT
@@ -810,12 +747,10 @@ if (
     ]);
 
     $emisorPrivado =
-        $stmtEmisorActual->fetch();
+        $stmtEmisorActual->fetch(PDO::FETCH_ASSOC);
 
 
-    if (
-        !$emisorPrivado
-    ) {
+    if (!$emisorPrivado) {
 
         $stmtUsuario = $pdo->prepare("
             SELECT
@@ -834,26 +769,39 @@ if (
         ]);
 
         $usuarioActual =
-            $stmtUsuario->fetch();
+            $stmtUsuario->fetch(PDO::FETCH_ASSOC);
 
 
         $emisorPrivado = [
 
             'tipo_persona' => '',
+
             'nombre' =>
                 $usuarioActual['nombre'] ?? '',
+
             'apellidos' => '',
+
             'nombre_razon_social' => '',
+
             'nombre_comercial' => '',
+
             'nif' => '',
+
             'direccion' => '',
+
             'codigo_postal' => '',
+
             'ciudad' => '',
+
             'provincia' => '',
+
             'pais' => '',
+
             'email' =>
                 $usuarioActual['email'] ?? '',
+
             'telefono' => '',
+
             'web' => ''
 
         ];
@@ -920,11 +868,8 @@ $emisor = [
 
 $nombreEmisor = '';
 
-
 if (
-    !empty(
-        $emisor['nombre_razon_social']
-    )
+    !empty($emisor['nombre_razon_social'])
 ) {
 
     $nombreEmisor =
@@ -954,66 +899,57 @@ if (
 
 if ($nombreEmisor === '') {
 
-    $nombreEmisor =
-        'Emisor';
+    $nombreEmisor = 'Emisor';
 
 }
 
 
 /* ==========================================
-   DATOS DEL CLIENTE PRIVADOS
+   CLIENTE
 ========================================== */
 
 $clientePrivado =
-    $datosFactura['cliente'];
+    is_array($datosFactura['cliente'])
+        ? $datosFactura['cliente']
+        : [];
 
 
 $factura['nombre_razon_social'] =
     $clientePrivado['nombre_razon_social'] ?? '';
 
-
 $factura['nif'] =
     $clientePrivado['nif'] ?? '';
-
 
 $factura['direccion'] =
     $clientePrivado['direccion'] ?? '';
 
-
 $factura['codigo_postal'] =
     $clientePrivado['codigo_postal'] ?? '';
-
 
 $factura['ciudad'] =
     $clientePrivado['ciudad'] ?? '';
 
-
 $factura['provincia'] =
     $clientePrivado['provincia'] ?? '';
-
 
 $factura['pais'] =
     $clientePrivado['pais'] ?? '';
 
-
 $factura['email'] =
     $clientePrivado['email'] ?? '';
-
 
 $factura['telefono'] =
     $clientePrivado['telefono'] ?? '';
 
 
 /* ==========================================
-   LINEAS PRIVADAS
+   LÍNEAS
 ========================================== */
 
 $lineas =
-    is_array(
-        $datosFactura['lineas']
-    )
-    ? $datosFactura['lineas']
-    : [];
+    is_array($datosFactura['lineas'])
+        ? $datosFactura['lineas']
+        : [];
 
 
 /* ==========================================
@@ -1032,8 +968,7 @@ if (
 
 } else {
 
-    $numeroFactura =
-        'BORRADOR';
+    $numeroFactura = 'BORRADOR';
 
 }
 
@@ -1042,28 +977,42 @@ if (
    FECHAS
 ========================================== */
 
-$fechaEmision = date(
-    'd/m/Y',
-    strtotime(
-        $factura['fecha_emision']
-    )
-);
+$fechaEmision = '';
+
+if (!empty($factura['fecha_emision'])) {
+
+    $timestampEmision =
+        strtotime($factura['fecha_emision']);
+
+    if ($timestampEmision !== false) {
+
+        $fechaEmision =
+            date(
+                'd/m/Y',
+                $timestampEmision
+            );
+
+    }
+
+}
 
 
 $fechaVencimiento = '';
 
-if (
-    !empty(
-        $factura['fecha_vencimiento']
-    )
-) {
+if (!empty($factura['fecha_vencimiento'])) {
 
-    $fechaVencimiento = date(
-        'd/m/Y',
-        strtotime(
-            $factura['fecha_vencimiento']
-        )
-    );
+    $timestampVencimiento =
+        strtotime($factura['fecha_vencimiento']);
+
+    if ($timestampVencimiento !== false) {
+
+        $fechaVencimiento =
+            date(
+                'd/m/Y',
+                $timestampVencimiento
+            );
+
+    }
 
 }
 
@@ -1075,20 +1024,15 @@ if (
 $estado =
     $factura['estado'];
 
-
-$estadoTexto =
-    'Borrador';
-
+$estadoTexto = 'Borrador';
 
 if ($estado === 'emitida') {
 
-    $estadoTexto =
-        'Emitida';
+    $estadoTexto = 'Emitida';
 
 } elseif ($estado === 'anulada') {
 
-    $estadoTexto =
-        'Anulada';
+    $estadoTexto = 'Anulada';
 
 }
 
@@ -1143,7 +1087,7 @@ function dinero($valor)
     <title>
         <?php echo h($numeroFactura); ?>
         |
-        ViziuneAI
+        Viziune
     </title>
 
     <link
@@ -1184,7 +1128,7 @@ function dinero($valor)
             <?php if ($estado === 'borrador'): ?>
 
                 <a
-                    href="crear_factura.php?id=<?php echo $facturaId; ?>"
+                    href="crear_factura.php?id=<?php echo (int) $facturaId; ?>"
                     class="boton"
                 >
                     ✏️ Editar
@@ -1192,12 +1136,6 @@ function dinero($valor)
 
             <?php endif; ?>
 
-
-            <!-- ==================================
-                 GENERAR PDF
-                 DISPONIBLE PARA BORRADORES
-                 Y FACTURAS EMITIDAS
-            ================================== -->
 
             <?php if (
                 $estado === 'borrador' ||
@@ -1270,19 +1208,11 @@ function dinero($valor)
 
 
                 <h2>
-
-                    <?php
-                    echo h(
-                        $nombreEmisor
-                    );
-                    ?>
-
+                    <?php echo h($nombreEmisor); ?>
                 </h2>
 
 
-                <?php if (
-                    !empty($emisor['nif'])
-                ): ?>
+                <?php if (!empty($emisor['nif'])): ?>
 
                     <p>
 
@@ -1290,29 +1220,17 @@ function dinero($valor)
                             NIF:
                         </strong>
 
-                        <?php
-                        echo h(
-                            $emisor['nif']
-                        );
-                        ?>
+                        <?php echo h($emisor['nif']); ?>
 
                     </p>
 
                 <?php endif; ?>
 
 
-                <?php if (
-                    !empty($emisor['direccion'])
-                ): ?>
+                <?php if (!empty($emisor['direccion'])): ?>
 
                     <p>
-
-                        <?php
-                        echo h(
-                            $emisor['direccion']
-                        );
-                        ?>
-
+                        <?php echo h($emisor['direccion']); ?>
                     </p>
 
                 <?php endif; ?>
@@ -1322,48 +1240,28 @@ function dinero($valor)
 
                 $ubicacionEmisor = [];
 
-
-                if (
-                    !empty(
-                        $emisor['codigo_postal']
-                    )
-                ) {
+                if (!empty($emisor['codigo_postal'])) {
 
                     $ubicacionEmisor[] =
                         $emisor['codigo_postal'];
 
                 }
 
-
-                if (
-                    !empty(
-                        $emisor['ciudad']
-                    )
-                ) {
+                if (!empty($emisor['ciudad'])) {
 
                     $ubicacionEmisor[] =
                         $emisor['ciudad'];
 
                 }
 
-
-                if (
-                    !empty(
-                        $emisor['provincia']
-                    )
-                ) {
+                if (!empty($emisor['provincia'])) {
 
                     $ubicacionEmisor[] =
                         $emisor['provincia'];
 
                 }
 
-
-                if (
-                    !empty(
-                        $emisor['pais']
-                    )
-                ) {
+                if (!empty($emisor['pais'])) {
 
                     $ubicacionEmisor[] =
                         $emisor['pais'];
@@ -1373,9 +1271,7 @@ function dinero($valor)
                 ?>
 
 
-                <?php if (
-                    !empty($ubicacionEmisor)
-                ): ?>
+                <?php if (!empty($ubicacionEmisor)): ?>
 
                     <p>
 
@@ -1393,9 +1289,7 @@ function dinero($valor)
                 <?php endif; ?>
 
 
-                <?php if (
-                    !empty($emisor['email'])
-                ): ?>
+                <?php if (!empty($emisor['email'])): ?>
 
                     <p>
 
@@ -1403,20 +1297,14 @@ function dinero($valor)
                             Email:
                         </strong>
 
-                        <?php
-                        echo h(
-                            $emisor['email']
-                        );
-                        ?>
+                        <?php echo h($emisor['email']); ?>
 
                     </p>
 
                 <?php endif; ?>
 
 
-                <?php if (
-                    !empty($emisor['telefono'])
-                ): ?>
+                <?php if (!empty($emisor['telefono'])): ?>
 
                     <p>
 
@@ -1424,20 +1312,14 @@ function dinero($valor)
                             Teléfono:
                         </strong>
 
-                        <?php
-                        echo h(
-                            $emisor['telefono']
-                        );
-                        ?>
+                        <?php echo h($emisor['telefono']); ?>
 
                     </p>
 
                 <?php endif; ?>
 
 
-                <?php if (
-                    !empty($emisor['web'])
-                ): ?>
+                <?php if (!empty($emisor['web'])): ?>
 
                     <p>
 
@@ -1445,11 +1327,7 @@ function dinero($valor)
                             Web:
                         </strong>
 
-                        <?php
-                        echo h(
-                            $emisor['web']
-                        );
-                        ?>
+                        <?php echo h($emisor['web']); ?>
 
                     </p>
 
@@ -1472,11 +1350,7 @@ function dinero($valor)
                 <p class="numero">
 
                     Nº:
-                    <?php
-                    echo h(
-                        $numeroFactura
-                    );
-                    ?>
+                    <?php echo h($numeroFactura); ?>
 
                 </p>
 
@@ -1484,27 +1358,17 @@ function dinero($valor)
                 <p>
 
                     Fecha emisión:
-                    <?php
-                    echo h(
-                        $fechaEmision
-                    );
-                    ?>
+                    <?php echo h($fechaEmision); ?>
 
                 </p>
 
 
-                <?php if (
-                    $fechaVencimiento !== ''
-                ): ?>
+                <?php if ($fechaVencimiento !== ''): ?>
 
                     <p>
 
                         Vencimiento:
-                        <?php
-                        echo h(
-                            $fechaVencimiento
-                        );
-                        ?>
+                        <?php echo h($fechaVencimiento); ?>
 
                     </p>
 
@@ -1516,13 +1380,7 @@ function dinero($valor)
                     <span
                         class="estado estado-<?php echo h($estado); ?>"
                     >
-
-                        <?php
-                        echo h(
-                            $estadoTexto
-                        );
-                        ?>
-
+                        <?php echo h($estadoTexto); ?>
                     </span>
 
                 </p>
@@ -1551,9 +1409,7 @@ function dinero($valor)
 
                         <?php
                         echo h(
-                            $factura[
-                                'nombre_razon_social'
-                            ]
+                            $factura['nombre_razon_social']
                         );
                         ?>
 
@@ -1562,35 +1418,25 @@ function dinero($valor)
                 </p>
 
 
-                <p>
-
-                    <strong>
-                        NIF:
-                    </strong>
-
-                    <?php
-                    echo h(
-                        $factura['nif']
-                    );
-                    ?>
-
-                </p>
-
-
-                <?php if (
-                    !empty(
-                        $factura['direccion']
-                    )
-                ): ?>
+                <?php if (!empty($factura['nif'])): ?>
 
                     <p>
 
-                        <?php
-                        echo h(
-                            $factura['direccion']
-                        );
-                        ?>
+                        <strong>
+                            NIF:
+                        </strong>
 
+                        <?php echo h($factura['nif']); ?>
+
+                    </p>
+
+                <?php endif; ?>
+
+
+                <?php if (!empty($factura['direccion'])): ?>
+
+                    <p>
+                        <?php echo h($factura['direccion']); ?>
                     </p>
 
                 <?php endif; ?>
@@ -1600,48 +1446,28 @@ function dinero($valor)
 
                 $ubicacionCliente = [];
 
-
-                if (
-                    !empty(
-                        $factura['codigo_postal']
-                    )
-                ) {
+                if (!empty($factura['codigo_postal'])) {
 
                     $ubicacionCliente[] =
                         $factura['codigo_postal'];
 
                 }
 
-
-                if (
-                    !empty(
-                        $factura['ciudad']
-                    )
-                ) {
+                if (!empty($factura['ciudad'])) {
 
                     $ubicacionCliente[] =
                         $factura['ciudad'];
 
                 }
 
-
-                if (
-                    !empty(
-                        $factura['provincia']
-                    )
-                ) {
+                if (!empty($factura['provincia'])) {
 
                     $ubicacionCliente[] =
                         $factura['provincia'];
 
                 }
 
-
-                if (
-                    !empty(
-                        $factura['pais']
-                    )
-                ) {
+                if (!empty($factura['pais'])) {
 
                     $ubicacionCliente[] =
                         $factura['pais'];
@@ -1651,9 +1477,7 @@ function dinero($valor)
                 ?>
 
 
-                <?php if (
-                    !empty($ubicacionCliente)
-                ): ?>
+                <?php if (!empty($ubicacionCliente)): ?>
 
                     <p>
 
@@ -1671,11 +1495,7 @@ function dinero($valor)
                 <?php endif; ?>
 
 
-                <?php if (
-                    !empty(
-                        $factura['email']
-                    )
-                ): ?>
+                <?php if (!empty($factura['email'])): ?>
 
                     <p>
 
@@ -1683,22 +1503,14 @@ function dinero($valor)
                             Email:
                         </strong>
 
-                        <?php
-                        echo h(
-                            $factura['email']
-                        );
-                        ?>
+                        <?php echo h($factura['email']); ?>
 
                     </p>
 
                 <?php endif; ?>
 
 
-                <?php if (
-                    !empty(
-                        $factura['telefono']
-                    )
-                ): ?>
+                <?php if (!empty($factura['telefono'])): ?>
 
                     <p>
 
@@ -1706,11 +1518,7 @@ function dinero($valor)
                             Teléfono:
                         </strong>
 
-                        <?php
-                        echo h(
-                            $factura['telefono']
-                        );
-                        ?>
+                        <?php echo h($factura['telefono']); ?>
 
                     </p>
 
@@ -1722,7 +1530,7 @@ function dinero($valor)
 
 
         <!-- ==================================
-             LINEAS
+             LÍNEAS
         ================================== -->
 
         <div class="tabla-contenedor">
@@ -1764,9 +1572,7 @@ function dinero($valor)
 
                 <tbody>
 
-                <?php foreach (
-                    $lineas as $linea
-                ): ?>
+                <?php foreach ($lineas as $linea): ?>
 
                     <tr>
 
@@ -1776,9 +1582,7 @@ function dinero($valor)
 
                                 <?php
                                 echo h(
-                                    $linea[
-                                        'descripcion'
-                                    ]
+                                    $linea['descripcion'] ?? ''
                                 );
                                 ?>
 
@@ -1791,8 +1595,9 @@ function dinero($valor)
 
                             <?php
                             echo number_format(
-                                (float)
-                                $linea['cantidad'],
+                                (float) (
+                                    $linea['cantidad'] ?? 0
+                                ),
                                 3,
                                 ',',
                                 '.'
@@ -1806,9 +1611,7 @@ function dinero($valor)
 
                             <?php
                             echo dinero(
-                                $linea[
-                                    'precio_unitario'
-                                ]
+                                $linea['precio_unitario'] ?? 0
                             );
                             ?>
 
@@ -1819,8 +1622,9 @@ function dinero($valor)
 
                             <?php
                             echo number_format(
-                                (float)
-                                $linea['descuento'],
+                                (float) (
+                                    $linea['descuento'] ?? 0
+                                ),
                                 2,
                                 ',',
                                 '.'
@@ -1836,8 +1640,9 @@ function dinero($valor)
 
                             <?php
                             echo number_format(
-                                (float)
-                                $linea['tipo_iva'],
+                                (float) (
+                                    $linea['tipo_iva'] ?? 0
+                                ),
                                 2,
                                 ',',
                                 '.'
@@ -1850,9 +1655,7 @@ function dinero($valor)
 
                                 <?php
                                 echo dinero(
-                                    $linea[
-                                        'cuota_iva'
-                                    ]
+                                    $linea['cuota_iva'] ?? 0
                                 );
                                 ?>
 
@@ -1867,9 +1670,7 @@ function dinero($valor)
 
                                 <?php
                                 echo dinero(
-                                    $linea[
-                                        'total_linea'
-                                    ]
+                                    $linea['total_linea'] ?? 0
                                 );
                                 ?>
 
@@ -1882,9 +1683,7 @@ function dinero($valor)
                 <?php endforeach; ?>
 
 
-                <?php if (
-                    count($lineas) === 0
-                ): ?>
+                <?php if (count($lineas) === 0): ?>
 
                     <tr>
 
@@ -1916,7 +1715,6 @@ function dinero($valor)
 
             <div class="totales">
 
-
                 <div class="fila-total">
 
                     <span>
@@ -1927,9 +1725,7 @@ function dinero($valor)
 
                         <?php
                         echo dinero(
-                            $factura[
-                                'base_imponible'
-                            ]
+                            $factura['base_imponible']
                         );
                         ?>
 
@@ -1948,9 +1744,7 @@ function dinero($valor)
 
                         <?php
                         echo dinero(
-                            $factura[
-                                'total_iva'
-                            ]
+                            $factura['total_iva']
                         );
                         ?>
 
@@ -1960,8 +1754,7 @@ function dinero($valor)
 
 
                 <?php if (
-                    (float)
-                    $factura['total_irpf'] > 0
+                    (float) $factura['total_irpf'] > 0
                 ): ?>
 
                     <div class="fila-total irpf">
@@ -1975,9 +1768,7 @@ function dinero($valor)
                             −
                             <?php
                             echo dinero(
-                                $factura[
-                                    'total_irpf'
-                                ]
+                                $factura['total_irpf']
                             );
                             ?>
 
@@ -2024,21 +1815,14 @@ function dinero($valor)
                     Forma de pago
                 </h3>
 
-
                 <p>
 
                     <?php
 
-                    if (
-                        !empty(
-                            $factura['metodo_pago']
-                        )
-                    ) {
+                    if (!empty($factura['metodo_pago'])) {
 
                         echo h(
-                            $factura[
-                                'metodo_pago'
-                            ]
+                            $factura['metodo_pago']
                         );
 
                     } else {
@@ -2060,24 +1844,15 @@ function dinero($valor)
                     Observaciones
                 </h3>
 
-
                 <p>
 
                     <?php
 
-                    if (
-                        !empty(
-                            $factura[
-                                'observaciones'
-                            ]
-                        )
-                    ) {
+                    if (!empty($factura['observaciones'])) {
 
                         echo nl2br(
                             h(
-                                $factura[
-                                    'observaciones'
-                                ]
+                                $factura['observaciones']
                             )
                         );
 
@@ -2098,7 +1873,7 @@ function dinero($valor)
 
 
         <!-- ==================================
-             MARCA DE VIZIUNEAI
+             MARCA VIZIUNEAI
         ================================== -->
 
         <div
@@ -2109,7 +1884,7 @@ function dinero($valor)
             "
         >
 
-            Generado mediante ViziuneAI
+            Generado mediante Viziune
 
         </div>
 
@@ -2132,12 +1907,10 @@ function dinero($valor)
         </a>
 
 
-        <?php if (
-            $estado === 'borrador'
-        ): ?>
+        <?php if ($estado === 'borrador'): ?>
 
             <a
-                href="crear_factura.php?id=<?php echo $facturaId; ?>"
+                href="crear_factura.php?id=<?php echo (int) $facturaId; ?>"
                 class="boton"
             >
                 Editar borrador
@@ -2145,7 +1918,7 @@ function dinero($valor)
 
 
             <a
-                href="emitir_factura.php?id=<?php echo $facturaId; ?>"
+                href="emitir_factura.php?id=<?php echo (int) $facturaId; ?>"
                 class="boton boton-principal"
             >
                 Emitir factura
@@ -2153,11 +1926,6 @@ function dinero($valor)
 
         <?php endif; ?>
 
-
-        <!-- ==================================
-             PDF
-             DISPONIBLE EN BORRADOR Y EMITIDA
-        ================================== -->
 
         <?php if (
             $estado === 'borrador' ||

@@ -1545,7 +1545,7 @@ $html .= '
 
 <div class="final">
 
-    Generado mediante ViziuneAI
+    Generado mediante Viziune
 
 </div>
 

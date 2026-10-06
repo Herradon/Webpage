@@ -28,11 +28,18 @@ function volverConError($mensaje)
     echo '<!DOCTYPE html>
 <html lang="es">
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error | ViziuneAI</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Error | Viziune</title>
 
     <style>
+
         body {
             margin: 0;
             min-height: 100vh;
@@ -75,17 +82,25 @@ function volverConError($mensaje)
             text-decoration: none;
             font-weight: bold;
         }
+
     </style>
+
 </head>
 
 <body>
 
     <div class="error">
 
-        <h1>❌ No se pudo guardar la factura</h1>
+        <h1>
+            ❌ No se pudo guardar la factura
+        </h1>
 
         <p>'
-        . htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8')
+        . htmlspecialchars(
+            $mensaje,
+            ENT_QUOTES,
+            'UTF-8'
+        )
         . '</p>
 
         <a href="crear_factura.php">
@@ -187,47 +202,67 @@ $observaciones =
 |--------------------------------------------------------------------------
 | IRPF ELIMINADO
 |--------------------------------------------------------------------------
-|
-| Ya no se recibe ni se calcula ningún porcentaje de IRPF.
-|
-| La columna total_irpf de la tabla facturas se mantiene por compatibilidad
-| con la estructura actual de la base de datos, pero siempre se guarda 0.
-|
 */
 
 $totalIrpf = 0.00;
 
 
 /* ==========================================
-   DATOS DEL CLIENTE REAL DE LA FACTURA
+   DATOS DEL CLIENTE REAL
 ========================================== */
 
 $clienteNombre =
-    trim($_POST['cliente_nombre_razon_social'] ?? '');
+    trim(
+        $_POST['cliente_nombre_razon_social'] ?? ''
+    );
+
 
 $clienteNif =
-    trim($_POST['cliente_nif'] ?? '');
+    trim(
+        $_POST['cliente_nif'] ?? ''
+    );
+
 
 $clienteDireccion =
-    trim($_POST['cliente_direccion'] ?? '');
+    trim(
+        $_POST['cliente_direccion'] ?? ''
+    );
+
 
 $clienteCodigoPostal =
-    trim($_POST['cliente_codigo_postal'] ?? '');
+    trim(
+        $_POST['cliente_codigo_postal'] ?? ''
+    );
+
 
 $clienteCiudad =
-    trim($_POST['cliente_ciudad'] ?? '');
+    trim(
+        $_POST['cliente_ciudad'] ?? ''
+    );
+
 
 $clienteProvincia =
-    trim($_POST['cliente_provincia'] ?? '');
+    trim(
+        $_POST['cliente_provincia'] ?? ''
+    );
+
 
 $clientePais =
-    trim($_POST['cliente_pais'] ?? '');
+    trim(
+        $_POST['cliente_pais'] ?? ''
+    );
+
 
 $clienteEmail =
-    trim($_POST['cliente_email'] ?? '');
+    trim(
+        $_POST['cliente_email'] ?? ''
+    );
+
 
 $clienteTelefono =
-    trim($_POST['cliente_telefono'] ?? '');
+    trim(
+        $_POST['cliente_telefono'] ?? ''
+    );
 
 
 /* ==========================================
@@ -237,14 +272,18 @@ $clienteTelefono =
 $descripciones =
     $_POST['descripcion'] ?? [];
 
+
 $cantidades =
     $_POST['cantidad'] ?? [];
+
 
 $precios =
     $_POST['precio_unitario'] ?? [];
 
+
 $descuentos =
     $_POST['descuento'] ?? [];
+
 
 $tiposIva =
     $_POST['tipo_iva'] ?? [];
@@ -348,7 +387,7 @@ if ($fechaVencimiento !== '') {
 
 
 /* ==========================================
-   VALIDAR CLIENTE REAL DE LA FACTURA
+   VALIDAR CLIENTE
 ========================================== */
 
 if ($clienteNombre === '') {
@@ -463,18 +502,6 @@ if (mb_strlen($clienteTelefono) > 50) {
    OBTENER PERFIL DEL USUARIO
 ========================================== */
 
-/*
-|--------------------------------------------------------------------------
-| IMPORTANTE
-|--------------------------------------------------------------------------
-|
-| El registro de clientes asociado al usuario contiene los datos
-| fiscales que el usuario ha rellenado desde "Mi cuenta".
-|
-| Esos datos serán el EMISOR de la factura.
-|
-*/
-
 $stmtEmisor =
     $pdo->prepare("
         SELECT
@@ -495,9 +522,12 @@ $stmtEmisor =
             telefono,
             web,
             sector_actividad
+
         FROM clientes
+
         WHERE usuario_id = ?
           AND activo = 1
+
         LIMIT 1
     ");
 
@@ -508,14 +538,10 @@ $stmtEmisor->execute([
 
 
 $emisor =
-    $stmtEmisor->fetch(PDO::FETCH_ASSOC);
+    $stmtEmisor->fetch(
+        PDO::FETCH_ASSOC
+    );
 
-
-/*
-|--------------------------------------------------------------------------
-| Si no existe perfil fiscal
-|--------------------------------------------------------------------------
-*/
 
 if (!$emisor) {
 
@@ -526,11 +552,9 @@ if (!$emisor) {
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| Validar datos mínimos del emisor
-|--------------------------------------------------------------------------
-*/
+/* ==========================================
+   DATOS MÍNIMOS DEL EMISOR
+========================================== */
 
 $emisorNombreRazonSocial =
     trim(
@@ -539,12 +563,14 @@ $emisorNombreRazonSocial =
         )
     );
 
+
 $emisorNif =
     trim(
         (string) (
             $emisor['nif'] ?? ''
         )
     );
+
 
 $emisorPais =
     trim(
@@ -582,18 +608,8 @@ if ($emisorPais === '') {
 
 
 /* ==========================================
-   PERFIL TÉCNICO
+   CLIENTE TÉCNICO
 ========================================== */
-
-/*
-|--------------------------------------------------------------------------
-| Este cliente sigue siendo el registro técnico que relaciona:
-|
-| usuario → facturas
-|
-| NO es el cliente receptor de la factura.
-|--------------------------------------------------------------------------
-*/
 
 $clienteTecnicoId =
     (int) ($emisor['id'] ?? 0);
@@ -609,7 +625,7 @@ if ($clienteTecnicoId <= 0) {
 
 
 /* ==========================================
-   VALIDAR FACTURA EN MODO EDICIÓN
+   VALIDAR EDICIÓN
 ========================================== */
 
 if ($facturaId > 0) {
@@ -620,12 +636,16 @@ if ($facturaId > 0) {
                 f.id,
                 f.cliente_id,
                 f.estado
+
             FROM facturas f
+
             INNER JOIN clientes c
                 ON c.id = f.cliente_id
+
             WHERE f.id = ?
               AND c.usuario_id = ?
               AND c.activo = 1
+
             LIMIT 1
         ");
 
@@ -649,7 +669,9 @@ if ($facturaId > 0) {
     }
 
 
-    if ($facturaEditar['estado'] !== 'borrador') {
+    if (
+        $facturaEditar['estado'] !== 'borrador'
+    ) {
 
         volverConError(
             'Esta factura ya ha sido emitida y no puede modificarse.'
@@ -659,7 +681,9 @@ if ($facturaId > 0) {
 
 
     if (
-        (int) $facturaEditar['cliente_id'] !== $clienteTecnicoId
+        (int) $facturaEditar['cliente_id']
+        !==
+        $clienteTecnicoId
     ) {
 
         volverConError(
@@ -690,14 +714,18 @@ if (
 $totalDescripciones =
     count($descripciones);
 
+
 $totalCantidades =
     count($cantidades);
+
 
 $totalPrecios =
     count($precios);
 
+
 $totalDescuentos =
     count($descuentos);
+
 
 $totalTiposIva =
     count($tiposIva);
@@ -718,7 +746,7 @@ if (
 
 
 /* ==========================================
-   TIPOS DE IVA PERMITIDOS
+   TIPOS IVA
 ========================================== */
 
 $tiposIvaPermitidos = [
@@ -745,7 +773,9 @@ foreach (
 ) {
 
     $descripcion =
-        trim((string) $descripcion);
+        trim(
+            (string) $descripcion
+        );
 
 
     if ($descripcion === '') {
@@ -838,23 +868,30 @@ foreach (
 
 
     $bruto =
-        $cantidad * $precioUnitario;
+        $cantidad *
+        $precioUnitario;
 
 
     $importeDescuento =
-        $bruto * $descuento / 100;
+        $bruto *
+        $descuento /
+        100;
 
 
     $baseLinea =
-        $bruto - $importeDescuento;
+        $bruto -
+        $importeDescuento;
 
 
     $cuotaIva =
-        $baseLinea * $tipoIva / 100;
+        $baseLinea *
+        $tipoIva /
+        100;
 
 
     $totalLinea =
-        $baseLinea + $cuotaIva;
+        $baseLinea +
+        $cuotaIva;
 
 
     $baseLinea =
@@ -892,16 +929,28 @@ foreach (
             $descripcion,
 
         'cantidad' =>
-            round($cantidad, 3),
+            round(
+                $cantidad,
+                3
+            ),
 
         'precio_unitario' =>
-            round($precioUnitario, 4),
+            round(
+                $precioUnitario,
+                4
+            ),
 
         'descuento' =>
-            round($descuento, 2),
+            round(
+                $descuento,
+                2
+            ),
 
         'tipo_iva' =>
-            round($tipoIva, 2),
+            round(
+                $tipoIva,
+                2
+            ),
 
         'base_linea' =>
             $baseLinea,
@@ -921,7 +970,7 @@ foreach (
 
 
 /* ==========================================
-   REDONDEAR TOTALES
+   TOTALES
 ========================================== */
 
 $baseImponible =
@@ -938,30 +987,14 @@ $totalIva =
     );
 
 
-/* ==========================================
-   IRPF
-========================================== */
-
-/*
-|--------------------------------------------------------------------------
-| IRPF ELIMINADO
-|--------------------------------------------------------------------------
-|
-| Ya no se aplica ninguna retención.
-|
-*/
-
 $totalIrpf = 0.00;
 
-
-/* ==========================================
-   TOTAL FINAL
-========================================== */
 
 $totalFactura =
     round(
         $baseImponible +
-        $totalIva,
+        $totalIva -
+        $totalIrpf,
         2
     );
 
@@ -976,20 +1009,8 @@ if ($totalFactura < 0) {
 
 
 /* ==========================================
-   DATOS PRIVADOS DE LA FACTURA
+   DATOS HISTÓRICOS DEL EMISOR
 ========================================== */
-
-/*
-|--------------------------------------------------------------------------
-| EMISOR
-|--------------------------------------------------------------------------
-|
-| Se guarda una copia de los datos actuales del perfil.
-|
-| Esto permite que una factura antigua conserve sus datos originales
-| aunque el usuario modifique posteriormente su perfil.
-|--------------------------------------------------------------------------
-*/
 
 $datosEmisor = [
 
@@ -1041,11 +1062,9 @@ $datosEmisor = [
 ];
 
 
-/*
-|--------------------------------------------------------------------------
-| FACTURA PRIVADA
-|--------------------------------------------------------------------------
-*/
+/* ==========================================
+   ESTRUCTURA PRIVADA
+========================================== */
 
 $datosFactura = [
 
@@ -1060,11 +1079,26 @@ $datosFactura = [
         'fecha_emision' =>
             $fechaEmision,
 
+        'fecha_vencimiento' =>
+            $fechaVencimiento,
+
         'moneda' =>
             'EUR',
 
-        'fecha_vencimiento' =>
-            $fechaVencimiento,
+        'base_imponible' =>
+            $baseImponible,
+
+        'total_iva' =>
+            $totalIva,
+
+        'tipo_irpf' =>
+            0,
+
+        'total_irpf' =>
+            0.00,
+
+        'total' =>
+            $totalFactura,
 
         'metodo_pago' =>
             $metodoPago !== ''
@@ -1076,46 +1110,13 @@ $datosFactura = [
                 ? $observaciones
                 : null,
 
-        /*
-        |--------------------------------------------------------------------------
-        | IRPF eliminado.
-        |
-        | Se mantiene a 0 únicamente por compatibilidad con datos antiguos
-        | que pudieran esperar esta propiedad.
-        |--------------------------------------------------------------------------
-        */
-
-        'tipo_irpf' =>
-            0,
-
-        'base_imponible' =>
-            $baseImponible,
-
-        'total_iva' =>
-            $totalIva,
-
-        'total_irpf' =>
-            0.00,
-
-        'total' =>
-            $totalFactura
+        'estado' =>
+            'borrador'
 
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | DATOS HISTÓRICOS DEL EMISOR
-    |--------------------------------------------------------------------------
-    */
-
     'emisor' =>
         $datosEmisor,
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLIENTE RECEPTOR
-    |--------------------------------------------------------------------------
-    */
 
     'cliente' => [
 
@@ -1148,29 +1149,14 @@ $datosFactura = [
 
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | LÍNEAS
-    |--------------------------------------------------------------------------
-    */
-
     'lineas' =>
-        $lineasProcesadas,
-
-    /*
-    |--------------------------------------------------------------------------
-    | FECHA DE GUARDADO
-    |--------------------------------------------------------------------------
-    */
-
-    'fecha_guardado' =>
-        date('Y-m-d H:i:s')
+        $lineasProcesadas
 
 ];
 
 
 /* ==========================================
-   CONVERTIR A JSON
+   JSON
 ========================================== */
 
 try {
@@ -1186,8 +1172,8 @@ try {
 } catch (Throwable $e) {
 
     error_log(
-        'Error convirtiendo factura a JSON: '
-        . $e->getMessage()
+        'Error convirtiendo factura a JSON: ' .
+        $e->getMessage()
     );
 
     volverConError(
@@ -1198,21 +1184,10 @@ try {
 
 
 /* ==========================================
-   CIFRAR DATOS PRIVADOS CON OPENSSL
+   CIFRADO AES-256-CBC
 ========================================== */
 
 try {
-
-    if (
-        !function_exists('openssl_encrypt')
-    ) {
-
-        throw new Exception(
-            'La extensión OpenSSL de PHP no está disponible.'
-        );
-
-    }
-
 
     $clave =
         hash(
@@ -1220,17 +1195,6 @@ try {
             $claveCifrado,
             true
         );
-
-
-    if (
-        strlen($clave) !== 32
-    ) {
-
-        throw new Exception(
-            'La clave de cifrado no tiene una longitud válida.'
-        );
-
-    }
 
 
     $iv =
@@ -1247,16 +1211,26 @@ try {
         );
 
 
-    if (
-        $datosCifrados === false
-    ) {
+    if ($datosCifrados === false) {
 
         throw new Exception(
-            'OpenSSL no pudo cifrar los datos.'
+            'No se pudieron cifrar los datos.'
         );
 
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORTANTE
+    |--------------------------------------------------------------------------
+    |
+    | ver_factura.php espera:
+    |
+    | primeros 16 bytes = IV
+    | resto = datos cifrados
+    |
+    */
 
     $contenidoPrivado =
         base64_encode(
@@ -1265,24 +1239,12 @@ try {
         );
 
 
-    if (
-        $contenidoPrivado === ''
-    ) {
-
-        throw new Exception(
-            'El resultado del cifrado está vacío.'
-        );
-
-    }
-
-
 } catch (Throwable $e) {
 
     error_log(
-        'Error cifrando factura: '
-        . $e->getMessage()
+        'Error cifrando factura: ' .
+        $e->getMessage()
     );
-
 
     volverConError(
         'No se pudieron cifrar los datos privados de la factura.'
@@ -1301,77 +1263,10 @@ try {
 
 
     /* ==========================================
-       MODO EDICIÓN
+       CREAR FACTURA
     ========================================== */
 
-    if ($facturaId > 0) {
-
-        $stmtFactura =
-            $pdo->prepare("
-                UPDATE facturas
-                SET
-                    serie = ?,
-                    numero = NULL,
-                    fecha_emision = ?,
-                    cliente_id = ?,
-                    moneda = 'EUR',
-                    base_imponible = ?,
-                    total_iva = ?,
-                    total_irpf = 0,
-                    total = ?,
-                    metodo_pago = ?,
-                    fecha_vencimiento = ?,
-                    observaciones = ?,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-                  AND estado = 'borrador'
-            ");
-
-
-        $actualizado =
-            $stmtFactura->execute([
-
-                $serie,
-
-                $fechaEmision,
-
-                $clienteTecnicoId,
-
-                $baseImponible,
-
-                $totalIva,
-
-                $totalFactura,
-
-                $metodoPago !== ''
-                    ? $metodoPago
-                    : null,
-
-                $fechaVencimiento,
-
-                $observaciones !== ''
-                    ? $observaciones
-                    : null,
-
-                $facturaId
-
-            ]);
-
-
-        if (!$actualizado) {
-
-            throw new Exception(
-                'No se pudo actualizar la factura.'
-            );
-
-        }
-
-
-    } else {
-
-        /* ==========================================
-           CREAR FACTURA COMO BORRADOR
-        ========================================== */
+    if ($facturaId <= 0) {
 
         $stmtFactura =
             $pdo->prepare("
@@ -1388,8 +1283,11 @@ try {
                     metodo_pago,
                     fecha_vencimiento,
                     observaciones,
-                    estado
+                    estado,
+                    created_at,
+                    updated_at
                 )
+
                 VALUES (
                     ?,
                     NULL,
@@ -1398,12 +1296,14 @@ try {
                     'EUR',
                     ?,
                     ?,
-                    0,
                     ?,
                     ?,
                     ?,
                     ?,
-                    'borrador'
+                    ?,
+                    'borrador',
+                    NOW(),
+                    NOW()
                 )
             ");
 
@@ -1419,6 +1319,8 @@ try {
             $baseImponible,
 
             $totalIva,
+
+            $totalIrpf,
 
             $totalFactura,
 
@@ -1447,73 +1349,153 @@ try {
 
         }
 
+
+    } else {
+
+        /* ==========================================
+           ACTUALIZAR BORRADOR
+        ========================================== */
+
+        $stmtFactura =
+            $pdo->prepare("
+                UPDATE facturas
+
+                SET
+                    serie = ?,
+                    numero = NULL,
+                    fecha_emision = ?,
+                    cliente_id = ?,
+                    moneda = 'EUR',
+                    base_imponible = ?,
+                    total_iva = ?,
+                    total_irpf = ?,
+                    total = ?,
+                    metodo_pago = ?,
+                    fecha_vencimiento = ?,
+                    observaciones = ?,
+                    updated_at = NOW()
+
+                WHERE id = ?
+                  AND estado = 'borrador'
+            ");
+
+
+        $stmtFactura->execute([
+
+            $serie,
+
+            $fechaEmision,
+
+            $clienteTecnicoId,
+
+            $baseImponible,
+
+            $totalIva,
+
+            $totalIrpf,
+
+            $totalFactura,
+
+            $metodoPago !== ''
+                ? $metodoPago
+                : null,
+
+            $fechaVencimiento,
+
+            $observaciones !== ''
+                ? $observaciones
+                : null,
+
+            $facturaId
+
+        ]);
+
+
+        if (
+            $stmtFactura->rowCount() === 0
+        ) {
+
+            throw new Exception(
+                'No se pudo actualizar la factura.'
+            );
+
+        }
+
     }
 
 
     /* ==========================================
-       GUARDAR DATOS PRIVADOS CIFRADOS
-========================================== */
+       GUARDAR DATOS PRIVADOS
+    ========================================== */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Para evitar duplicados al editar una factura,
+    | primero eliminamos su registro privado anterior.
+    |--------------------------------------------------------------------------
+    */
+
+    $stmtEliminarPrivada =
+        $pdo->prepare("
+            DELETE FROM facturas_privadas
+
+            WHERE factura_id = ?
+              AND usuario_id = ?
+        ");
+
+
+    $stmtEliminarPrivada->execute([
+
+        $facturaId,
+
+        $usuarioId
+
+    ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Insertar nueva versión cifrada
+    |--------------------------------------------------------------------------
+    */
 
     $stmtPrivada =
         $pdo->prepare("
             INSERT INTO facturas_privadas (
-                usuario_id,
                 factura_id,
+                usuario_id,
                 datos_cifrados
             )
+
             VALUES (
                 ?,
                 ?,
                 ?
             )
-            ON DUPLICATE KEY UPDATE
-                usuario_id = VALUES(usuario_id),
-                datos_cifrados = VALUES(datos_cifrados)
         ");
 
 
-    $guardadaPrivada =
-        $stmtPrivada->execute([
+    $stmtPrivada->execute([
 
-            $usuarioId,
+        $facturaId,
 
-            $facturaId,
+        $usuarioId,
 
-            $contenidoPrivado
+        $contenidoPrivado
 
-        ]);
-
-
-    if (!$guardadaPrivada) {
-
-        throw new Exception(
-            'No se pudieron guardar los datos privados de la factura.'
-        );
-
-    }
-
-
-    /* ==========================================
-       NO USAR factura_lineas
-========================================== */
-
-    /*
-    |--------------------------------------------------------------------------
-    | Las líneas permanecen dentro de datos_cifrados.
-    |--------------------------------------------------------------------------
-    */
+    ]);
 
 
     /* ==========================================
        CONFIRMAR
-========================================== */
+    ========================================== */
 
     $pdo->commit();
 
 
     /* ==========================================
        REDIRECCIÓN
-========================================== */
+    ========================================== */
 
     header(
         'Location: ver_factura.php?id=' .
@@ -1546,7 +1528,7 @@ try {
 
 
     volverConError(
-        'ERROR REAL: ' .
+        'No se pudo guardar la factura. ' .
         $e->getMessage()
     );
 

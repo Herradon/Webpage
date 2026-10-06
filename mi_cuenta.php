@@ -343,12 +343,22 @@ if ($porcentajePerfil >= 100) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Mi cuenta | ViziuneAI</title>
+    <title>Mi cuenta | Viziune</title>
 
     <link
         rel="stylesheet"
         href="css/mi-cuenta.css"
     >
+    
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DPY8CEKPEF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DPY8CEKPEF');
+</script>
 
 </head>
 
@@ -383,7 +393,7 @@ if ($porcentajePerfil >= 100) {
 
                 <p>
                     Gestiona tu cuenta, consulta tus datos y accede
-                    rápidamente a los servicios de ViziuneAI.
+                    rápidamente a los servicios de Viziune.
                 </p>
 
             </div>

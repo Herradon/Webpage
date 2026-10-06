@@ -1,10 +1,8 @@
-
 <?php
 
 session_start();
 
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -18,6 +16,27 @@ use PHPMailer\PHPMailer\Exception;
 
 $error = '';
 $mensaje = '';
+
+$phpmailerDisponible = false;
+
+
+/*
+|--------------------------------------------------------------------------
+| COMPROBAR PHPMailer
+|--------------------------------------------------------------------------
+*/
+
+$autoloadPath = __DIR__ . '/vendor/autoload.php';
+
+if (file_exists($autoloadPath)) {
+
+    require_once $autoloadPath;
+
+    $phpmailerDisponible = class_exists(
+        '\PHPMailer\PHPMailer\PHPMailer'
+    );
+
+}
 
 
 /*
@@ -59,6 +78,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 throw new Exception(
                     'La conexión con la base de datos no está disponible.'
+                );
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | COMPROBAR PHPMailer
+            |--------------------------------------------------------------------------
+            */
+
+            if (!$phpmailerDisponible) {
+
+                throw new Exception(
+                    'PHPMailer no está disponible. No se encuentra vendor/autoload.php o PHPMailer no está instalado correctamente.'
                 );
 
             }
@@ -234,7 +268,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     dirname($script);
 
 
-                if ($directorio === '/' || $directorio === '\\') {
+                if (
+                    $directorio === '/' ||
+                    $directorio === '\\' ||
+                    $directorio === '.'
+                ) {
 
                     $directorio = '';
 
@@ -334,7 +372,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $mail->setFrom(
                     $SMTP_FROM,
-                    'ViziuneAI'
+                    'Viziune'
                 );
 
 
@@ -357,7 +395,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 */
 
                 $mail->Subject =
-                    'Restablecer contraseña | ViziuneAI';
+                    'Restablecer contraseña | Viziune';
 
 
                 /*
@@ -394,6 +432,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 
     <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
 </head>
 
@@ -459,7 +502,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         >
             Hemos recibido una solicitud para
             restablecer la contraseña de tu cuenta
-            de ViziuneAI.
+            de Viziune.
         </p>
 
 
@@ -539,7 +582,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 font-size:12px;
             "
         >
-            Generado mediante ViziuneAI.
+            Generado mediante Viziune.
         </p>
 
     </div>
@@ -558,7 +601,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 */
 
                 $mail->AltBody =
-                    "VIZIUNEAI\n\n" .
+                    "VIZIUNE\n\n" .
                     "Restablecer contraseña\n\n" .
                     "Hola " .
                     $usuario['nombre'] .
@@ -678,7 +721,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     >
 
     <title>
-        Recuperar contraseña | ViziuneAI
+        Recuperar contraseña | Viziune
     </title>
 
 
